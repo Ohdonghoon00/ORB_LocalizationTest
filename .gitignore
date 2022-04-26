@@ -54,3 +54,5 @@ Vocabulary/ORBvoc.txt
 build/
 *~
 lib/
+result/
+Compression/compression

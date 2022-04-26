@@ -27,6 +27,7 @@
 #include"Thirdparty/g2o/g2o/types/types_six_dof_expmap.h"
 #include"Thirdparty/g2o/g2o/types/types_seven_dof_expmap.h"
 
+typedef Eigen::Matrix<double, 6, 1> Vector6d;
 namespace ORB_SLAM2
 {
 
@@ -50,6 +51,14 @@ public:
     static Eigen::Matrix<double,3,3> toMatrix3d(const cv::Mat &cvMat3);
 
     static std::vector<float> toQuaternion(const cv::Mat &M);
+
+    static Eigen::Matrix4d To44RT(Vector6d pose);
+    static Eigen::Vector3d ToVec3(Eigen::Matrix3d rot);
+    static Eigen::Matrix3d ToMat33(Eigen::Vector3d rod);
+    static cv::Mat To44RTproj(Vector6d pose);
+    static Vector6d Proj2Vec6(cv::Mat proj);
+    static double Rad2Degree(double rad);
+    static double Ddegree2Rad(double degree);
 };
 
 }// namespace ORB_SLAM

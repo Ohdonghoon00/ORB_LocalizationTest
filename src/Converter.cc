@@ -148,4 +148,80 @@ std::vector<float> Converter::toQuaternion(const cv::Mat &M)
     return v;
 }
 
+Eigen::Matrix4d Converter::To44RT(Vector6d pose)
+{
+    Eigen::Vector3d rod;
+    rod << pose[0], pose[1], pose[2];
+    Eigen::Matrix3d rot = ToMat33(rod);
+
+    Eigen::Matrix4d RT;
+    RT <<   rot(0, 0), rot(0, 1), rot(0, 2), pose[3],
+            rot(1, 0), rot(1, 1), rot(1, 2), pose[4],
+            rot(2, 0), rot(2, 1), rot(2, 2), pose[5],
+            0,         0,         0,         1;
+
+    return RT;
+}
+
+Eigen::Vector3d Converter::ToVec3(Eigen::Matrix3d rot)
+{
+    Eigen::AngleAxisd rod(rot);
+    Eigen::Vector3d axis(rod.axis());
+    double angle = rod.angle();
+    axis *= angle;
+
+    Eigen::Vector3d vec3;
+    vec3 << axis.x(), axis.y(), axis.z();
+
+    return vec3;
+}
+
+Eigen::Matrix3d Converter::ToMat33(Eigen::Vector3d rod)
+{
+    Eigen::AngleAxisd r(rod.norm(), rod.normalized());
+    Eigen::Matrix3d rot = r.toRotationMatrix();
+
+    return rot;
+}
+
+cv::Mat Converter::To44RTproj(Vector6d pose)
+{
+    Eigen::Vector3d rod;
+    rod << pose[0], pose[1], pose[2];
+    Eigen::Matrix3d rot = ToMat33(rod);
+    float motion[] = {  (float)rot(0, 0), (float)rot(0, 1), (float)rot(0, 2), (float)pose[3],
+                        (float)rot(1, 0), (float)rot(1, 1), (float)rot(1, 2), (float)pose[4],
+                        (float)rot(2, 0), (float)rot(2, 1), (float)rot(2, 2), (float)pose[5],
+                        (float)0.0, (float)0.0, (float)0.0, (float)1.0};
+    cv::Mat RT(4, 4, CV_32F, motion);
+    RT = RT.inv();
+
+
+    return RT.clone();
+}
+
+Vector6d Converter::Proj2Vec6(cv::Mat proj)
+{
+    Eigen::Matrix4d proj_;
+    proj_ <<    (double)proj.at<float>(0, 0), (double)proj.at<float>(0, 1), (double)proj.at<float>(0, 2), (double)proj.at<float>(0, 3),
+                (double)proj.at<float>(1, 0), (double)proj.at<float>(1, 1), (double)proj.at<float>(1, 2), (double)proj.at<float>(1, 3),
+                (double)proj.at<float>(2, 0), (double)proj.at<float>(2, 1), (double)proj.at<float>(2, 2), (double)proj.at<float>(2, 3),
+                (double)proj.at<float>(3, 0), (double)proj.at<float>(3, 1), (double)proj.at<float>(3, 2), (double)proj.at<float>(3, 3);
+    
+    Eigen::Matrix4d pose = proj_.inverse();
+    Eigen::Matrix3d rot = pose.block<3, 3>(0, 0);
+    Eigen::Vector3d rotVec3 = ToVec3(rot);
+    Vector6d poseVec6;
+    poseVec6 << rotVec3[0], rotVec3[1], rotVec3[2], pose(0, 3), pose(1, 3), pose(2, 3);
+    return poseVec6;
+}
+
+double Converter::Rad2Degree(double rad){
+    return rad * 180 / M_PI;
+}
+
+double Converter::Ddegree2Rad(double degree){
+    return degree * M_PI / 180;
+}
+
 } //namespace ORB_SLAM

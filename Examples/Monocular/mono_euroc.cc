@@ -27,6 +27,7 @@
 #include<opencv2/core/core.hpp>
 
 #include<System.h>
+// #include "Converter.h"
 
 using namespace std;
 
@@ -35,7 +36,7 @@ void LoadImages(const string &strImagePath, const string &strPathTimes,
 
 int main(int argc, char **argv)
 {
-    if(argc != 5)
+    if(argc != 6)
     {
         cerr << endl << "Usage: ./mono_tum path_to_vocabulary path_to_settings path_to_image_folder path_to_times_file" << endl;
         return 1;
@@ -61,9 +62,17 @@ int main(int argc, char **argv)
     vector<float> vTimesTrack;
     vTimesTrack.resize(nImages);
 
+    // Load gt trajectory for Evaluation
+    std::string queryGtTrajectoryPath = argv[5];
+    std::vector<Vector6d> gtPoses;
+    SLAM.Loadgt(queryGtTrajectoryPath, &gtPoses);
+
     cout << endl << "-------" << endl;
     cout << "Start processing sequence ..." << endl;
     cout << "Images in the sequence: " << nImages << endl << endl;
+
+    std::ofstream ResultFile;
+    ResultFile.open("MH01_MH02_original_Result(full_ba).txt");
 
     // Main loop
     cv::Mat im;
@@ -87,7 +96,16 @@ int main(int argc, char **argv)
 #endif
 
         // Pass the image to the SLAM system
-        SLAM.TrackMonocular(im,tframe);
+        cv::Mat abc = SLAM.TrackMonocular(im,tframe);
+        Vector6d currPose = ORB_SLAM2::Converter::Proj2Vec6(abc);
+        std::cout << "final pose : " << currPose << std::endl;
+        double err[2];
+        SLAM.RMSError(gtPoses[ni], currPose, &err[0]);
+        
+        std::cout << "Query frame Num : " << ni << std::endl;
+        std::cout << "TransError : " << err[0] << std::endl;
+        std::cout << "RotError : " << ORB_SLAM2::Converter::Rad2Degree(err[1]) << std::endl;
+        ResultFile << err[0] << " " << ORB_SLAM2::Converter::Rad2Degree(err[1]) << std::endl;
 
 #ifdef COMPILEDWITHC11
         std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
@@ -108,11 +126,14 @@ int main(int argc, char **argv)
 
         if(ttrack<T)
             std::this_thread::sleep_for(std::chrono::microseconds(static_cast<size_t>((T-ttrack)*1e6)));
+
+        // cv::waitKey();
     }
 
     // Stop all threads
     SLAM.Shutdown();
-
+    ResultFile.close();
+    
     // Tracking time statistics
     sort(vTimesTrack.begin(),vTimesTrack.end());
     float totaltime = 0;

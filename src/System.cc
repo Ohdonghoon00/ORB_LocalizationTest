@@ -283,7 +283,7 @@ cv::Mat System::TrackMonocular(const cv::Mat &im, const double &timestamp)
     }
 
     cv::Mat Tcw = mpTracker->GrabImageMonocular(im,timestamp);
-
+    std::cout << "ref keyframe id : " << mpTracker->mCurrentFrame.mpReferenceKF->mnId << std::endl;
     unique_lock<mutex> lock2(mMutexState);
     mTrackingState = mpTracker->mState;
     mTrackedMapPoints = mpTracker->mCurrentFrame.mvpMapPoints;
@@ -561,6 +561,51 @@ bool System::LoadMap(const string &filename)
     cout << " ...done" << endl;
     in.close();
     return true;
+}
+void System::RMSError(Vector6d EsPose, Vector6d gtPose, double *err)
+{
+    // err [0] -> trans , [1] -> rot
+   
+    // RSE Error (root - square error)
+    Eigen::Matrix4d RelativePose = Converter::To44RT(gtPose).inverse() * Converter::To44RT(EsPose);
+        
+    // trans
+    Eigen::Vector3d RelativeTrans;
+    RelativeTrans << RelativePose(0, 3), RelativePose(1, 3), RelativePose(2, 3);
+    err[0] = std::sqrt(RelativeTrans.dot(RelativeTrans));
+        
+    // rotation
+    Eigen::Matrix3d RelativeRot_ = RelativePose.block<3, 3>(0, 0);
+    Eigen::Vector3d RelativeRot = Converter::ToVec3(RelativeRot_);
+    err[1] = std::sqrt(RelativeRot.dot(RelativeRot));
+
+}
+
+int System::Loadgt(std::string queryGtTrajectoryPath, std::vector<Vector6d> *gtposes)
+{
+    std::ifstream queryGtTrajectoryFile(queryGtTrajectoryPath, std::ifstream::in);
+
+    if(!queryGtTrajectoryFile.is_open()){
+        std::cout << " GT Query Trajectory file failed to open " << std::endl;
+        return EXIT_FAILURE;
+    }      
+
+    std::string line;
+    while(std::getline(queryGtTrajectoryFile, line)){
+        
+        std::string value;
+        std::vector<std::string> values;
+
+        std::stringstream ss(line);
+        while(std::getline(ss, value, ' '))
+            values.push_back(value);
+
+        Vector6d pose;
+        pose << std::stod(values[1]), std::stod(values[2]), std::stod(values[3]),
+                std::stod(values[4]), std::stod(values[5]), std::stod(values[6]);
+
+        gtposes->push_back(pose);        
+    }
 }
 
 } //namespace ORB_SLAM

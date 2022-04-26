@@ -337,6 +337,7 @@ void Tracking::Track()
 
                     if(!mVelocity.empty())
                     {
+                        std::cout << "motion model !! " << std::endl;
                         bOK = TrackWithMotionModel();
                     }
                     else
@@ -406,8 +407,11 @@ void Tracking::Track()
             // mbVO true means that there are few matches to MapPoints in the map. We cannot retrieve
             // a local map and therefore we do not perform TrackLocalMap(). Once the system relocalizes
             // the camera we will use the local map again.
-            if(bOK && !mbVO)
+            if(bOK && !mbVO){
+                std::cout << "track local map!!" << std::endl;
                 bOK = TrackLocalMap();
+            }
+            
         }
 
         if(bOK)
@@ -758,6 +762,7 @@ void Tracking::CheckReplacedInLastFrame()
 
 bool Tracking::TrackReferenceKeyFrame()
 {
+    std::cout << "track reference Keyframe" << std::endl;
     // Compute Bag of Words vector
     mCurrentFrame.ComputeBoW();
 
@@ -897,6 +902,9 @@ bool Tracking::TrackWithMotionModel()
         return false;
 
     // Optimize frame pose with all matches
+    std::cout << " pose optimization !! " << std::endl;
+    std::cout << "id ? : " << mCurrentFrame.mnId << std::endl;
+    std::cout << "next id ? : " << mCurrentFrame.nNextId << std::endl;
     Optimizer::PoseOptimization(&mCurrentFrame);
 
     // Discard outliers
@@ -933,7 +941,7 @@ bool Tracking::TrackLocalMap()
 {
     // We have an estimation of the camera pose and some map points tracked in the frame.
     // We retrieve the local map and try to find matches to points in the local map.
-
+std::cout << "track local map" << std::endl;
     UpdateLocalMap();
 
     SearchLocalPoints();
@@ -1342,6 +1350,7 @@ void Tracking::UpdateLocalKeyFrames()
 
 bool Tracking::Relocalization()
 {
+    std::cout << "relocalization" << std::endl;
     // Compute Bag of Words Vector
     mCurrentFrame.ComputeBoW();
 

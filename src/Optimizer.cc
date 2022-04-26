@@ -445,8 +445,11 @@ int Optimizer::PoseOptimization(Frame *pFrame)
     g2o::VertexSE3Expmap* vSE3_recov = static_cast<g2o::VertexSE3Expmap*>(optimizer.vertex(0));
     g2o::SE3Quat SE3quat_recov = vSE3_recov->estimate();
     cv::Mat pose = Converter::toCvMat(SE3quat_recov);
+    // dh
+    std::cout << "pose1  : " << pose << std::endl;
     pFrame->SetPose(pose);
-
+    cv::Mat projj = pFrame->mTcw;
+    std::cout << "pose2  : " << projj << std::endl;
     return nInitialCorrespondences-nBad;
 }
 
@@ -526,7 +529,10 @@ void Optimizer::LocalBundleAdjustment(KeyFrame *pKF, bool* pbStopFlag, Map* pMap
         g2o::VertexSE3Expmap * vSE3 = new g2o::VertexSE3Expmap();
         vSE3->setEstimate(Converter::toSE3Quat(pKFi->GetPose()));
         vSE3->setId(pKFi->mnId);
-        vSE3->setFixed(pKFi->mnId==0);
+        
+        // dh
+        // vSE3->setFixed(pKFi->mnId==0);
+        vSE3->setFixed(true);
         optimizer.addVertex(vSE3);
         if(pKFi->mnId>maxKFid)
             maxKFid=pKFi->mnId;
