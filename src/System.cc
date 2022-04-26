@@ -22,6 +22,7 @@
 
 #include "System.h"
 #include "Converter.h"
+#include "gurobi_helper.h"
 #include <thread>
 #include <pangolin/pangolin.h>
 #include <iomanip>
@@ -548,6 +549,7 @@ bool System::LoadMap(const string &filename)
     ia >> mpKeyFrameDatabase;
     mpKeyFrameDatabase->SetORBvocabulary(mpVocabulary);
     cout << " ...done" << std::endl;
+    std::cout << "Map Point Num : " << mpMap->MapPointsInMap() << std::endl;
     cout << "Map Reconstructing" << flush;
     vector<ORB_SLAM2::KeyFrame*> vpKFS = mpMap->GetAllKeyFrames();
     unsigned long mnFrameId = 0;
@@ -562,6 +564,53 @@ bool System::LoadMap(const string &filename)
     in.close();
     return true;
 }
+
+// void System::MapCompression(Map* mpMap, double CompressionRatio)
+// {
+//     // Map Compression
+//     std::cout << "Map Compression ... " << std::endl;
+//     GRBEnv env = GRBEnv();
+//     GRBModel model = GRBModel(env);
+
+//     long unsigned int PointCloudNum = mpMap->MapPointsInMap();
+
+//     std::cout << " Create Variables ... " << std::endl;
+//     // Create Variables
+//     std::vector<GRBVar> x = CreateVariablesBinaryVector(PointCloudNum, model);
+
+//     std::cout << " Set Objective ... " << std::endl;
+//     // Set Objective
+//     Eigen::Matrix<double, Eigen::Dynamic, 1> q = CalculateObservationCountWeight(mpMap);
+//     SetObjectiveILP(x, q, model);
+
+//     std::cout << " Add Constraint ... " << std::endl;
+//     // Add Constraint
+//     Eigen::MatrixXd A = CalculateVisibilityMatrix(mpMap);
+//     AddConstraint(mpMap, model, A, x, CompressionRatio);
+
+//     std::cout << std::endl;
+
+//     std::cout << " Optimize model ... " << std::endl;
+//     // Optimize model
+//     model.optimize();
+
+//     std::cout << "Obj: " << model.get(GRB_DoubleAttr_ObjVal) << endl;
+
+//     std::cout << std::endl;
+
+//     // Erase Map Point
+//     size_t index = 0;
+//     for (size_t i = 0; i < x.size(); i++){
+
+//         if (x[i].get(GRB_DoubleAttr_X) == 0){
+//             mpMap->EraseMapPoint((mpMap->GetAllMapPoints())[i - index]);
+//             index++;
+//         }
+//     }
+//     std::cout << " Finish Map Compression" << std::endl;
+// }
+
+
 void System::RMSError(Vector6d EsPose, Vector6d gtPose, double *err)
 {
     // err [0] -> trans , [1] -> rot

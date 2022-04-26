@@ -127,7 +127,7 @@ int main(int argc, char **argv)
         if(ttrack<T)
             std::this_thread::sleep_for(std::chrono::microseconds(static_cast<size_t>((T-ttrack)*1e6)));
 
-        // cv::waitKey();
+        if(ni < 5) cv::waitKey();
     }
 
     // Stop all threads

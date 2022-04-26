@@ -121,6 +121,9 @@ public:
     int GetTrackingState();
     std::vector<MapPoint*> GetTrackedMapPoints();
     std::vector<cv::KeyPoint> GetTrackedKeyPointsUn();
+    
+    // Compression and Evaluation pose
+    // void MapCompression(Map* mpMap, double CompressionRatio);
     void RMSError(Vector6d EsPose, Vector6d gtPose, double *err);
     int Loadgt(std::string queryGtTrajectoryPath, std::vector<Vector6d> *gtposes);
 
