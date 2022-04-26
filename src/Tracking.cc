@@ -408,7 +408,7 @@ void Tracking::Track()
             // a local map and therefore we do not perform TrackLocalMap(). Once the system relocalizes
             // the camera we will use the local map again.
             if(bOK && !mbVO){
-                std::cout << "track local map!!" << std::endl;
+                // std::cout << "track local map!!" << std::endl;
                 bOK = TrackLocalMap();
             }
             
@@ -904,7 +904,6 @@ bool Tracking::TrackWithMotionModel()
     // Optimize frame pose with all matches
     std::cout << " pose optimization !! " << std::endl;
     std::cout << "id ? : " << mCurrentFrame.mnId << std::endl;
-    std::cout << "next id ? : " << mCurrentFrame.nNextId << std::endl;
     Optimizer::PoseOptimization(&mCurrentFrame);
 
     // Discard outliers

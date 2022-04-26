@@ -96,13 +96,13 @@ int main(int argc, char **argv)
 #endif
 
         // Pass the image to the SLAM system
+        std::cout << " @@@@@@@@@@@@@@@@@@@@@@ current query image Num :    " << ni << "  @@@@@@@@@@@@@@@@@@@@@@ " << std::endl; 
         cv::Mat abc = SLAM.TrackMonocular(im,tframe);
         Vector6d currPose = ORB_SLAM2::Converter::Proj2Vec6(abc);
-        std::cout << "final pose : " << currPose << std::endl;
+        // std::cout << "final pose : " << currPose << std::endl;
         double err[2];
         SLAM.RMSError(gtPoses[ni], currPose, &err[0]);
         
-        std::cout << "Query frame Num : " << ni << std::endl;
         std::cout << "TransError : " << err[0] << std::endl;
         std::cout << "RotError : " << ORB_SLAM2::Converter::Rad2Degree(err[1]) << std::endl;
         ResultFile << err[0] << " " << ORB_SLAM2::Converter::Rad2Degree(err[1]) << std::endl;

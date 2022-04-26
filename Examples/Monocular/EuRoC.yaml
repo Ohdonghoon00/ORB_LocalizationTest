@@ -58,5 +58,5 @@ Viewer.ViewpointF: 500
 #--------------------------------------------------------------------------------------------
 # Map Parapeters
 #--------------------------------------------------------------------------------------------
-Map.mapfile: MH01_Compression_reverse80.bin
+Map.mapfile: MH01_Compression_30.bin
 # Map.mapfile: MH01.bin
