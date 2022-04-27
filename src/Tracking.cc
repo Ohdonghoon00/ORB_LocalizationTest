@@ -568,7 +568,7 @@ void Tracking::StereoInitialization()
 
 void Tracking::MonocularInitialization()
 {
-
+    std::cout << "Initilization!!!" << std::endl;
     if(!mpInitializer)
     {
         // Set Reference Frame

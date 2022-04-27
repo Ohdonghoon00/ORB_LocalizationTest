@@ -69,6 +69,8 @@ int main(int argc, char** argv)
     dbMap = new ORB_SLAM2::Map();
     dbKeyframeDatabase = new ORB_SLAM2::KeyFrameDatabase();
 
+    std::ofstream f;
+    f.open("abc.txt");
     
     // Load Map data
     std::string dataPath = argv[1];
@@ -84,6 +86,7 @@ int main(int argc, char** argv)
     in.close();
 
     std::vector<ORB_SLAM2::KeyFrame*> kfdb = dbMap->GetAllKeyFrames();
+    std::sort(kfdb.begin(),kfdb.end(),ORB_SLAM2::KeyFrame::lId);
     for(size_t i = 0; i < kfdb.size(); i++){
         std::set<ORB_SLAM2::MapPoint*> kfMpts = kfdb[i]->GetMapPoints();
         std::vector<ORB_SLAM2::MapPoint*> kfMpts_vec = kfdb[i]->GetMapPointMatches();
@@ -91,26 +94,27 @@ int main(int argc, char** argv)
     }
     
     // Compression
-    MapCompression(dbMap, 0.1);
+    // MapCompression(dbMap, 0.1);
 
     for(size_t i = 0; i < kfdb.size(); i++){
         std::set<ORB_SLAM2::MapPoint*> kfMpts = kfdb[i]->GetMapPoints();
         std::vector<ORB_SLAM2::MapPoint*> kfMpts_vec = kfdb[i]->GetMapPointMatches();
-        std::cout << i << " " << kfMpts.size() << "  " << kfMpts_vec.size() << std::endl;
+        std::cout << kfdb[i]->mnId << " " << kfMpts.size() << "  " << kfMpts_vec.size() << std::endl;
+        f << kfdb[i]->mnId << " " << kfMpts.size() << std::endl;
     }
 
     // Save Map data
-    std::string outpath = "MH01_Compression_10.bin";
-    std::ofstream out(outpath, std::ios_base::binary);
-    if (!out)
-    {
-        std::cout << "Cannot Write to Database File: " << std::endl;
-        exit(-1);
-    }
-    boost::archive::binary_oarchive oa(out, boost::archive::no_header);
-    oa << dbMap;
-    oa << dbKeyframeDatabase;
-    out.close();
-
+    // std::string outpath = "MH01_Compression_10.bin";
+    // std::ofstream out(outpath, std::ios_base::binary);
+    // if (!out)
+    // {
+    //     std::cout << "Cannot Write to Database File: " << std::endl;
+    //     exit(-1);
+    // }
+    // boost::archive::binary_oarchive oa(out, boost::archive::no_header);
+    // oa << dbMap;
+    // oa << dbKeyframeDatabase;
+    // out.close();
+    f.close();
     return 0;
 }

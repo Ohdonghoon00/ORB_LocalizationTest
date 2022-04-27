@@ -75,6 +75,9 @@ int main(int argc, char **argv)
     ResultFile.open("MH01_MH02_original_Result(full_ba).txt");
 
     // Main loop
+    int failFrameNum(0);
+    float fail(-0.2);
+    double totalTransErr(0.0), totalRotErr(0.0); 
     cv::Mat im;
     for(int ni=0; ni<nImages; ni++)
     {
@@ -97,15 +100,24 @@ int main(int argc, char **argv)
 
         // Pass the image to the SLAM system
         std::cout << " @@@@@@@@@@@@@@@@@@@@@@ current query image Num :    " << ni << "  @@@@@@@@@@@@@@@@@@@@@@ " << std::endl; 
+        if(ni == 0) sleep(3); // wait 3 sec
         cv::Mat abc = SLAM.TrackMonocular(im,tframe);
+        if(abc.empty()){
+            ResultFile << ni << " " << SLAM.matchNum[ni] << " " << fail << " " << fail << " " << SLAM.refKFid[ni] << " " << SLAM.refKFpts[ni] << std::endl;
+            failFrameNum++;
+            continue;
+        }
+        std::cout << abc << std::endl;
         Vector6d currPose = ORB_SLAM2::Converter::Proj2Vec6(abc);
         // std::cout << "final pose : " << currPose << std::endl;
         double err[2];
         SLAM.RMSError(gtPoses[ni], currPose, &err[0]);
+        totalTransErr += err[0];
+        totalRotErr += ORB_SLAM2::Converter::Rad2Degree(err[1]);
         
         std::cout << "TransError : " << err[0] << std::endl;
         std::cout << "RotError : " << ORB_SLAM2::Converter::Rad2Degree(err[1]) << std::endl;
-        ResultFile << err[0] << " " << ORB_SLAM2::Converter::Rad2Degree(err[1]) << std::endl;
+        ResultFile << ni << " " << SLAM.matchNum[ni] << " " << err[0] << " " << ORB_SLAM2::Converter::Rad2Degree(err[1]) << " " << SLAM.refKFid[ni] << " " << SLAM.refKFpts[ni] << std::endl;
 
 #ifdef COMPILEDWITHC11
         std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
@@ -144,7 +156,10 @@ int main(int argc, char **argv)
     cout << "-------" << endl << endl;
     cout << "median tracking time: " << vTimesTrack[nImages/2] << endl;
     cout << "mean tracking time: " << totaltime/nImages << endl;
-
+    std::cout << "Fail Frame Num is : " << failFrameNum << std::endl;
+    std::cout << " Average Trans Err : " << totalTransErr/(nImages - failFrameNum) << std::endl;
+    std::cout << " Average Rot Err : " << totalRotErr/(nImages - failFrameNum) << std::endl;
+    
     // Save camera trajectory
     SLAM.SaveKeyFrameTrajectoryTUM("KeyFrameTrajectory.txt");
 

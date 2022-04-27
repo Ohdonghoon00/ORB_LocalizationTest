@@ -286,12 +286,22 @@ cv::Mat System::TrackMonocular(const cv::Mat &im, const double &timestamp)
     cv::Mat Tcw = mpTracker->GrabImageMonocular(im,timestamp);
     std::cout << "ref keyframe id : " << mpTracker->mCurrentFrame.mpReferenceKF->mnId << std::endl;
     std::cout << "ref keyframe total point Num : " << mpTracker->mCurrentFrame.mpReferenceKF->GetMapPoints().size() << std::endl;
-    std::cout << "ref keyframe match point Num : " << mpTracker->mCurrentFrame.mvpMapPoints.size() << std::endl;
+    int matchCnt = 0;
+    for(std::vector<MapPoint*>::iterator vit=mpTracker->mCurrentFrame.mvpMapPoints.begin(), vend=mpTracker->mCurrentFrame.mvpMapPoints.end(); vit!=vend; vit++){
+        MapPoint* pMP = *vit;
+        if(pMP){
+            if(pMP->isBad()) continue;
+            else matchCnt++;
+        }
+    }
+    matchNum.push_back(matchCnt);
+    refKFid.push_back(mpTracker->mCurrentFrame.mpReferenceKF->mnId);
+    refKFpts.push_back(mpTracker->mCurrentFrame.mpReferenceKF->GetMapPoints().size());
+    std::cout << "ref keyframe match point Num : " << matchCnt << std::endl;
     unique_lock<mutex> lock2(mMutexState);
     mTrackingState = mpTracker->mState;
     mTrackedMapPoints = mpTracker->mCurrentFrame.mvpMapPoints;
     mTrackedKeyPointsUn = mpTracker->mCurrentFrame.mvKeysUn;
-
     return Tcw;
 }
 
