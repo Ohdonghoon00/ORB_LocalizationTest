@@ -47,9 +47,19 @@ void Map::EraseMapPoint(MapPoint *pMP)
 {
     unique_lock<mutex> lock(mMutexMap);
     mspMapPoints.erase(pMP);
+    // delete pMP;
 
     // TODO: This only erase the pointer.
     // Delete the MapPoint
+}
+
+void Map::EraseMapPoint(int index)
+{
+    unique_lock<mutex> lock(mMutexMap);
+    set<MapPoint*>::iterator iter = mspMapPoints.begin();
+    for(int i = 0; i < index; i++) ++iter;
+    mspMapPoints.erase(iter);
+    delete *iter;
 }
 
 void Map::EraseKeyFrame(KeyFrame *pKF)

@@ -52,10 +52,12 @@ void MapCompression(ORB_SLAM2::Map* mpMap, double CompressionRatio)
         if (x[i].get(GRB_DoubleAttr_X) == 0){
             mpDB[i]->SetBadFlag();
             // mpMap->EraseMapPoint((mpMap->GetAllMapPoints())[i - index]);
+            // mpMap->EraseMapPoint(i - index);
             index++;
         }
     }
-    
+    // mpMap->clear();
+
     std::cout << " Finish Map Compression" << std::endl;
     long unsigned int PointCloudNum_ = mpMap->MapPointsInMap();
     std::cout << "After Compression Point Num : " << PointCloudNum_ << std::endl;
@@ -90,31 +92,43 @@ int main(int argc, char** argv)
     for(size_t i = 0; i < kfdb.size(); i++){
         std::set<ORB_SLAM2::MapPoint*> kfMpts = kfdb[i]->GetMapPoints();
         std::vector<ORB_SLAM2::MapPoint*> kfMpts_vec = kfdb[i]->GetMapPointMatches();
-        std::cout << i << " " << kfMpts.size() << "  " << kfMpts_vec.size() << std::endl;
+        std::cout << kfdb.size() << " " << i << " " << kfdb[i]->mnId << " " << kfMpts.size() << "  " << kfMpts_vec.size() << std::endl;
     }
     
     // Compression
-    // MapCompression(dbMap, 0.1);
+    MapCompression(dbMap, 0.2);
 
-    for(size_t i = 0; i < kfdb.size(); i++){
-        std::set<ORB_SLAM2::MapPoint*> kfMpts = kfdb[i]->GetMapPoints();
-        std::vector<ORB_SLAM2::MapPoint*> kfMpts_vec = kfdb[i]->GetMapPointMatches();
-        std::cout << kfdb[i]->mnId << " " << kfMpts.size() << "  " << kfMpts_vec.size() << std::endl;
-        f << kfdb[i]->mnId << " " << kfMpts.size() << std::endl;
+    std::vector<ORB_SLAM2::KeyFrame*> kfdb_ = dbMap->GetAllKeyFrames();
+    std::sort(kfdb_.begin(),kfdb_.end(),ORB_SLAM2::KeyFrame::lId);
+    for(size_t i = 0; i < kfdb_.size(); i++){
+        std::set<ORB_SLAM2::MapPoint*> kfMpts = kfdb_[i]->GetMapPoints();
+        std::vector<ORB_SLAM2::MapPoint*> kfMpts_vec = kfdb_[i]->GetMapPointMatches();
+        std::cout << kfdb_.size() << " " << i << " " << kfdb_[i]->mnId << " " << kfMpts.size() << "  " << kfMpts_vec.size() << std::endl;
+        f << kfdb_[i]->mnId << " " << kfMpts.size() << std::endl;
     }
 
+    int sizeclass = sizeof(ORB_SLAM2::MapPoint);
+    std::cout << sizeclass << std::endl;
+    std::cout << sizeof(ORB_SLAM2::Map) << std::endl;
+    std::cout << sizeof(ORB_SLAM2::KeyFrame) << std::endl;
+    std::cout << sizeof(ORB_SLAM2::KeyFrameDatabase) << std::endl;
+
     // Save Map data
-    // std::string outpath = "MH01_Compression_10.bin";
-    // std::ofstream out(outpath, std::ios_base::binary);
-    // if (!out)
-    // {
-    //     std::cout << "Cannot Write to Database File: " << std::endl;
-    //     exit(-1);
-    // }
-    // boost::archive::binary_oarchive oa(out, boost::archive::no_header);
-    // oa << dbMap;
-    // oa << dbKeyframeDatabase;
-    // out.close();
+    std::cout << "Save Map ... " << std::endl;
+    std::string outpath = "MH01_Compression_20_test.bin";
+    std::ofstream out(outpath, std::ios_base::binary);
+    if (!out)
+    {
+        std::cout << "Cannot Write to Database File: " << std::endl;
+        exit(-1);
+    }
+    boost::archive::binary_oarchive oa(out, boost::archive::no_header);
+    std::cout << " ...done" << std::endl;
+    oa << dbKeyframeDatabase;
+    std::cout << " ...done" << std::endl;
+    oa << dbMap;
+    std::cout << " ...done" << std::endl;
+    out.close();
     f.close();
     return 0;
 }

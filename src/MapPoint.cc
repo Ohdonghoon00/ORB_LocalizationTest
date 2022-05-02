@@ -164,7 +164,7 @@ void MapPoint::SetBadFlag()
         pKF->EraseMapPointMatch(mit->second);
     }
 
-    mpMap->EraseMapPoint(this);
+    // mpMap->EraseMapPoint(this);
 }
 
 MapPoint* MapPoint::GetReplaced()

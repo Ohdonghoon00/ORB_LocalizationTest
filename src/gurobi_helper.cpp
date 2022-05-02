@@ -106,7 +106,7 @@ void AddConstraint(ORB_SLAM2::Map* map_data, GRBModel& model_, Eigen::MatrixXd A
     GRBLinExpr MinKeyframePointNum = 0;
     GRBLinExpr TotalPointNum = 0;
 
-    double b = 30.0; // Minimum point num by one Keyframe
+    double b = 100.0; // Minimum point num by one Keyframe
     // double CompressionRatio = 0.7; // Compression Ratio to Landmarks
 
     double totalNum = (double)(int)(map_data->MapPointsInMap() * CompressionRatio);

@@ -67,6 +67,7 @@ public:
     // This avoid that two points are created simultaneously in separate threads (id conflict)
     std::mutex mMutexPointCreation;
 
+    void EraseMapPoint(int index);
 
 private:
     // serialize is recommended to be private
