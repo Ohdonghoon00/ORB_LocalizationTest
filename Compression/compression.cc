@@ -96,7 +96,7 @@ int main(int argc, char** argv)
     // }
     
     // Compression
-    MapCompression(dbMap, 0.2);
+    MapCompression(dbMap, 0.1);
 
     std::vector<ORB_SLAM2::KeyFrame*> kfdb_ = dbMap->GetAllKeyFrames();
     std::sort(kfdb_.begin(),kfdb_.end(),ORB_SLAM2::KeyFrame::lId);
@@ -115,7 +115,7 @@ int main(int argc, char** argv)
 
     // Save Map data
     std::cout << "Save Map ... " << std::endl;
-    std::string outpath = "MH01_Compression_20_test.bin";
+    std::string outpath = "MH01_Compression_10_test.bin";
     std::ofstream out(outpath, std::ios_base::binary);
     if (!out)
     {

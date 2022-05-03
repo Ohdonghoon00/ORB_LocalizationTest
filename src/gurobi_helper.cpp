@@ -35,7 +35,7 @@ Eigen::Matrix<double, Eigen::Dynamic, 1> CalculateObservationCountWeight(ORB_SLA
             if(IsInKF) kfTotalPts += kfdb[j]->GetMapPoints().size();
         }
         // std::cout << kfTotalPts << std::endl;
-        q[i] = (((double)KeyframeNum - (double)AllMpptr[i]->GetObservations().size()) / (double)KeyframeNum) + (0.5) * ((double)kfTotalPts / (double)totalVal);
+        q[i] = (((double)KeyframeNum - (double)AllMpptr[i]->GetObservations().size()) / (double)KeyframeNum) + (0.6) * ((double)kfTotalPts / (double)totalVal);
     }
     return q;
 }
