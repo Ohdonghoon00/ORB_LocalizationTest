@@ -16,16 +16,26 @@ std::vector<GRBVar> CreateVariablesBinaryVector(int PointCloudNum, GRBModel& mod
 
 Eigen::Matrix<double, Eigen::Dynamic, 1> CalculateObservationCountWeight(ORB_SLAM2::Map* map_data)
 {
+    int totalVal = 0;
     Eigen::Matrix<double, Eigen::Dynamic, 1> q;
     int PointCloudNum_ = map_data->MapPointsInMap();
-    q.resize(PointCloudNum_);
     int KeyframeNum = map_data->KeyFramesInMap();
-    std::vector<ORB_SLAM2::MapPoint*> AllMpptr = map_data->GetAllMapPoints();
+    q.resize(PointCloudNum_);
     
+    std::vector<ORB_SLAM2::KeyFrame*> kfdb = map_data->GetAllKeyFrames();
+    std::sort(kfdb.begin(),kfdb.end(),ORB_SLAM2::KeyFrame::lId);
+    for(int i = 0; i < KeyframeNum; i++) totalVal += kfdb[i]->GetMapPoints().size();
+    std::cout << "total value : " <<  totalVal << std::endl;
+    std::vector<ORB_SLAM2::MapPoint*> AllMpptr = map_data->GetAllMapPoints();
     for(int i = 0; i < PointCloudNum_; i++)
     {
-        q[i] = ((double)KeyframeNum - (double)AllMpptr[i]->GetObservations().size()) / (double)KeyframeNum;
-        // q[i] = ((double)AllMpptr[i]->GetObservations().size()) / (double)KeyframeNum;
+        int kfTotalPts = 0;
+        for(int j = 0; j < KeyframeNum; j++){
+            bool IsInKF = AllMpptr[i]->IsInKeyFrame(kfdb[j]);
+            if(IsInKF) kfTotalPts += kfdb[j]->GetMapPoints().size();
+        }
+        // std::cout << kfTotalPts << std::endl;
+        q[i] = (((double)KeyframeNum - (double)AllMpptr[i]->GetObservations().size()) / (double)KeyframeNum) + (0.5) * ((double)kfTotalPts / (double)totalVal);
     }
     return q;
 }
@@ -106,7 +116,7 @@ void AddConstraint(ORB_SLAM2::Map* map_data, GRBModel& model_, Eigen::MatrixXd A
     GRBLinExpr MinKeyframePointNum = 0;
     GRBLinExpr TotalPointNum = 0;
 
-    double b = 100.0; // Minimum point num by one Keyframe
+    double b = 30.0; // Minimum point num by one Keyframe
     // double CompressionRatio = 0.7; // Compression Ratio to Landmarks
 
     double totalNum = (double)(int)(map_data->MapPointsInMap() * CompressionRatio);

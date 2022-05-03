@@ -87,13 +87,13 @@ int main(int argc, char** argv)
     ia >> dbKeyframeDatabase;    
     in.close();
 
-    std::vector<ORB_SLAM2::KeyFrame*> kfdb = dbMap->GetAllKeyFrames();
-    std::sort(kfdb.begin(),kfdb.end(),ORB_SLAM2::KeyFrame::lId);
-    for(size_t i = 0; i < kfdb.size(); i++){
-        std::set<ORB_SLAM2::MapPoint*> kfMpts = kfdb[i]->GetMapPoints();
-        std::vector<ORB_SLAM2::MapPoint*> kfMpts_vec = kfdb[i]->GetMapPointMatches();
-        std::cout << kfdb.size() << " " << i << " " << kfdb[i]->mnId << " " << kfMpts.size() << "  " << kfMpts_vec.size() << std::endl;
-    }
+    // std::vector<ORB_SLAM2::KeyFrame*> kfdb = dbMap->GetAllKeyFrames();
+    // std::sort(kfdb.begin(),kfdb.end(),ORB_SLAM2::KeyFrame::lId);
+    // for(size_t i = 0; i < kfdb.size(); i++){
+    //     std::set<ORB_SLAM2::MapPoint*> kfMpts = kfdb[i]->GetMapPoints();
+    //     std::vector<ORB_SLAM2::MapPoint*> kfMpts_vec = kfdb[i]->GetMapPointMatches();
+    //     std::cout << kfdb.size() << " " << i << " " << kfdb[i]->mnId << " " << kfMpts.size() << "  " << kfMpts_vec.size() << std::endl;
+    // }
     
     // Compression
     MapCompression(dbMap, 0.2);
@@ -124,9 +124,9 @@ int main(int argc, char** argv)
     }
     boost::archive::binary_oarchive oa(out, boost::archive::no_header);
     std::cout << " ...done" << std::endl;
+    oa << dbMap;
     oa << dbKeyframeDatabase;
     std::cout << " ...done" << std::endl;
-    oa << dbMap;
     std::cout << " ...done" << std::endl;
     out.close();
     f.close();
