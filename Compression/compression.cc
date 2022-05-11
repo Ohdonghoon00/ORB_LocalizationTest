@@ -111,8 +111,14 @@ int main(int argc, char** argv)
     std::cout << sizeof(ORB_SLAM2::MapPoint) << std::endl;
     std::cout << sizeof(ORB_SLAM2::Map) << std::endl;
     std::cout << sizeof(ORB_SLAM2::KeyFrame) << std::endl;
-    std::cout << sizeof(kfdb_[10]) << std::endl;
-    std::cout << sizeof(kfdb_[115]) << std::endl;
+    std::cout << kfdb_[10]->mDescriptors.elemSize() << std::endl;
+    std::cout << kfdb_[10]->mDescriptors.total() << std::endl;
+    std::cout << kfdb_[115]->mvKeys.size() << std::endl;
+    std::cout << kfdb_[115]->mvKeys.capacity() << std::endl;
+    std::cout << sizeof(long unsigned int) << std::endl;
+    std::cout << sizeof(unsigned int) << std::endl;
+    std::cout << sizeof(cv::Point2f) << std::endl;
+    std::cout << sizeof(cv::KeyPoint) << std::endl;
     std::cout << sizeof(ORB_SLAM2::KeyFrameDatabase) << std::endl;
 
     // Save Map data
