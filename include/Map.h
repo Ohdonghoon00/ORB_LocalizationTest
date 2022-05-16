@@ -67,6 +67,7 @@ public:
     // This avoid that two points are created simultaneously in separate threads (id conflict)
     std::mutex mMutexPointCreation;
 
+    // dh
     void EraseMapPoint(int index);
 
 private:

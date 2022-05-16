@@ -53,6 +53,7 @@ void Map::EraseMapPoint(MapPoint *pMP)
     // Delete the MapPoint
 }
 
+// dh
 void Map::EraseMapPoint(int index)
 {
     unique_lock<mutex> lock(mMutexMap);

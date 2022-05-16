@@ -324,7 +324,7 @@ void Tracking::Track()
         else
         {
             // Localization Mode: Local Mapping is deactivated
-
+            std::cout << mState << std::endl;
             if(mState==LOST)
             {
                 bOK = Relocalization();
@@ -407,6 +407,7 @@ void Tracking::Track()
             // mbVO true means that there are few matches to MapPoints in the map. We cannot retrieve
             // a local map and therefore we do not perform TrackLocalMap(). Once the system relocalizes
             // the camera we will use the local map again.
+            std::cout << "bOk : " << bOK << "  " << "mbVO : " << mbVO << std::endl;
             if(bOK && !mbVO){
                 // std::cout << "track local map!!" << std::endl;
                 bOK = TrackLocalMap();
@@ -1357,8 +1358,10 @@ bool Tracking::Relocalization()
     // Track Lost: Query KeyFrame Database for keyframe candidates for relocalisation
     vector<KeyFrame*> vpCandidateKFs = mpKeyFrameDB->DetectRelocalizationCandidates(&mCurrentFrame);
 
-    if(vpCandidateKFs.empty())
+    if(vpCandidateKFs.empty()){
+        std::cout << " no relocalization candidate !! " << std::endl;
         return false;
+    }
 
     const int nKFs = vpCandidateKFs.size();
 

@@ -9,7 +9,7 @@
 #include<fstream>
 #include <string>
 
-void MapCompression(ORB_SLAM2::Map* mpMap, double CompressionRatio)
+void LandmarkSparsification(ORB_SLAM2::Map* mpMap, double CompressionRatio)
 {
     // Map Compression
     std::cout << "Map Compression ... " << std::endl;
@@ -63,6 +63,39 @@ void MapCompression(ORB_SLAM2::Map* mpMap, double CompressionRatio)
     std::cout << "After Compression Point Num : " << PointCloudNum_ << std::endl;
 }
 
+void removalKeyframe(ORB_SLAM2::Map* mpMap)
+{
+    std::vector<ORB_SLAM2::KeyFrame*> kfdb = mpMap->GetAllKeyFrames();
+    std::sort(kfdb.begin(),kfdb.end(),ORB_SLAM2::KeyFrame::lId);
+
+    int removeKeyframeCnt = 0;
+    int removeIdx = 0;
+    for(size_t i = 0; i < kfdb.size(); i++){
+        
+        if(i == 0) continue;
+        if(kfdb[i - 1]->isBad()) removeIdx++;
+        else removeIdx = 0;
+        
+        std::vector<ORB_SLAM2::MapPoint*> kfMapts = kfdb[i]->GetMapPointMatches();
+        int covisibilityCnt = 0;
+        
+        for(size_t j = 0; j < kfMapts.size(); j++){
+            
+            if(!kfMapts[j]) continue;
+            if(!kfMapts[j]->isBad()){
+                
+                bool covisibilityLandmark = kfMapts[j]->IsInKeyFrame(kfdb[i - 1 - removeIdx]);
+                if(covisibilityLandmark) covisibilityCnt++;
+            }
+        }
+        std::cout << covisibilityCnt << std::endl;
+        if(covisibilityCnt > 100){
+            kfdb[i]->SetBadFlag();
+            removeKeyframeCnt++;        
+        } 
+    }    
+}
+
 int main(int argc, char** argv)
 {
     ORB_SLAM2::Map* dbMap;
@@ -87,23 +120,24 @@ int main(int argc, char** argv)
     ia >> dbKeyframeDatabase;    
     in.close();
 
-    // std::vector<ORB_SLAM2::KeyFrame*> kfdb = dbMap->GetAllKeyFrames();
-    // std::sort(kfdb.begin(),kfdb.end(),ORB_SLAM2::KeyFrame::lId);
-    // for(size_t i = 0; i < kfdb.size(); i++){
-    //     std::set<ORB_SLAM2::MapPoint*> kfMpts = kfdb[i]->GetMapPoints();
-    //     std::vector<ORB_SLAM2::MapPoint*> kfMpts_vec = kfdb[i]->GetMapPointMatches();
-    //     std::cout << kfdb.size() << " " << i << " " << kfdb[i]->mnId << " " << kfMpts.size() << "  " << kfMpts_vec.size() << std::endl;
-    // }
+    std::vector<ORB_SLAM2::KeyFrame*> kfdb = dbMap->GetAllKeyFrames();
+    std::sort(kfdb.begin(),kfdb.end(),ORB_SLAM2::KeyFrame::lId);
+    for(size_t i = 0; i < kfdb.size(); i++){
+        std::set<ORB_SLAM2::MapPoint*> kfMpts = kfdb[i]->GetMapPoints();
+        std::vector<ORB_SLAM2::MapPoint*> kfMpts_vec = kfdb[i]->GetMapPointMatches();
+        std::cout << kfdb.size() << " " << i << " " << kfdb[i]->mnId << " " << kfMpts.size() << "  " << kfMpts_vec.size() << std::endl;
+    }
     
     // Compression
-    // MapCompression(dbMap, 0.1);
+    removalKeyframe(dbMap);
+    // LandmarkSparsification(dbMap, 0.5);
 
     std::vector<ORB_SLAM2::KeyFrame*> kfdb_ = dbMap->GetAllKeyFrames();
     std::sort(kfdb_.begin(),kfdb_.end(),ORB_SLAM2::KeyFrame::lId);
     for(size_t i = 0; i < kfdb_.size(); i++){
         std::set<ORB_SLAM2::MapPoint*> kfMpts = kfdb_[i]->GetMapPoints();
         std::vector<ORB_SLAM2::MapPoint*> kfMpts_vec = kfdb_[i]->GetMapPointMatches();
-        // std::cout << kfdb_.size() << " " << i << " " << kfdb_[i]->mnId << " " << kfMpts.size() << "  " << kfMpts_vec.size() << std::endl;
+        std::cout << kfdb_.size() << " " << i << " " << kfdb_[i]->mnId << " " << kfMpts.size() << "  " << kfMpts_vec.size() << std::endl;
         f << kfdb_[i]->mnId << " " << kfMpts.size() << std::endl;
         // std::cout << sizeof(kfMpts[i]) << std::endl;
     }
@@ -111,10 +145,10 @@ int main(int argc, char** argv)
     std::cout << sizeof(ORB_SLAM2::MapPoint) << std::endl;
     std::cout << sizeof(ORB_SLAM2::Map) << std::endl;
     std::cout << sizeof(ORB_SLAM2::KeyFrame) << std::endl;
-    std::cout << kfdb_[10]->mDescriptors.elemSize() << std::endl;
-    std::cout << kfdb_[10]->mDescriptors.total() << std::endl;
-    std::cout << kfdb_[115]->mvKeys.size() << std::endl;
-    std::cout << kfdb_[115]->mvKeys.capacity() << std::endl;
+    // std::cout << kfdb_[10]->mDescriptors.elemSize() << std::endl;
+    // std::cout << kfdb_[10]->mDescriptors.total() << std::endl;
+    // std::cout << kfdb_[115]->mvKeys.size() << std::endl;
+    // std::cout << kfdb_[115]->mvKeys.capacity() << std::endl;
     std::cout << sizeof(long unsigned int) << std::endl;
     std::cout << sizeof(unsigned int) << std::endl;
     std::cout << sizeof(cv::Point2f) << std::endl;
@@ -123,7 +157,7 @@ int main(int argc, char** argv)
 
     // Save Map data
     std::cout << "Save Map ... " << std::endl;
-    std::string outpath = "MH01_Compression_10_test.bin";
+    std::string outpath = "MH01_kf_Compression_10_test.bin";
     std::ofstream out(outpath, std::ios_base::binary);
     if (!out)
     {
