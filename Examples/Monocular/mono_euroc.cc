@@ -101,7 +101,9 @@ int main(int argc, char **argv)
         // Pass the image to the SLAM system
         std::cout << " @@@@@@@@@@@@@@@@@@@@@@ current query image Num :    " << ni << "  @@@@@@@@@@@@@@@@@@@@@@ " << std::endl; 
         if(ni == 0) sleep(3); // wait 3 sec
+        
         cv::Mat abc = SLAM.TrackMonocular(im,tframe);
+        
         if(abc.empty()){
             ResultFile << ni << " " << SLAM.matchNum[ni] << " " << fail << " " << fail << " " << SLAM.refKFid[ni] << " " << SLAM.refKFpts[ni] << std::endl;
             failFrameNum++;

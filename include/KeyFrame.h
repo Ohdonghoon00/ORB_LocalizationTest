@@ -207,7 +207,7 @@ public:
 
 
     // The following variables need to be accessed trough a mutex to be thread safe.
-protected:
+// protected:
 
     // SE3 Pose and camera center
     cv::Mat Tcw;

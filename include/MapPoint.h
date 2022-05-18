@@ -119,10 +119,10 @@ public:
     cv::Mat mPosGBA;
     long unsigned int mnBAGlobalForKF;
 
-
     static std::mutex mGlobalMutex;
 
-protected:    
+
+// protected:    
 
      // Position in absolute coordinates
      cv::Mat mWorldPos;
