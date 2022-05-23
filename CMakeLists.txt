@@ -77,6 +77,7 @@ src/Sim3Solver.cc
 src/Initializer.cc
 src/Viewer.cc
 src/gurobi_helper.cpp
+src/Compression.cc
 )
 
 target_link_libraries(${PROJECT_NAME}
@@ -133,7 +134,7 @@ target_link_libraries(mono_euroc ${PROJECT_NAME})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Compression)
 
 add_executable(compression
-Compression/compression.cc)
+Compression/main_compression.cc)
 target_link_libraries(compression ${PROJECT_NAME})
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Vocabulary)

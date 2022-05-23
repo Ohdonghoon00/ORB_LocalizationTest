@@ -1210,7 +1210,7 @@ void Tracking::UpdateLocalMap()
     // Update
     UpdateLocalKeyFrames();
     UpdateLocalPoints();
-}
+} 
 
 void Tracking::UpdateLocalPoints()
 {

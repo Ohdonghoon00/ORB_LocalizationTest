@@ -3,133 +3,14 @@
 #include "System.h"
 #include "Map.h"
 #include "KeyFrameDatabase.h"
+#include "Compression.h"
 
 #include<iostream>
 #include<algorithm>
 #include<fstream>
 #include <string>
 
-int countObservation(ORB_SLAM2::MapPoint* mp);
 
-int cvMatSize(cv::Mat a)
-{
-    int size = a.elemSize() * a.total();
-    return size;
-}
-
-
-void LandmarkSparsification(ORB_SLAM2::Map* mpMap, double CompressionRatio)
-{
-    // Map Compression
-    std::cout << "Map Compression ... " << std::endl;
-    GRBEnv env = GRBEnv();
-    GRBModel model = GRBModel(env);
-
-    std::vector<ORB_SLAM2::MapPoint*> mpDB = mpMap->GetAllMapPoints();
-    long unsigned int PointCloudNum = mpMap->MapPointsInMap();
-
-    std::cout << "before Compression Point Num : " << PointCloudNum << std::endl;
-    std::cout << " Create Variables ... " << std::endl;
-    // Create Variables
-    std::vector<GRBVar> x = CreateVariablesBinaryVector(PointCloudNum, model);
-
-    std::cout << " Set Objective ... " << std::endl;
-    // Set Objective
-    Eigen::Matrix<double, Eigen::Dynamic, 1> q = CalculateObservationCountWeight(mpMap);
-    SetObjectiveILP(x, q, model);
-
-    std::cout << " Add Constraint ... " << std::endl;
-    // Add Constraint
-    Eigen::MatrixXd A = CalculateVisibilityMatrix(mpMap);
-    AddConstraint(mpMap, model, A, x, CompressionRatio);
-
-    std::cout << std::endl;
-
-    std::cout << " Optimize model ... " << std::endl;
-    // Optimize model
-    model.optimize();
-
-    std::cout << "Obj: " << model.get(GRB_DoubleAttr_ObjVal) << endl;
-
-    std::cout << std::endl;
-
-    // Erase Map Point
-    size_t index = 0;
-
-    int totalObs = 0;
-    for (size_t i = 0; i < x.size(); i++){
-
-        if (x[i].get(GRB_DoubleAttr_X) == 0){
-            
-            int obsCnt = countObservation(mpDB[i]);
-            mpDB[i]->SetBadFlag();
-            // mpMap->EraseMapPoint((mpMap->GetAllMapPoints())[i - index]);
-            // mpMap->EraseMapPoint(i - index);
-            index++;
-            totalObs += obsCnt;
-        }
-    }
-    // mpMap->clear();
-    
-    std::cout << " Finish Map Compression" << std::endl;
-    std::cout <<  " Total memory of removed mapPoints : " << totalObs << std::endl;
-    long unsigned int PointCloudNum_ = mpMap->MapPointsInMap();
-    std::cout << "After Compression Point Num : " << PointCloudNum_ << std::endl;
-}
-
-int removalKeyframe(ORB_SLAM2::Map* mpMap)
-{
-    std::vector<ORB_SLAM2::KeyFrame*> kfdb = mpMap->GetAllKeyFrames();
-    std::sort(kfdb.begin(),kfdb.end(),ORB_SLAM2::KeyFrame::lId);
-
-    int removeKeyframeCnt = 0;
-    int removeIdx = 0;
-    int totalRemovedptsNum = 0;
-    std::cout << " before remove Keyframe num : " << kfdb.size() << std::endl;
-    for(size_t i = 0; i < kfdb.size(); i++){
-        
-        if(i == 0) continue;
-        if(kfdb[i - 1]->isBad()) removeIdx++;
-        else removeIdx = 0;
-        
-        std::vector<ORB_SLAM2::MapPoint*> kfMapts = kfdb[i]->GetMapPointMatches();
-        int covisibilityCnt = 0;
-        
-        for(size_t j = 0; j < kfMapts.size(); j++){
-            
-            if(!kfMapts[j]) continue;
-            if(!kfMapts[j]->isBad()){
-                
-                bool covisibilityLandmark = kfMapts[j]->IsInKeyFrame(kfdb[i - 1 - removeIdx]);
-                if(covisibilityLandmark) covisibilityCnt++;
-            }
-        }
-        int lastFrameMp = kfdb[i - 1 - removeIdx]->GetMapPoints().size();
-        int currFrameMp = kfdb[i]->GetMapPoints().size();
-        double ratio = (double)covisibilityCnt / (double)currFrameMp; 
-        // std::cout << covisibilityCnt << std::endl;
-        std::cout << ratio << std::endl;
-        
-        // if(covisibilityCnt > 100 && ){
-        if(covisibilityCnt > 50 && lastFrameMp > currFrameMp){
-            int kfmp = kfdb[i]->GetMapPoints().size();
-            kfdb[i]->SetBadFlag();
-            removeKeyframeCnt++; 
-            totalRemovedptsNum += kfmp;       
-        } 
-    }
-    std::cout << " Removed total Keyframe num : " << removeKeyframeCnt << std::endl;
-    std::cout << " Removed total Pts : " << totalRemovedptsNum << std::endl;
-    return totalRemovedptsNum; 
-}
-
-int countObservation(ORB_SLAM2::MapPoint* mp)
-{
-    int obsCnt = mp->mObservations.size();
-    obsCnt *= 16;
-    obsCnt += 736;
-    return obsCnt;
-}
 
 
 
@@ -137,11 +18,14 @@ int countObservation(ORB_SLAM2::MapPoint* mp)
 
 int main(int argc, char** argv)
 {
-    ORB_SLAM2::Map* dbMap;
-    ORB_SLAM2::KeyFrameDatabase* dbKeyframeDatabase;
+    // ORB_SLAM2::Map* dbMap;
+    // ORB_SLAM2::KeyFrameDatabase* dbKeyframeDatabase;
 
-    dbMap = new ORB_SLAM2::Map();
-    dbKeyframeDatabase = new ORB_SLAM2::KeyFrameDatabase();
+    // dbMap = new ORB_SLAM2::Map();
+    // dbKeyframeDatabase = new ORB_SLAM2::KeyFrameDatabase();
+
+    Compression compression;
+
 
     std::ofstream f;
     f.open("abc.txt");
@@ -158,11 +42,14 @@ int main(int argc, char** argv)
         return EXIT_FAILURE;
     }
     boost::archive::binary_iarchive ia(in, boost::archive::no_header);
-    ia >> dbMap;
-    ia >> dbKeyframeDatabase;    
+    ia >> compression.Map;
+    ia >> compression.dbKeyframe;    
     in.close();
 
-    std::vector<ORB_SLAM2::KeyFrame*> kfdb = dbMap->GetAllKeyFrames();
+    compression.initializing();
+    compression.preparing();
+
+    std::vector<ORB_SLAM2::KeyFrame*> kfdb = compression.Map->GetAllKeyFrames();
     std::sort(kfdb.begin(),kfdb.end(),ORB_SLAM2::KeyFrame::lId);
     for(size_t i = 0; i < kfdb.size(); i++){
         std::set<ORB_SLAM2::MapPoint*> kfMpts = kfdb[i]->GetMapPoints();
@@ -171,17 +58,17 @@ int main(int argc, char** argv)
     }
     
     // Compression
-    removalKeyframe(dbMap);
-    // LandmarkSparsification(dbMap, 0.8);
+    compression.removalKeyframe1();
+    // LandmarkSparsification(0.8);
     
     // obs file
-    std::vector<ORB_SLAM2::MapPoint*> mpDB = dbMap->GetAllMapPoints();
+    std::vector<ORB_SLAM2::MapPoint*> mpDB = compression.Map->GetAllMapPoints();
     for(size_t i = 0; i < mpDB.size(); i++){
         
         obsfile << mpDB[i]->mObservations.size() << std::endl;
     }
 
-    std::vector<ORB_SLAM2::KeyFrame*> kfdb_ = dbMap->GetAllKeyFrames();
+    std::vector<ORB_SLAM2::KeyFrame*> kfdb_ = compression.Map->GetAllKeyFrames();
     std::sort(kfdb_.begin(),kfdb_.end(),ORB_SLAM2::KeyFrame::lId);
     for(size_t i = 0; i < kfdb_.size(); i++){
         std::set<ORB_SLAM2::MapPoint*> kfMpts = kfdb_[i]->GetMapPoints();
@@ -247,9 +134,9 @@ int main(int argc, char** argv)
 
     // std::cout << kfdb_[10]->mGrid.size() * sizeof(float) << std::endl;
     int totalsize = 0;
-    for(int i = 0; i < kfdb_[10]->mGrid.size(); i++){
+    for(size_t i = 0; i < kfdb_[10]->mGrid.size(); i++){
         int totalsize1 = 0;
-        for(int j = 0; j < kfdb_[10]->mGrid[i].size(); j++){
+        for(size_t j = 0; j < kfdb_[10]->mGrid[i].size(); j++){
             int cnt = kfdb_[10]->mGrid[i][j].size() * sizeof(size_t);
             totalsize1 += cnt;
         }
@@ -276,8 +163,8 @@ int main(int argc, char** argv)
     }
     boost::archive::binary_oarchive oa(out, boost::archive::no_header);
     std::cout << " ...done" << std::endl;
-    oa << dbMap;
-    oa << dbKeyframeDatabase;
+    oa << compression.Map;
+    oa << compression.dbKeyframe;
     std::cout << " ...done" << std::endl;
     std::cout << " ...done" << std::endl;
     out.close();
