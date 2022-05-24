@@ -5,6 +5,7 @@
 #include "System.h"
 #include "Map.h"
 #include "KeyFrameDatabase.h"
+#include "Converter.h"
 
 class ORB_SLAM2::Map;
 // class ORB_SLAM2::MapPoint;
@@ -33,13 +34,19 @@ public:
     Eigen::VectorXd invScoreVec;
     inline static Eigen::VectorXd KeyframeInvWeight;
     
-    std::vector<int> kfObsNums;
+    std::vector<double> kfObsNums;
     std::vector<int> kfMpNums;
+    inline static std::vector<double> kfObsNumsRatio;
+    inline static std::vector<double> kfMpNumsRatio;
+    std::vector<int> kfObsRank;
+    std::vector<int> kfMpNumRank;
+    double TotalObservation;
+    int TotalMapPoints;
 
     // Score Parameter
     double obsRatio = 0.5;
     double mpRatio = 1.0 - obsRatio;
-
+    double relPoseErr[2];
     
     // Compresssion
     void LandmarkSparsification(double CompressionRatio);
@@ -52,22 +59,31 @@ public:
 
     // Keyframe Score and Mp Num
     void getKeyframeScoreVector();
-    int getTotalObservation();
+    double getTotalObservation();
     int getTotalMapPoints();
-    int getObservation(ORB_SLAM2::KeyFrame* kf);
+    double getObservation(ORB_SLAM2::KeyFrame* kf);
     int getObservation(ORB_SLAM2::MapPoint* mp);
 
     // Keyframe Similarity
     void getKeyframeSimilarityMatrix();
     int getCovisibilityMpNum(ORB_SLAM2::KeyFrame* kf1, ORB_SLAM2::KeyFrame* kf2);
     
+    void getRelativePose(ORB_SLAM2::KeyFrame* kf1, ORB_SLAM2::KeyFrame* kf2);
     
-    
+    // print
+    void printKeyframeInfo();
+
 ///////////////////////////////////////////////////////////////////////   
+
 
     int getMemory(ORB_SLAM2::MapPoint* mp);
     
     int cvMatSize(cv::Mat a);
+    void minMaxNormalize(Eigen::VectorXd *vec);
+    void minMaxNormalize(std::vector<double> *vec);
+    void RMSError(Vector6d EsPose, Vector6d gtPose, double *err);
 
-    static bool scoreComp(int i, int j){return KeyframeInvWeight[i] > KeyframeInvWeight[j];}
+    static bool weightComp(int i, int j){return KeyframeInvWeight[i] > KeyframeInvWeight[j];}
+    static bool obsScoreComp(int i, int j){return kfObsNumsRatio[i] > kfObsNumsRatio[j];}
+    static bool mpNumScoreComp(int i, int j){return kfMpNumsRatio[i] > kfMpNumsRatio[j];}
 };

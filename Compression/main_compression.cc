@@ -45,22 +45,31 @@ int main(int argc, char** argv)
     ia >> compression.Map;
     ia >> compression.dbKeyframe;    
     in.close();
-
+    
+    std::cout << " Keyframe Num : " << compression.Map->KeyFramesInMap() << " Landmark Num : " << compression.Map->MapPointsInMap() << std::endl;
+    std::cout << " Compression Preparing ... " << std::endl;
     compression.initializing();
     compression.preparing();
 
-    std::vector<ORB_SLAM2::KeyFrame*> kfdb = compression.Map->GetAllKeyFrames();
-    std::sort(kfdb.begin(),kfdb.end(),ORB_SLAM2::KeyFrame::lId);
-    for(size_t i = 0; i < kfdb.size(); i++){
-        std::set<ORB_SLAM2::MapPoint*> kfMpts = kfdb[i]->GetMapPoints();
-        std::vector<ORB_SLAM2::MapPoint*> kfMpts_vec = kfdb[i]->GetMapPointMatches();
-        std::cout << kfdb.size() << " " << i << " " << kfdb[i]->mnId << " " << kfMpts.size() << "  " << kfMpts_vec.size() << std::endl;
-    }
+    // std::vector<ORB_SLAM2::KeyFrame*> kfdb = compression.Map->GetAllKeyFrames();
+    // std::sort(kfdb.begin(),kfdb.end(),ORB_SLAM2::KeyFrame::lId);
+    // for(size_t i = 0; i < kfdb.size(); i++){
+    //     std::set<ORB_SLAM2::MapPoint*> kfMpts = kfdb[i]->GetMapPoints();
+    //     std::vector<ORB_SLAM2::MapPoint*> kfMpts_vec = kfdb[i]->GetMapPointMatches();
+    //     std::cout << kfdb.size() << " " << i << " " << kfdb[i]->mnId << " " << kfMpts.size() << "  " << kfMpts_vec.size() << std::endl;
+    // }
     
     // Compression
-    compression.removalKeyframe1();
-    // LandmarkSparsification(0.8);
+    compression.getKeyframeScoreVector();
+    compression.getKeyframeSimilarityMatrix();
     
+    compression.printKeyframeInfo();
+
+    std::cout << " remove Keyframe ... " << std::endl;
+    compression.removalKeyframe2(0.20);
+    // LandmarkSparsification(0.8);
+    std::cout << " Finish Compression !! " << std::endl;
+
     // obs file
     std::vector<ORB_SLAM2::MapPoint*> mpDB = compression.Map->GetAllMapPoints();
     for(size_t i = 0; i < mpDB.size(); i++){
@@ -68,15 +77,17 @@ int main(int argc, char** argv)
         obsfile << mpDB[i]->mObservations.size() << std::endl;
     }
 
-    std::vector<ORB_SLAM2::KeyFrame*> kfdb_ = compression.Map->GetAllKeyFrames();
-    std::sort(kfdb_.begin(),kfdb_.end(),ORB_SLAM2::KeyFrame::lId);
-    for(size_t i = 0; i < kfdb_.size(); i++){
-        std::set<ORB_SLAM2::MapPoint*> kfMpts = kfdb_[i]->GetMapPoints();
-        std::vector<ORB_SLAM2::MapPoint*> kfMpts_vec = kfdb_[i]->GetMapPointMatches();
-        std::cout << kfdb_.size() << " " << i << " " << kfdb_[i]->mnId << " " << kfMpts.size() << "  " << kfMpts_vec.size() << std::endl;
-        f << kfdb_[i]->mnId << " " << kfMpts.size() << std::endl;
-        // std::cout << sizeof(kfMpts[i]) << std::endl;
-    }
+    std::cout << " Keyframe Num : " << compression.Map->KeyFramesInMap() << " Landmark Num : " << compression.Map->MapPointsInMap() << std::endl;
+
+    // std::vector<ORB_SLAM2::KeyFrame*> kfdb_ = compression.Map->GetAllKeyFrames();
+    // std::sort(kfdb_.begin(),kfdb_.end(),ORB_SLAM2::KeyFrame::lId);
+    // for(size_t i = 0; i < kfdb_.size(); i++){
+    //     std::set<ORB_SLAM2::MapPoint*> kfMpts = kfdb_[i]->GetMapPoints();
+    //     std::vector<ORB_SLAM2::MapPoint*> kfMpts_vec = kfdb_[i]->GetMapPointMatches();
+    //     std::cout << kfdb_.size() << " " << i << " " << kfdb_[i]->mnId << " " << kfMpts.size() << "  " << kfMpts_vec.size() << std::endl;
+    //     f << kfdb_[i]->mnId << " " << kfMpts.size() << std::endl;
+    //     // std::cout << sizeof(kfMpts[i]) << std::endl;
+    // }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
     
     // std::cout << sizeof(ORB_SLAM2::MapPoint) << std::endl;
@@ -133,19 +144,19 @@ int main(int argc, char** argv)
     // std::cout << kfdb_[10]->mvpMapPoints.size() * sizeof(ORB_SLAM2::MapPoint*) << std::endl;
 
     // std::cout << kfdb_[10]->mGrid.size() * sizeof(float) << std::endl;
-    int totalsize = 0;
-    for(size_t i = 0; i < kfdb_[10]->mGrid.size(); i++){
-        int totalsize1 = 0;
-        for(size_t j = 0; j < kfdb_[10]->mGrid[i].size(); j++){
-            int cnt = kfdb_[10]->mGrid[i][j].size() * sizeof(size_t);
-            totalsize1 += cnt;
-        }
-        totalsize += totalsize1;
-    }
-    std::cout << "ddd  : " << totalsize << std::endl;
-    std::cout << kfdb_[10]->mConnectedKeyFrameWeights.size() * 12 << std::endl;
-    std::cout << kfdb_[10]->mvpOrderedConnectedKeyFrames.size() * sizeof(ORB_SLAM2::KeyFrame*) << std::endl;
-    std::cout << kfdb_[10]->mvOrderedWeights.size() * sizeof(int) << std::endl;
+    // int totalsize = 0;
+    // for(size_t i = 0; i < kfdb_[10]->mGrid.size(); i++){
+    //     int totalsize1 = 0;
+    //     for(size_t j = 0; j < kfdb_[10]->mGrid[i].size(); j++){
+    //         int cnt = kfdb_[10]->mGrid[i][j].size() * sizeof(size_t);
+    //         totalsize1 += cnt;
+    //     }
+    //     totalsize += totalsize1;
+    // }
+    // std::cout << "ddd  : " << totalsize << std::endl;
+    // std::cout << kfdb_[10]->mConnectedKeyFrameWeights.size() * 12 << std::endl;
+    // std::cout << kfdb_[10]->mvpOrderedConnectedKeyFrames.size() * sizeof(ORB_SLAM2::KeyFrame*) << std::endl;
+    // std::cout << kfdb_[10]->mvOrderedWeights.size() * sizeof(int) << std::endl;
     // std::cout << sizeof(kfdb_[10]->mMutexPose) << std::endl;
     // std::cout << sizeof(kfdb_[10]->mMutexConnections) << std::endl;
     // std::cout << sizeof(kfdb_[10]->mMutexFeatures) << std::endl;

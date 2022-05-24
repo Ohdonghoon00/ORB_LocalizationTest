@@ -117,18 +117,23 @@ int Compression::removalKeyframe2(double CompressionKfRatio)
     std::sort(kfdb.begin(),kfdb.end(),ORB_SLAM2::KeyFrame::lId);
 
     int totalRemovedptsNum = 0;
-    KeyframeInvWeight = similarityMatrix * invScoreVec;
+    KeyframeInvWeight = invScoreVec;
+    // KeyframeInvWeight = similarityMatrix * invScoreVec;
     std::vector<int> sortIdx(totalKeyframeNum);
     for(size_t i = 0; i < totalKeyframeNum; i++) sortIdx[i] = i;
-    std::sort(sortIdx.begin(), sortIdx.end(), scoreComp);
-
+    std::sort(sortIdx.begin(), sortIdx.end(), weightComp);
+    
+    // std::cout << KeyframeInvWeight.transpose() << std::endl;
+    
     for(size_t i = 0; i < kfdb.size(); i++){
         
         int idx = sortIdx[i];
+        // std::cout << idx << " " << KeyframeInvWeight[idx] << " !! ";
         kfdb[idx]->SetBadFlag();
         totalRemovedptsNum++;
         if(CompressionKfRatio >= (double)(totalKeyframeNum - totalRemovedptsNum) / (double)totalKeyframeNum) break;
     }
+    std::cout << std::endl;
     return totalRemovedptsNum;
 }
 
@@ -143,6 +148,12 @@ void Compression::initializing()
     
     kfObsNums.resize(totalKeyframeNum);
     kfMpNums.resize(totalKeyframeNum);
+
+    kfObsNumsRatio.resize(totalKeyframeNum);
+    kfMpNumsRatio.resize(totalKeyframeNum);
+
+    kfObsRank.resize(totalKeyframeNum);
+    kfMpNumRank.resize(totalKeyframeNum);
 }
 
 void Compression::preparing()
@@ -154,6 +165,33 @@ void Compression::preparing()
         kfObsNums[i] = getObservation(kfdb[i]);
         kfMpNums[i] = kfdb[i]->GetMapPoints().size();
     }
+    
+    TotalObservation = getTotalObservation();
+    TotalMapPoints = getTotalMapPoints();
+    
+    for(size_t i = 0; i < kfdb.size(); i++){
+        kfObsNumsRatio[i] = kfObsNums[i] / TotalObservation;
+        kfMpNumsRatio[i] = (double)kfMpNums[i] / (double)TotalMapPoints;
+    }
+
+    std::vector<int> sortObsIdx(totalKeyframeNum);
+    std::vector<int> sortMpIdx(totalKeyframeNum);
+    for(size_t i = 0; i < totalKeyframeNum; i++){
+        sortObsIdx[i] = i;
+        sortMpIdx[i] = i;
+    } 
+    std::sort(sortObsIdx.begin(), sortObsIdx.end(), obsScoreComp);
+    std::sort(sortMpIdx.begin(), sortMpIdx.end(), mpNumScoreComp);
+
+    for(size_t i = 0; i < kfdb.size(); i++){
+        
+        int obsIdx = sortObsIdx[i];
+        int mpIdx = sortMpIdx[i];
+        
+        kfObsRank[obsIdx] = i;
+        kfMpNumRank[mpIdx] = i;
+    }    
+
 }
 
 void Compression::getKeyframeScoreVector()
@@ -161,19 +199,26 @@ void Compression::getKeyframeScoreVector()
     std::vector<ORB_SLAM2::KeyFrame*> kfdb = Map->GetAllKeyFrames();
     std::sort(kfdb.begin(),kfdb.end(),ORB_SLAM2::KeyFrame::lId);
 
-    int totalObs = getTotalObservation();
-    int totalMapPoints = getTotalMapPoints();
+    // int totalObs = getTotalObservation();
+    // int totalMapPoints = getTotalMapPoints();
+
+    minMaxNormalize(&kfObsNumsRatio);
+    minMaxNormalize(&kfMpNumsRatio);
 
     for(size_t i = 0; i < kfdb.size(); i++){
-        invScoreVec[i] = 1.0 - (obsRatio * ((double)kfObsNums[i] / (double)totalObs ) + mpRatio * ((double)kfMpNums[i] / (double)totalMapPoints ));
+        // invScoreVec[i] = 1.0 - (obsRatio * ((double)kfObsNums[i] / (double)totalObs ) + mpRatio * ((double)kfMpNums[i] / (double)totalMapPoints ));
+        // std::cout << kfObsNumsRatio[i] << "  " << kfMpNumsRatio[i] << std::endl;
+        invScoreVec[i] = 1.0 - (obsRatio * kfObsNumsRatio[i] + mpRatio * kfMpNumsRatio[i]);
     }
+    minMaxNormalize(&invScoreVec);
+
 }
 
-int Compression::getTotalObservation()
+double Compression::getTotalObservation()
 {
-    int total = 0;
+    double total = 0;
     for(size_t i = 0; i < kfObsNums.size(); i++){
-        int kfObsNum = kfObsNums[i];
+        double kfObsNum = kfObsNums[i];
         total += kfObsNum;
     }
     return total;
@@ -189,15 +234,15 @@ int Compression::getTotalMapPoints()
     return total;   
 }
 
-int Compression::getObservation(ORB_SLAM2::KeyFrame* kf)
+double Compression::getObservation(ORB_SLAM2::KeyFrame* kf)
 {
     std::set<ORB_SLAM2::MapPoint*> kfmp = kf->GetMapPoints();
-    int total = 0;
+    double total = 0;
     for(std::set<ORB_SLAM2::MapPoint*>::iterator iter = kfmp.begin(); iter != kfmp.end(); iter++){
-        int mpObsNum = getObservation(*iter);
+        double mpObsNum = (double)getObservation(*iter);
         total += mpObsNum;
     }
-    return total;
+    return total/(double)kfmp.size();
 }
 
 int Compression::getObservation(ORB_SLAM2::MapPoint* mp)
@@ -217,28 +262,55 @@ void Compression::getKeyframeSimilarityMatrix()
         for(size_t j = 0; j < kfdb.size(); j++){
             
             // int currKeyframeMpNum = kfdb[j]->GetMapPoints().size();
-            int covisibilityMpNum = getCovisibilityMpNum(kfdb[i], kfdb[j]);
-            similarityMatrix(i, j) = (double)covisibilityMpNum / (double)lastKeyframeMpNum;
+            getRelativePose(kfdb[i], kfdb[j]);
+            // std::cout << relPoseErr[0] << "    " << ORB_SLAM2::Converter::Rad2Degree(relPoseErr[1]) << std::endl;
+            if(relPoseErr[0] < 3.0 && ORB_SLAM2::Converter::Rad2Degree(relPoseErr[1]) < 60){
+
+                int covisibilityMpNum = getCovisibilityMpNum(kfdb[i], kfdb[j]);
+                similarityMatrix(i, j) = (double)covisibilityMpNum / (double)lastKeyframeMpNum;
+            }
+            else
+                similarityMatrix(i, j) = 0.0;
+
         }
     
-    }   
+    }
+    // std::cout << similarityMatrix<< std::endl;
 }
 
 int Compression::getCovisibilityMpNum(ORB_SLAM2::KeyFrame* kf1, ORB_SLAM2::KeyFrame* kf2)
 {
-    std::vector<ORB_SLAM2::MapPoint*> kfMapPoints = kf1->GetMapPointMatches();
+    std::set<ORB_SLAM2::MapPoint*> kfMapPoints = kf1->GetMapPoints();
+    
     int covisibilityCnt = 0;
-        
-    for(size_t i = 0; i < kfMapPoints.size(); i++){
-            
-        if(!kfMapPoints[i]) continue;
-        if(!kfMapPoints[i]->isBad()){
-                
-            bool covisibilityLandmark = kfMapPoints[i]->IsInKeyFrame(kf2);
-            if(covisibilityLandmark) covisibilityCnt++;
-        }
+    for(std::set<ORB_SLAM2::MapPoint*>::iterator iter = kfMapPoints.begin(); iter!=kfMapPoints.end(); iter++){
+        bool covisibilityLandmark = (*iter)->IsInKeyFrame(kf2);
+        if(covisibilityLandmark) covisibilityCnt++;
     }
+
     return covisibilityCnt;
+}
+
+void Compression::getRelativePose(ORB_SLAM2::KeyFrame* kf1, ORB_SLAM2::KeyFrame* kf2)
+{
+    cv::Mat proj1 = kf1->GetPose();
+    cv::Mat proj2 = kf2->GetPose();
+    Vector6d Pose1 = ORB_SLAM2::Converter::Proj2Vec6(proj1);
+    Vector6d Pose2 = ORB_SLAM2::Converter::Proj2Vec6(proj2);
+    
+    RMSError(Pose1, Pose2, &relPoseErr[0]);
+}
+
+void Compression::printKeyframeInfo()
+{
+    std::vector<ORB_SLAM2::KeyFrame*> kfdb = Map->GetAllKeyFrames();
+    std::sort(kfdb.begin(),kfdb.end(),ORB_SLAM2::KeyFrame::lId);
+
+    std::cout << "ObsNum     " << "ObsNumRatio     " << "ObsRemoveRank     " << "MpNum     " << "MpNumRatio     " << "MpNumRemoveRank     " << std::endl; 
+    for(size_t i = 0; i < kfdb.size(); i++){
+        std::cout << kfObsNums[i] << "     " << kfObsNumsRatio[i] << "     " << kfObsRank[i] << "     " 
+        << kfMpNums[i] << "     " << kfMpNumsRatio[i] << "     " << kfMpNumRank[i] << std::endl;
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -257,3 +329,46 @@ int Compression::getMemory(ORB_SLAM2::MapPoint* mp)
     return obsCnt;
 }
 
+void Compression::minMaxNormalize(Eigen::VectorXd *vec)
+{
+    std::vector<double> vec2(vec->size());
+    for(int i = 0; i < vec->size(); i++) vec2[i] = (*vec)[i];
+    
+    double maxVal = *max_element(vec2.begin(), vec2.end());
+    double minVal = *min_element(vec2.begin(), vec2.end());
+    
+    for(int i = 0; i < vec->size(); i++){
+        double a = (*vec)[i];
+        (*vec)[i] = (a - minVal) / (maxVal - minVal);
+    }
+}
+
+void Compression::minMaxNormalize(std::vector<double> *vec)
+{   
+    double maxVal = *max_element(vec->begin(), vec->end());
+    double minVal = *min_element(vec->begin(), vec->end());
+    
+    for(size_t i = 0; i < vec->size(); i++){
+        double a = (*vec)[i];
+        (*vec)[i] = (a - minVal) / (maxVal - minVal);
+    }
+}
+
+void Compression::RMSError(Vector6d EsPose, Vector6d gtPose, double *err)
+{
+    // err [0] -> trans , [1] -> rot
+   
+    // RSE Error (root - square error)
+    Eigen::Matrix4d RelativePose = ORB_SLAM2::Converter::To44RT(gtPose).inverse() * ORB_SLAM2::Converter::To44RT(EsPose);
+        
+    // trans
+    Eigen::Vector3d RelativeTrans;
+    RelativeTrans << RelativePose(0, 3), RelativePose(1, 3), RelativePose(2, 3);
+    err[0] = std::sqrt(RelativeTrans.dot(RelativeTrans));
+        
+    // rotation
+    Eigen::Matrix3d RelativeRot_ = RelativePose.block<3, 3>(0, 0);
+    Eigen::Vector3d RelativeRot = ORB_SLAM2::Converter::ToVec3(RelativeRot_);
+    err[1] = std::sqrt(RelativeRot.dot(RelativeRot));
+
+}
