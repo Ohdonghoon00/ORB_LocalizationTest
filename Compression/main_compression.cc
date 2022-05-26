@@ -30,8 +30,8 @@ int main(int argc, char** argv)
     std::ofstream f;
     f.open("abc.txt");
     
-    std::ofstream obsfile;
-    obsfile.open("obsCnt.txt");
+    // std::ofstream obsfile;
+    // obsfile.open("KeyframeInfo.txt");
 
     // Load Map data
     std::string dataPath = argv[1];
@@ -48,8 +48,8 @@ int main(int argc, char** argv)
     
     std::cout << " Keyframe Num : " << compression.Map->KeyFramesInMap() << " Landmark Num : " << compression.Map->MapPointsInMap() << std::endl;
     std::cout << " Compression Preparing ... " << std::endl;
-    compression.initializing();
-    compression.preparing();
+    // compression.iterateKeyframeRemoval();
+    // compression.preparing();
 
     // std::vector<ORB_SLAM2::KeyFrame*> kfdb = compression.Map->GetAllKeyFrames();
     // std::sort(kfdb.begin(),kfdb.end(),ORB_SLAM2::KeyFrame::lId);
@@ -60,22 +60,27 @@ int main(int argc, char** argv)
     // }
     
     // Compression
-    compression.getKeyframeScoreVector();
-    compression.getKeyframeSimilarityMatrix();
+    // compression.getKeyframeScoreVector();
+    // compression.getKeyframeSimilarityMatrix();
     
-    compression.printKeyframeInfo();
+    compression.originalKeyframeNum = (double)compression.Map->GetAllKeyFrames().size();
 
     std::cout << " remove Keyframe ... " << std::endl;
     compression.removalKeyframe2(0.20);
     // LandmarkSparsification(0.8);
     std::cout << " Finish Compression !! " << std::endl;
 
+    std::cout << " print Compressed Keyframe Info ... " << std::endl;
+    compression.iterateKeyframeRemoval();
+    compression.printKeyframeInfo("CompressionKeyframeInfo.txt");
+
+
     // obs file
-    std::vector<ORB_SLAM2::MapPoint*> mpDB = compression.Map->GetAllMapPoints();
-    for(size_t i = 0; i < mpDB.size(); i++){
+    // std::vector<ORB_SLAM2::MapPoint*> mpDB = compression.Map->GetAllMapPoints();
+    // for(size_t i = 0; i < mpDB.size(); i++){
         
-        obsfile << mpDB[i]->mObservations.size() << std::endl;
-    }
+    //     obsfile << mpDB[i]->mObservations.size() << std::endl;
+    // }
 
     std::cout << " Keyframe Num : " << compression.Map->KeyFramesInMap() << " Landmark Num : " << compression.Map->MapPointsInMap() << std::endl;
 

@@ -26,6 +26,7 @@ public:
     // ORB_SLAM2::KeyFrame* Keyframe;
     ORB_SLAM2::KeyFrameDatabase* dbKeyframe;
 
+    double originalKeyframeNum;
     long unsigned int totalKeyframeNum;
     long unsigned int totalMapPointNum;    
     
@@ -69,9 +70,12 @@ public:
     int getCovisibilityMpNum(ORB_SLAM2::KeyFrame* kf1, ORB_SLAM2::KeyFrame* kf2);
     
     void getRelativePose(ORB_SLAM2::KeyFrame* kf1, ORB_SLAM2::KeyFrame* kf2);
+    int getNeighborKeyframeNum(ORB_SLAM2::KeyFrame* kf);
     
     // print
-    void printKeyframeInfo();
+    void printKeyframeInfo(const std::string &file);
+
+    void iterateKeyframeRemoval();
 
 ///////////////////////////////////////////////////////////////////////   
 
