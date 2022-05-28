@@ -48,6 +48,9 @@ public:
     double obsRatio = 0.5;
     double mpRatio = 1.0 - obsRatio;
     double relPoseErr[2];
+    int neighborKeyframeNumThres = 3; 
+    double neighborKeyframeTranslationThres = 0.5;
+    double neighborKeyframeRotationThres = 30;
     
     // Compresssion
     void LandmarkSparsification(double CompressionRatio);
