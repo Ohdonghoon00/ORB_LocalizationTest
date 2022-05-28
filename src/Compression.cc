@@ -153,6 +153,11 @@ int Compression::removalKeyframe2(double CompressionKfRatio)
             else{
                 sortArr++;
                 neightborIter++;
+                if(sortArr == totalKeyframeNum - 1){
+                    kfdb[1]->SetBadFlag();
+                    std::cout << " removed keyframe Id : " << kfdb[1]->mnId; 
+                    break;
+                } 
                 continue;
             }
         }
@@ -340,7 +345,7 @@ int Compression::getNeighborKeyframeNum(ORB_SLAM2::KeyFrame* kf)
     for(size_t i = 1; i < kfdb.size(); i++){
         
         getRelativePose(kf, kfdb[i]);
-        if(relPoseErr[0] < 0.5) neighborKfNum++;
+        if(relPoseErr[0] < 0.8) neighborKfNum++;
     }
     
     return neighborKfNum;
