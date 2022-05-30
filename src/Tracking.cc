@@ -261,6 +261,7 @@ cv::Mat Tracking::GrabImageMonocular(const cv::Mat &im, const double &timestamp)
         mCurrentFrame = Frame(mImGray,timestamp,mpORBextractorLeft,mpORBVocabulary,mK,mDistCoef,mbf,mThDepth);
 
     Track();
+    trakingNum++;
 
     return mCurrentFrame.mTcw.clone();
 }
@@ -408,6 +409,7 @@ void Tracking::Track()
             // a local map and therefore we do not perform TrackLocalMap(). Once the system relocalizes
             // the camera we will use the local map again.
             std::cout << "bOk : " << bOK << "  " << "mbVO : " << mbVO << std::endl;
+            if(trakingNum > 0) std::cout << "ref keyframe id (before track local map)   : " << mCurrentFrame.mpReferenceKF->mnId << std::endl;
             if(bOK && !mbVO){
                 // std::cout << "track local map!!" << std::endl;
                 bOK = TrackLocalMap();

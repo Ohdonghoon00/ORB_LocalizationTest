@@ -33,6 +33,7 @@ public:
     // Keyframe Removal Member
     Eigen::MatrixXd similarityMatrix;
     Eigen::VectorXd invScoreVec;
+    Eigen::VectorXf reprojectionErr;
     inline static Eigen::VectorXd KeyframeInvWeight;
     
     std::vector<double> kfObsNums;
@@ -49,8 +50,8 @@ public:
     double mpRatio = 1.0 - obsRatio;
     double relPoseErr[2];
     int neighborKeyframeNumThres = 3; 
-    double neighborKeyframeTranslationThres = 0.5;
-    double neighborKeyframeRotationThres = 30;
+    double neighborKeyframeTranslationThres = 1.0;
+    double neighborKeyframeRotationThres = 60;
     
     // Compresssion
     void LandmarkSparsification(double CompressionRatio);
@@ -67,6 +68,10 @@ public:
     int getTotalMapPoints();
     double getObservation(ORB_SLAM2::KeyFrame* kf);
     int getObservation(ORB_SLAM2::MapPoint* mp);
+
+    // Reprojection Err
+    void getAllKeyframeReprojErr();
+    float getreprojectionErr(ORB_SLAM2::KeyFrame* kf);
 
     // Keyframe Similarity
     void getKeyframeSimilarityMatrix();

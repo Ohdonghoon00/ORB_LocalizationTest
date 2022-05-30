@@ -116,6 +116,8 @@ public:
 
     void Reset();
 
+    int trakingNum = 0;
+
 protected:
 
     // Main tracking function. It is independent of the input sensor.

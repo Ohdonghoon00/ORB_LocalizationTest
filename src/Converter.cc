@@ -216,6 +216,26 @@ Vector6d Converter::Proj2Vec6(cv::Mat proj)
     return poseVec6;
 }
 
+Eigen::Matrix<float, 3, 4> Converter::toProj34(cv::Mat proj)
+{
+    Eigen::Matrix<float, 3, 4> proj34;
+    proj34 <<   proj.at<float>(0, 0), proj.at<float>(0, 1), proj.at<float>(0, 2), proj.at<float>(0, 3),
+                proj.at<float>(1, 0), proj.at<float>(1, 1), proj.at<float>(1, 2), proj.at<float>(1, 3),
+                proj.at<float>(2, 0), proj.at<float>(2, 1), proj.at<float>(2, 2), proj.at<float>(2, 3);
+    return proj34;     
+}
+
+Eigen::MatrixXf Converter::Mat2Eigen(cv::Mat a)
+{
+    Eigen::MatrixXf b(a.rows, a.cols);
+    for(int i = 0; i < b.rows(); i++){
+        for(int j = 0; j < b.cols(); j++){
+            b(i, j) = a.at<float>(i, j);
+        }
+    }
+    return b;
+}
+
 double Converter::Rad2Degree(double rad){
     return rad * 180 / M_PI;
 }
