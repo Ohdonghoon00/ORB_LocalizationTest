@@ -75,9 +75,9 @@ Eigen::MatrixXd CalculateVisibilityMatrix(ORB_SLAM2::Map* map_data)
     std::vector<ORB_SLAM2::KeyFrame*> AllKFptr = map_data->GetAllKeyFrames();
     Eigen::MatrixXd A(map_data->KeyFramesInMap(), map_data->MapPointsInMap()); 
     A.setZero();
-    for(int i = 0; i < A.rows(); i++ )
+    for(int i = 0; i < A.rows(); i++ ) // keyFrame Num
         {
-            for(int j = 0; j < A.cols(); j++)
+            for(int j = 0; j < A.cols(); j++) // mapPoint Num
             {
                 
                 bool IsInKF = AllMpptr[j]->IsInKeyFrame(AllKFptr[i]);

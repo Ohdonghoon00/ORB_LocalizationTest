@@ -176,6 +176,19 @@ Eigen::Vector3d Converter::ToVec3(Eigen::Matrix3d rot)
     return vec3;
 }
 
+Eigen::Vector3f Converter::ToVec3(Eigen::Matrix3f rot)
+{
+    Eigen::AngleAxisf rod(rot);
+    Eigen::Vector3f axis(rod.axis());
+    float angle = rod.angle();
+    axis *= angle;
+
+    Eigen::Vector3f vec3;
+    vec3 << axis.x(), axis.y(), axis.z();
+
+    return vec3;
+}
+
 Eigen::Matrix3d Converter::ToMat33(Eigen::Vector3d rod)
 {
     Eigen::AngleAxisd r(rod.norm(), rod.normalized());
@@ -223,6 +236,22 @@ Eigen::Matrix<float, 3, 4> Converter::toProj34(cv::Mat proj)
                 proj.at<float>(1, 0), proj.at<float>(1, 1), proj.at<float>(1, 2), proj.at<float>(1, 3),
                 proj.at<float>(2, 0), proj.at<float>(2, 1), proj.at<float>(2, 2), proj.at<float>(2, 3);
     return proj34;     
+}
+
+Vector6d Converter::toProjvec6(cv::Mat proj)
+{
+    Eigen::Matrix<float, 4, 4> proj44;
+    proj44 <<   proj.at<float>(0, 0), proj.at<float>(0, 1), proj.at<float>(0, 2), proj.at<float>(0, 3),
+                proj.at<float>(1, 0), proj.at<float>(1, 1), proj.at<float>(1, 2), proj.at<float>(1, 3),
+                proj.at<float>(2, 0), proj.at<float>(2, 1), proj.at<float>(2, 2), proj.at<float>(2, 3),
+                proj.at<float>(3, 0), proj.at<float>(3, 1), proj.at<float>(3, 2), proj.at<float>(3, 3);
+    
+    Eigen::Matrix3f rot = proj44.block<3, 3>(0, 0);
+    Eigen::Vector3f rotVec3 = ToVec3(rot);
+    Vector6d poseVec6;
+    poseVec6 << (double)rotVec3[0], (double)rotVec3[1], (double)rotVec3[2], (double)proj44(0, 3), (double)proj44(1, 3), (double)proj44(2, 3);    
+    
+    return poseVec6;     
 }
 
 Eigen::MatrixXf Converter::Mat2Eigen(cv::Mat a)

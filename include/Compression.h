@@ -83,6 +83,8 @@ public:
     // print
     void printKeyframeInfo(const std::string &file);
 
+
+    std::vector<ORB_SLAM2::MapPoint*> getKeyframeMap(ORB_SLAM2::KeyFrame* kf);
     void iterateKeyframeRemoval();
 
 ///////////////////////////////////////////////////////////////////////   

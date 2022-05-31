@@ -45,6 +45,7 @@ endif()
 
 find_package(Eigen3 3.1.0 REQUIRED)
 find_package(Pangolin REQUIRED)
+find_package(Ceres REQUIRED)
 
 include_directories(
 ${PROJECT_SOURCE_DIR}
@@ -87,6 +88,7 @@ ${Pangolin_LIBRARIES}
 ${PROJECT_SOURCE_DIR}/Thirdparty/DBoW2/lib/libDBoW2.so
 ${PROJECT_SOURCE_DIR}/Thirdparty/g2o/lib/libg2o.so
 ${EXTRA_LIBS}
+
 )
 
 message(STATUS "Compile With map save/load function")
@@ -136,6 +138,14 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Compression)
 add_executable(compression
 Compression/main_compression.cc)
 target_link_libraries(compression ${PROJECT_NAME})
+
+# Bundle adjusment
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Compression)
+
+add_executable(ba
+Compression/main_fullBa.cc)
+target_link_libraries(ba ${PROJECT_NAME} Ceres::ceres)
+
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Vocabulary)
 add_executable(bin_vocabulary Vocabulary/bin_vocabulary.cpp)

@@ -54,10 +54,12 @@ public:
 
     static Eigen::Matrix4d To44RT(Vector6d pose);
     static Eigen::Vector3d ToVec3(Eigen::Matrix3d rot);
+    static Eigen::Vector3f ToVec3(Eigen::Matrix3f rot);
     static Eigen::Matrix3d ToMat33(Eigen::Vector3d rod);
     static cv::Mat To44RTproj(Vector6d pose);
     static Vector6d Proj2Vec6(cv::Mat proj);
     static Eigen::Matrix<float, 3, 4> toProj34(cv::Mat proj);
+    static Vector6d toProjvec6(cv::Mat proj);
     static Eigen::MatrixXf Mat2Eigen(cv::Mat a);
     static double Rad2Degree(double rad);
     static double Ddegree2Rad(double degree);

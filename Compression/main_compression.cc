@@ -65,8 +65,8 @@ int main(int argc, char** argv)
     
     compression.originalKeyframeNum = (double)compression.Map->GetAllKeyFrames().size();
 
-    std::cout << " remove Keyframe ... " << std::endl;
-    // compression.removalKeyframe2(0.20);
+    // std::cout << " remove Keyframe ... " << std::endl;
+    compression.removalKeyframe2(0.20);
     // LandmarkSparsification(0.8);
     std::cout << " Finish Compression !! " << std::endl;
 
@@ -77,7 +77,7 @@ int main(int argc, char** argv)
     // compression.initializing();
     // std::vector<ORB_SLAM2::KeyFrame*> kfdb = compression.Map->GetAllKeyFrames();
     // std::sort(kfdb.begin(),kfdb.end(),ORB_SLAM2::KeyFrame::lId);
-    // compression.getreprojectionErr(kfdb[103]);
+    // compression.getreprojectionErr(kfdb[92]);
     // obs file
     // std::vector<ORB_SLAM2::MapPoint*> mpDB = compression.Map->GetAllMapPoints();
     // for(size_t i = 0; i < mpDB.size(); i++){

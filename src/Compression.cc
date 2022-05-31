@@ -115,7 +115,7 @@ int Compression::removalKeyframe2(double CompressionKfRatio)
 {
 
 
-    int totalRemovedptsNum = 0;
+    int totalRemovedKeyframeNum = 0;
     int iterateNum = 0;
 
     
@@ -167,14 +167,14 @@ int Compression::removalKeyframe2(double CompressionKfRatio)
             }
         }
         
-        totalRemovedptsNum++;
+        totalRemovedKeyframeNum++;
         iterateNum++;
         if(reachRemoveKf) break;
-        if(CompressionKfRatio >= (double)(originalKeyframeNum - totalRemovedptsNum) / (double)originalKeyframeNum) break;
+        if(CompressionKfRatio >= (double)(originalKeyframeNum - totalRemovedKeyframeNum) / (double)originalKeyframeNum) break;
         
     }
     std::cout << std::endl;
-    return totalRemovedptsNum;
+    return totalRemovedKeyframeNum;
 }
 
 
@@ -204,7 +204,7 @@ void Compression::preparing()
     
     for(size_t i = 0; i < totalKeyframeNum; i++){
         kfObsNums[i] = getObservation(kfdb[i + 1]);
-        kfMpNums[i] = kfdb[i + 1]->GetMapPoints().size();
+        kfMpNums[i] = getKeyframeMap(kfdb[i + 1]).size();
     }
     
     TotalObservation = getTotalObservation();
@@ -277,12 +277,21 @@ int Compression::getTotalMapPoints()
 
 double Compression::getObservation(ORB_SLAM2::KeyFrame* kf)
 {
-    std::set<ORB_SLAM2::MapPoint*> kfmp = kf->GetMapPoints();
+    // std::set<ORB_SLAM2::MapPoint*> kfmp = kf->GetMapPoints();
+    
+    std::vector<ORB_SLAM2::MapPoint*> kfmp = getKeyframeMap(kf);
     double total = 0;
-    for(std::set<ORB_SLAM2::MapPoint*>::iterator iter = kfmp.begin(); iter != kfmp.end(); iter++){
-        double mpObsNum = (double)getObservation(*iter);
-        total += mpObsNum;
+    
+    // for(std::set<ORB_SLAM2::MapPoint*>::iterator iter = kfmp.begin(); iter != kfmp.end(); iter++){
+    //     double mpObsNum = (double)getObservation(*iter);
+    //     total += mpObsNum;
+    // }
+
+    for(size_t i = 0; i < kfmp.size(); i++){
+        double mpObsNum = (double)getObservation(kfmp[i]);
+        total += mpObsNum;        
     }
+
     return total/(double)kfmp.size();
 }
 
@@ -299,19 +308,18 @@ void Compression::getKeyframeSimilarityMatrix()
 
     for(size_t i = 1; i < kfdb.size(); i++){
 
-        int lastKeyframeMpNum = kfdb[i]->GetMapPoints().size();
+        int lastKeyframeMpNum = getKeyframeMap(kfdb[i]).size();
         for(size_t j = 1; j < kfdb.size(); j++){
             
-            // int currKeyframeMpNum = kfdb[j]->GetMapPoints().size();
-            getRelativePose(kfdb[i], kfdb[j]);
+            // getRelativePose(kfdb[i], kfdb[j]);
             // std::cout << relPoseErr[0] << "    " << ORB_SLAM2::Converter::Rad2Degree(relPoseErr[1]) << std::endl;
-            if(relPoseErr[0] < 3.0 && ORB_SLAM2::Converter::Rad2Degree(relPoseErr[1]) < 60){
+            // if(relPoseErr[0] < 3.0 && ORB_SLAM2::Converter::Rad2Degree(relPoseErr[1]) < 60){
 
                 int covisibilityMpNum = getCovisibilityMpNum(kfdb[i], kfdb[j]);
                 similarityMatrix(i - 1, j - 1) = (double)covisibilityMpNum / (double)lastKeyframeMpNum;
-            }
-            else
-                similarityMatrix(i - 1, j - 1) = 0.0;
+            // }
+            // else
+            //     similarityMatrix(i - 1, j - 1) = 0.0;
 
         }
     
@@ -332,7 +340,10 @@ void Compression::getAllKeyframeReprojErr()
 float Compression::getreprojectionErr(ORB_SLAM2::KeyFrame* kf)
 {
     float reprojErr = 0.0;
-    std::set<ORB_SLAM2::MapPoint*> kfMapPoints = kf->GetMapPoints();
+    // std::set<ORB_SLAM2::MapPoint*> kfMapPoints = kf->GetMapPoints();
+    // test
+    std::vector<ORB_SLAM2::MapPoint*> kfMapPoints = getKeyframeMap(kf);
+
     Eigen::Matrix4Xf worldPoints(4, kfMapPoints.size());
     Eigen::Matrix3Xf imgPoints(3, kfMapPoints.size());
     Eigen::Matrix3Xf reprojectPoints(3, kfMapPoints.size());
@@ -342,31 +353,35 @@ float Compression::getreprojectionErr(ORB_SLAM2::KeyFrame* kf)
             0, kf->fy, kf->cy,
             0, 0, 1;
     
-    int i = 0;
-    for(std::set<ORB_SLAM2::MapPoint*>::iterator iter = kfMapPoints.begin(); iter!=kfMapPoints.end(); iter++){
+
+
+    for(size_t i = 0; i < kfMapPoints.size(); i++){
         
-        cv::Mat mapPoint = (*iter)->GetWorldPos();
-        int idx = (*iter)->GetIndexInKeyFrame(kf);
+        cv::Mat mapPoint = (kfMapPoints[i])->GetWorldPos();
+        int idx = (kfMapPoints[i])->GetIndexInKeyFrame(kf);
 
         worldPoints(0, i) = mapPoint.at<float>(0, 0);
         worldPoints(1, i) = mapPoint.at<float>(1, 0);
         worldPoints(2, i) = mapPoint.at<float>(2, 0);
         worldPoints(3, i) = 1.0f;
-
-        imgPoints(0, i) = kf->mvKeysUn[idx].pt.x;
-        imgPoints(1, i) = kf->mvKeysUn[idx].pt.y;
+        
+        imgPoints(0, i) = kf->mvKeys[idx].pt.x;
+        imgPoints(1, i) = kf->mvKeys[idx].pt.y;
         imgPoints(2, i) = 1.0f;
-        // std::cout << imgPoints(0, i) << " " << imgPoints(1, i) << " " << imgPoints(2, i) << std::endl;
-        i++;
+        
+        // std::cout << imgPoints(0, i) << " " << imgPoints(1, i) << " " << imgPoints(2, i) << "    ";
+        // std::cout << worldPoints(0, i) << " " << worldPoints(1, i) << " " << worldPoints(2, i) << " " << worldPoints(3, i) << std::endl;
     }
     
     // get reprojection Error 
     reprojectPoints = proj * worldPoints;
-
+    
+    
     for(int i = 0; i < reprojectPoints.cols(); i++){
         reprojectPoints(0, i) /= reprojectPoints(2, i);
         reprojectPoints(1, i) /= reprojectPoints(2, i);
         reprojectPoints(2, i) /= reprojectPoints(2, i);
+    // std::cout << reprojectPoints(0, i) << " " << reprojectPoints(1, i) << " " << reprojectPoints(2, i) << std::endl; 
     }
     reprojectPoints = K_ * reprojectPoints;    
 
@@ -379,18 +394,24 @@ float Compression::getreprojectionErr(ORB_SLAM2::KeyFrame* kf)
         reprojErr += ReprojectErr[i];
         // std::cout << ReprojectErr[i] << std::endl;
     }
-    // std::cout << reprojErr/kfMapPoints.size() << std::endl;
-    return reprojErr/kfMapPoints.size();
+    // std::cout << reprojErr/(float)kfMapPoints.size() << std::endl;
+    return reprojErr/(float)kfMapPoints.size();
 }
 
 int Compression::getCovisibilityMpNum(ORB_SLAM2::KeyFrame* kf1, ORB_SLAM2::KeyFrame* kf2)
 {
-    std::set<ORB_SLAM2::MapPoint*> kfMapPoints = kf1->GetMapPoints();
+    // std::set<ORB_SLAM2::MapPoint*> kfMapPoints = kf1->GetMapPoints();
+    std::vector<ORB_SLAM2::MapPoint*> kfMapPoints = getKeyframeMap(kf1);
     
     int covisibilityCnt = 0;
-    for(std::set<ORB_SLAM2::MapPoint*>::iterator iter = kfMapPoints.begin(); iter!=kfMapPoints.end(); iter++){
-        bool covisibilityLandmark = (*iter)->IsInKeyFrame(kf2);
-        if(covisibilityLandmark) covisibilityCnt++;
+    // for(std::set<ORB_SLAM2::MapPoint*>::iterator iter = kfMapPoints.begin(); iter!=kfMapPoints.end(); iter++){
+    //     bool covisibilityLandmark = (*iter)->IsInKeyFrame(kf2);
+    //     if(covisibilityLandmark) covisibilityCnt++;
+    // }
+
+    for(size_t i = 0; i < kfMapPoints.size(); i++){
+        bool covisibilityLandmark = (kfMapPoints[i])->IsInKeyFrame(kf2);
+        if(covisibilityLandmark) covisibilityCnt++;        
     }
 
     return covisibilityCnt;
@@ -448,6 +469,20 @@ void Compression::printKeyframeInfo(const std::string &file)
 
 
 }
+
+std::vector<ORB_SLAM2::MapPoint*> Compression::getKeyframeMap(ORB_SLAM2::KeyFrame* kf)
+{
+    std::vector<ORB_SLAM2::MapPoint*> kfMap;
+    std::set<ORB_SLAM2::MapPoint*> mp = kf->GetMapPoints();
+    for(std::set<ORB_SLAM2::MapPoint*>::iterator iter = mp.begin(); iter!=mp.end(); iter++){
+        bool Inkeyframe = (*iter)->IsInKeyFrame(kf);
+        if(Inkeyframe){
+            kfMap.push_back(*iter);
+        }
+    }
+    return kfMap;
+}
+
 
 void Compression::iterateKeyframeRemoval()
 {

@@ -1366,7 +1366,7 @@ bool Tracking::Relocalization()
     }
 
     const int nKFs = vpCandidateKFs.size();
-
+    std::cout << nKFs << std::endl;
     // We perform first an ORB matching with each candidate
     // If enough matches are found we setup a PnP solver
     ORBmatcher matcher(0.75,true);
@@ -1390,6 +1390,7 @@ bool Tracking::Relocalization()
         else
         {
             int nmatches = matcher.SearchByBoW(pKF,mCurrentFrame,vvpMapPointMatches[i]);
+            std::cout << "keyframe id : "<< pKF->mnId << "   matches : " << nmatches << std::endl;
             if(nmatches<15)
             {
                 vbDiscarded[i] = true;
