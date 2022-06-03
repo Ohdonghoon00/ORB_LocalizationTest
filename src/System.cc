@@ -570,6 +570,7 @@ bool System::LoadMap(const string &filename)
         it->ComputeBoW();
         if (it->mnFrameId > mnFrameId)
             mnFrameId = it->mnFrameId;
+        
     }
     Frame::nNextId = mnFrameId;
     cout << " ...done" << endl;

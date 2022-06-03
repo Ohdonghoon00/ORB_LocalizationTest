@@ -63,10 +63,15 @@ int main(int argc, char** argv)
     // compression.getKeyframeScoreVector();
     // compression.getKeyframeSimilarityMatrix();
     
-    compression.originalKeyframeNum = (double)compression.Map->GetAllKeyFrames().size();
-
-    // std::cout << " remove Keyframe ... " << std::endl;
-    compression.removalKeyframe2(0.20);
+    // compression.originalKeyframeNum = (double)compression.Map->GetAllKeyFrames().size();
+    // compression.kfNewIds.resize(originalKeyframeNum);
+    // for(size_t i = 0; i < compression.kfNewIds.size(); i++) compression.kfNewIds[i] = i;
+    double compRatio = std::stod(argv[2]);
+    compression.setInitial(compRatio);
+    std::cout << "ddd" << compression.neighborKeyframeIdThres << std::endl;
+    std::cout << " remove Keyframe ... " << std::endl;
+    // compression.removalKeyframe1();
+    compression.removalKeyframe2();
     // LandmarkSparsification(0.8);
     std::cout << " Finish Compression !! " << std::endl;
 
@@ -77,7 +82,7 @@ int main(int argc, char** argv)
     // compression.initializing();
     // std::vector<ORB_SLAM2::KeyFrame*> kfdb = compression.Map->GetAllKeyFrames();
     // std::sort(kfdb.begin(),kfdb.end(),ORB_SLAM2::KeyFrame::lId);
-    // compression.getreprojectionErr(kfdb[92]);
+    // std::cout << kfdb[92]->fx << " " <<  kfdb[92]->fy << " " << kfdb[92]->cx << " " << kfdb[92]->cy << std::endl;
     // obs file
     // std::vector<ORB_SLAM2::MapPoint*> mpDB = compression.Map->GetAllMapPoints();
     // for(size_t i = 0; i < mpDB.size(); i++){
@@ -173,7 +178,7 @@ int main(int argc, char** argv)
 
     // Save Map data
     std::cout << "Save Map ... " << std::endl;
-    std::string outpath = "MH01_kf_Compression_10_test.bin";
+    std::string outpath = "MH01_KFcompression_test.bin";
     std::ofstream out(outpath, std::ios_base::binary);
     if (!out)
     {

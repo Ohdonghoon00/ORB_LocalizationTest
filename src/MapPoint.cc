@@ -83,6 +83,24 @@ cv::Mat MapPoint::GetWorldPos()
     return mWorldPos.clone();
 }
 
+// dh
+void MapPoint::savePoint3d()
+{
+    mWPos.x = (double)mWorldPos.at<float>(0, 0);
+    mWPos.y = (double)mWorldPos.at<float>(1, 0);
+    mWPos.z = (double)mWorldPos.at<float>(2, 0);
+}
+
+// dh
+void MapPoint::saveOptimizePos()
+{
+    cv::Mat wPos(3, 1, CV_32F);
+    wPos.at<float>(0, 0) = (float)mWPos.x;
+    wPos.at<float>(1, 0) = (float)mWPos.y;
+    wPos.at<float>(2, 0) = (float)mWPos.z;
+    SetWorldPos(wPos);
+}
+
 cv::Mat MapPoint::GetNormal()
 {
     unique_lock<mutex> lock(mMutexPos);

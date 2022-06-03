@@ -137,6 +137,11 @@ private:
     // The following variables are accesed from only 1 thread or never change (no mutex needed).
 public:
 
+    // dh Image and New Id
+    cv::Mat LeftImg, RightImg;
+    int newId;
+    
+
     static long unsigned int nNextId;
     long unsigned int mnId;
     const long unsigned int mnFrameId;

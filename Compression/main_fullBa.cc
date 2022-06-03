@@ -31,31 +31,32 @@ int main(int argc, char** argv)
     std::sort(kfdb.begin(),kfdb.end(),ORB_SLAM2::KeyFrame::lId);
 
     // full ba
-        ceres::Problem global_BA; 
-        for(int j = 0; j < kfdb.size(); j++){
+    ceres::Problem global_BA; 
+    for(size_t j = 0; j < kfdb.size(); j++){
             
-            std::vector<ORB_SLAM2::MapPoint*> mapKf = compression.getKeyframeMap(kfdb[j]);
-            cv::Mat proj = kfdb[j]->GetPose();
-            Vector6d projVec6 = ORB_SLAM2::Converter::toProjvec6(proj);
+        std::vector<ORB_SLAM2::MapPoint*> mapKf = compression.getKeyframeMap(kfdb[j]);
+        cv::Mat proj = kfdb[j]->GetPose();
+        Vector6d projVec6 = ORB_SLAM2::Converter::toProjvec6(proj);
             
-            cv::Vec6d CamPose(projVec6[0], projVec6[1], projVec6[2], projVec6[3], projVec6[4], projVec6[5]);
+        cv::Vec6d CamPose(projVec6[0], projVec6[1], projVec6[2], projVec6[3], projVec6[4], projVec6[5]);
             
-            for ( int i = 0; i < mapKf.size(); i++){
+        for ( size_t i = 0; i < mapKf.size(); i++){
                 
-                int keypointIdx = (mapKf[i])->GetIndexInKeyFrame(kfdb[j]);
-                cv::Point2f keyPoint = kfdb[j]->mvKeys[keypointIdx].pt;
-                
-                ceres::CostFunction* map_only_cost_func = map_point_only_ReprojectionError::create(keyPoint, CamPose, (double)kfdb[j]->fx, cv::Point2d(kfdb[j]->cx, kfdb[j]->cy));
-                
-                double* X = (double*)(mapKf[i]);
-                global_BA.AddResidualBlock(map_only_cost_func, NULL, X); 
+            int keypointIdx = (mapKf[i])->GetIndexInKeyFrame(kfdb[j]);
+            cv::Point2f keyPoint = kfdb[j]->mvKeys[keypointIdx].pt;
             
-            } 
+            ceres::CostFunction* map_only_cost_func = map_point_only_ReprojectionError::create(keyPoint, CamPose, (double)kfdb[j]->fx, cv::Point2d(kfdb[j]->cx, kfdb[j]->cy));
+
+            mapKf[i]->savePoint3d(); 
+                
+            double* X = (double*)(&mapKf[i]->mWPos);
+            global_BA.AddResidualBlock(map_only_cost_func, NULL, X); 
             
-            std::cout << std::endl;
-        }
+        } 
+            
+    }
         
-        std::vector<MapPoint*> aaa = compression.Map->GetAllMapPoints();
+        std::vector<ORB_SLAM2::MapPoint*> aaa = compression.Map->GetAllMapPoints();
         
         ceres::Solver::Options options;
         options.linear_solver_type = ceres::ITERATIVE_SCHUR;
@@ -63,10 +64,17 @@ int main(int argc, char** argv)
         options.minimizer_progress_to_stdout = false;
         ceres::Solver::Summary summary;
         std::cout << " Start optimize map point " << std::endl;
-        std::cout << 
+        std::cout << aaa[100]->GetWorldPos().t() << std::endl;
+        std::cout << aaa[100]->mWPos << std::endl;
         ceres::Solve(options, &global_BA, &summary);
         std::cout << summary.BriefReport() << std::endl;                
-        std::cout << " End optimize map point " << std::endl;    
+        for(size_t i = 0; i < aaa.size(); i++){
+            aaa[i]->saveOptimizePos();
+        }
+        std::cout << " End optimize map point " << std::endl;
+        std::cout << aaa[100]->GetWorldPos().t() << std::endl;
+        std::cout << aaa[100]->mWPos << std::endl;    
+
 
 
 

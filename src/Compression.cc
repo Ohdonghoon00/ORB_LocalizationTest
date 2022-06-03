@@ -98,8 +98,8 @@ int Compression::removalKeyframe1()
         // std::cout << covisibilityCnt << std::endl;
         std::cout << ratio << std::endl;
         
-        // if(covisibilityCnt > 100 && ){
-        if(covisibilityCnt > 50 && lastFrameMp > currFrameMp){
+        if(covisibilityCnt > 100){
+        // if(covisibilityCnt > 50 && lastFrameMp > currFrameMp){
             int kfmp = kfdb[i]->GetMapPoints().size();
             kfdb[i]->SetBadFlag();
             removeKeyframeCnt++; 
@@ -111,7 +111,7 @@ int Compression::removalKeyframe1()
     return totalRemovedptsNum; 
 }
 
-int Compression::removalKeyframe2(double CompressionKfRatio)
+int Compression::removalKeyframe2()
 {
 
 
@@ -128,13 +128,13 @@ int Compression::removalKeyframe2(double CompressionKfRatio)
         
         iterateKeyframeRemoval();
         
-        std::cout << "iterate ....   " <<  iterateNum <<  std::endl; 
+        std::cout << "...................................     iterate  ....   " <<  iterateNum <<  std::endl; 
     
         Eigen::VectorXd invScoreVec_(totalKeyframeNum);
         for(int i = 0; i < invScoreVec_.size(); i++) invScoreVec_[i] = 1.0;        
     
-        // KeyframeInvWeight = invScoreVec;
-        KeyframeInvWeight = similarityMatrix * invScoreVec_;        
+        KeyframeInvWeight = invScoreVec;
+        // KeyframeInvWeight = similarityMatrix * invScoreVec_;        
         // std::cout << kfdb.size() << "   " << totalKeyframeNum << std::endl;
 
 
@@ -150,9 +150,12 @@ int Compression::removalKeyframe2(double CompressionKfRatio)
             int idx = sortIdx[sortArr];
             int neighborKfNum = getNeighborKeyframeNum(kfdb[idx]);
             // int neighborKfNum = 100;
-            if(neighborKfNum > neighborKeyframeNumThres){
+            int neighborKfIdDist = getNeighborKeyframeIdDist(idx); 
+            if(neighborKfNum > neighborKeyframeNumThres && neighborKfIdDist <= neighborKeyframeIdThres){
                 std::cout << " removed keyframe Id : " << kfdb[idx]->mnId << "     neighbor Keyframe Num : " << neighborKfNum << "   neighbor iter num : " << neightborIter << std::endl;
+                std::cout << " id distant : " << neighborKfIdDist << std::endl;
                 kfdb[idx]->SetBadFlag();
+                kfNewIds.erase(kfNewIds.begin() + idx);
                 break;
             }
             else{
@@ -170,7 +173,7 @@ int Compression::removalKeyframe2(double CompressionKfRatio)
         totalRemovedKeyframeNum++;
         iterateNum++;
         if(reachRemoveKf) break;
-        if(CompressionKfRatio >= (double)(originalKeyframeNum - totalRemovedKeyframeNum) / (double)originalKeyframeNum) break;
+        if(kfCompressedRatio >= (double)(originalKeyframeNum - totalRemovedKeyframeNum) / (double)originalKeyframeNum) break;
         
     }
     std::cout << std::endl;
@@ -195,6 +198,8 @@ void Compression::initializing()
 
     kfObsRank.resize(totalKeyframeNum);
     kfMpNumRank.resize(totalKeyframeNum);
+
+    
 }
 
 void Compression::preparing()
@@ -311,15 +316,15 @@ void Compression::getKeyframeSimilarityMatrix()
         int lastKeyframeMpNum = getKeyframeMap(kfdb[i]).size();
         for(size_t j = 1; j < kfdb.size(); j++){
             
-            // getRelativePose(kfdb[i], kfdb[j]);
+            getRelativePose(kfdb[i], kfdb[j]);
             // std::cout << relPoseErr[0] << "    " << ORB_SLAM2::Converter::Rad2Degree(relPoseErr[1]) << std::endl;
-            // if(relPoseErr[0] < 3.0 && ORB_SLAM2::Converter::Rad2Degree(relPoseErr[1]) < 60){
+            if(relPoseErr[0] < 1.0){
 
                 int covisibilityMpNum = getCovisibilityMpNum(kfdb[i], kfdb[j]);
                 similarityMatrix(i - 1, j - 1) = (double)covisibilityMpNum / (double)lastKeyframeMpNum;
-            // }
-            // else
-            //     similarityMatrix(i - 1, j - 1) = 0.0;
+            }
+            else
+                similarityMatrix(i - 1, j - 1) = 0.0;
 
         }
     
@@ -365,8 +370,8 @@ float Compression::getreprojectionErr(ORB_SLAM2::KeyFrame* kf)
         worldPoints(2, i) = mapPoint.at<float>(2, 0);
         worldPoints(3, i) = 1.0f;
         
-        imgPoints(0, i) = kf->mvKeys[idx].pt.x;
-        imgPoints(1, i) = kf->mvKeys[idx].pt.y;
+        imgPoints(0, i) = kf->mvKeysUn[idx].pt.x;
+        imgPoints(1, i) = kf->mvKeysUn[idx].pt.y;
         imgPoints(2, i) = 1.0f;
         
         // std::cout << imgPoints(0, i) << " " << imgPoints(1, i) << " " << imgPoints(2, i) << "    ";
@@ -437,12 +442,42 @@ int Compression::getNeighborKeyframeNum(ORB_SLAM2::KeyFrame* kf)
         
         getRelativePose(kf, kfdb[i]);
         if(relPoseErr[0] < neighborKeyframeTranslationThres && ORB_SLAM2::Converter::Rad2Degree(relPoseErr[1]) < neighborKeyframeRotationThres) neighborKfNum++;
+        // if(relPoseErr[0] < neighborKeyframeTranslationThres) neighborKfNum++;
     }
     
     return neighborKfNum;
 }
 
+int Compression::getNeighborKeyframeIdDist(int idx)
+{
+    int idDist = 0;
+    if(kfNewIds[idx] == kfNewIds.back()) idDist = maxNewid - kfNewIds[idx - 1];
+    else{
+        idDist = kfNewIds[idx + 1] - kfNewIds[idx - 1];
 
+    }
+    
+    return idDist;
+}
+
+void Compression::setInitial(double kfCompressedRatio_)
+{
+    originalKeyframeNum = (double)Map->GetAllKeyFrames().size();
+    
+    std::vector<ORB_SLAM2::KeyFrame*> kfdb = Map->GetAllKeyFrames();
+    std::sort(kfdb.begin(),kfdb.end(),ORB_SLAM2::KeyFrame::lId);
+    
+    kfNewIds.resize(originalKeyframeNum); 
+
+    for(size_t i = 0; i < kfdb.size(); i++){
+        
+        kfdb[i]->newId = i;
+        kfNewIds[i] = i;
+    }
+    maxNewid = kfdb.size() - 1;
+    kfCompressedRatio = kfCompressedRatio_;
+    neighborKeyframeIdThres = ((int)1/kfCompressedRatio) * 2 + 1;
+}
 
 void Compression::printKeyframeInfo(const std::string &file)
 {
@@ -455,9 +490,9 @@ void Compression::printKeyframeInfo(const std::string &file)
     Eigen::VectorXd invScoreVec_(totalKeyframeNum);
     for(int i = 0; i < invScoreVec_.size(); i++) invScoreVec_[i] = 1.0;
     Eigen::VectorXd KeyframeInvWeight_(totalKeyframeNum);        
-    
-    KeyframeInvWeight_ = similarityMatrix * invScoreVec_;
-
+    KeyframeInvWeight = similarityMatrix * invScoreVec_;
+    minMaxNormalize(&KeyframeInvWeight);
+    KeyframeInvWeight_ = KeyframeInvWeight + invScoreVec;
 
     std::cout << "KeyframeId     " << "ObsNum     " << "ObsNumRatio     " << "ObsRemoveRank     " << "MpNum     " << "MpNumRatio     " << "MpNumRemoveRank     " << std::endl; 
     for(size_t i = 1; i < kfdb.size(); i++){

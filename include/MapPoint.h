@@ -45,6 +45,10 @@ public:
 
     void SetWorldPos(const cv::Mat &Pos);
     cv::Mat GetWorldPos();
+    
+    // dh
+    void savePoint3d();
+    void saveOptimizePos();
 
     cv::Mat GetNormal();
     KeyFrame* GetReferenceKeyFrame();
@@ -126,6 +130,7 @@ public:
 
      // Position in absolute coordinates
      cv::Mat mWorldPos;
+    cv::Point3d mWPos;
 
      // Keyframes observing the point and associated index in keyframe
      std::map<KeyFrame*,size_t> mObservations;

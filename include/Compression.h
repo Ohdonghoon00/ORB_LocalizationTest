@@ -19,7 +19,7 @@ public:
     Compression()
     {}
 
-    
+    double kfCompressedRatio;
 
     ORB_SLAM2::Map* Map;
     // ORB_SLAM2::MapPoint* MapPoint;
@@ -42,23 +42,28 @@ public:
     inline static std::vector<double> kfMpNumsRatio;
     std::vector<int> kfObsRank;
     std::vector<int> kfMpNumRank;
+    std::vector<int> kfNewIds;
+    int maxNewid;
     double TotalObservation;
     int TotalMapPoints;
+    
 
     // Score Parameter
-    double obsRatio = 0.5;
+    double obsRatio = 0.0;
     double mpRatio = 1.0 - obsRatio;
     double relPoseErr[2];
-    int neighborKeyframeNumThres = 3; 
-    double neighborKeyframeTranslationThres = 1.0;
-    double neighborKeyframeRotationThres = 60;
+    int neighborKeyframeNumThres = 2; 
+    int neighborKeyframeIdThres; 
+    double neighborKeyframeTranslationThres = 0.8;
+    double neighborKeyframeRotationThres = 45;
     
     // Compresssion
     void LandmarkSparsification(double CompressionRatio);
     int removalKeyframe1();
-    int removalKeyframe2(double CompressionKfRatio);
+    int removalKeyframe2();
     
     // preparing
+    void setInitial(double kfCompressedRatio_);
     void initializing();
     void preparing();
 
@@ -77,8 +82,10 @@ public:
     void getKeyframeSimilarityMatrix();
     int getCovisibilityMpNum(ORB_SLAM2::KeyFrame* kf1, ORB_SLAM2::KeyFrame* kf2);
     
+    // Constraint
     void getRelativePose(ORB_SLAM2::KeyFrame* kf1, ORB_SLAM2::KeyFrame* kf2);
     int getNeighborKeyframeNum(ORB_SLAM2::KeyFrame* kf);
+    int getNeighborKeyframeIdDist(int idx);
     
     // print
     void printKeyframeInfo(const std::string &file);

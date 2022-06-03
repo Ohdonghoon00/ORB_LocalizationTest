@@ -951,12 +951,14 @@ std::cout << "track local map" << std::endl;
     // Optimize Pose
     Optimizer::PoseOptimization(&mCurrentFrame);
     mnMatchesInliers = 0;
+    int outLierMatch = 0;
 
     // Update MapPoints Statistics
     for(int i=0; i<mCurrentFrame.N; i++)
     {
         if(mCurrentFrame.mvpMapPoints[i])
         {
+            if(mCurrentFrame.mvbOutlier[i]) outLierMatch++; 
             if(!mCurrentFrame.mvbOutlier[i])
             {
                 mCurrentFrame.mvpMapPoints[i]->IncreaseFound();
@@ -973,7 +975,9 @@ std::cout << "track local map" << std::endl;
 
         }
     }
-
+    
+    // dh
+    std::cout << "Final Match inlier Num : " << mnMatchesInliers << "   inlierRatio : " << (double)mnMatchesInliers / (double)(mnMatchesInliers+outLierMatch) << std::endl;
     // Decide if the tracking was succesful
     // More restrictive if there was a relocalization recently
     if(mCurrentFrame.mnId<mnLastRelocFrameId+mMaxFrames && mnMatchesInliers<50)
@@ -1237,6 +1241,8 @@ void Tracking::UpdateLocalPoints()
             }
         }
     }
+    // dh
+    std::cout  << "Local Keyframe Num : " << mvpLocalKeyFrames.size() << "   Local Map Points size : " << mvpLocalMapPoints.size() << std::endl; 
 }
 
 
@@ -1359,14 +1365,16 @@ bool Tracking::Relocalization()
     // Relocalization is performed when tracking is lost
     // Track Lost: Query KeyFrame Database for keyframe candidates for relocalisation
     vector<KeyFrame*> vpCandidateKFs = mpKeyFrameDB->DetectRelocalizationCandidates(&mCurrentFrame);
-
+    
     if(vpCandidateKFs.empty()){
         std::cout << " no relocalization candidate !! " << std::endl;
         return false;
     }
 
     const int nKFs = vpCandidateKFs.size();
-    std::cout << nKFs << std::endl;
+    std::cout << " find candidate Num : " << nKFs << "   id : ";
+    for(int i=0; i<nKFs; i++) std::cout << vpCandidateKFs[i]->mnId << "  ";
+    std::cout << std::endl;
     // We perform first an ORB matching with each candidate
     // If enough matches are found we setup a PnP solver
     ORBmatcher matcher(0.75,true);
@@ -1390,7 +1398,7 @@ bool Tracking::Relocalization()
         else
         {
             int nmatches = matcher.SearchByBoW(pKF,mCurrentFrame,vvpMapPointMatches[i]);
-            std::cout << "keyframe id : "<< pKF->mnId << "   matches : " << nmatches << std::endl;
+            std::cout << "nmatches : " << nmatches << "   ";
             if(nmatches<15)
             {
                 vbDiscarded[i] = true;
