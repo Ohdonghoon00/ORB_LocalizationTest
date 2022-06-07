@@ -49,16 +49,16 @@ public:
     
 
     // Score Parameter
-    double obsRatio = 0.0;
+    double obsRatio = 1.0;
     double mpRatio = 1.0 - obsRatio;
     double relPoseErr[2];
-    int neighborKeyframeNumThres = 2; 
+    int neighborKeyframeNumThres = 1; 
     int neighborKeyframeIdThres; 
-    double neighborKeyframeTranslationThres = 0.8;
-    double neighborKeyframeRotationThres = 45;
+    double neighborKeyframeTranslationThres = 0.6;
+    double neighborKeyframeRotationThres = 20;
     
     // Compresssion
-    void LandmarkSparsification(double CompressionRatio);
+    void LandmarkSparsification();
     int removalKeyframe1();
     int removalKeyframe2();
     
@@ -98,6 +98,7 @@ public:
 
 
     int getMemory(ORB_SLAM2::MapPoint* mp);
+    int getMemory(ORB_SLAM2::KeyFrame* kf);
     
     int cvMatSize(cv::Mat a);
     void minMaxNormalize(Eigen::VectorXd *vec);

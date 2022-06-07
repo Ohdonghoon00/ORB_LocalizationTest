@@ -71,14 +71,15 @@ int main(int argc, char** argv)
     std::cout << "ddd" << compression.neighborKeyframeIdThres << std::endl;
     std::cout << " remove Keyframe ... " << std::endl;
     // compression.removalKeyframe1();
-    compression.removalKeyframe2();
-    // LandmarkSparsification(0.8);
+    int totalRemovedMemory = compression.removalKeyframe2();
+    // compression.LandmarkSparsification();
     std::cout << " Finish Compression !! " << std::endl;
-
+    int totalRemovedLandmark = 36829 - compression.Map->MapPointsInMap();
+    totalRemovedMemory += totalRemovedLandmark * 736;
     std::cout << " print Compressed Keyframe Info ... " << std::endl;
     compression.iterateKeyframeRemoval();
     compression.printKeyframeInfo("CompressionKeyframeInfo.txt");
-
+    std::cout <<  " Total memory of removed mapPoints : " << totalRemovedMemory << std::endl;
     // compression.initializing();
     // std::vector<ORB_SLAM2::KeyFrame*> kfdb = compression.Map->GetAllKeyFrames();
     // std::sort(kfdb.begin(),kfdb.end(),ORB_SLAM2::KeyFrame::lId);
@@ -167,7 +168,7 @@ int main(int argc, char** argv)
     //     totalsize += totalsize1;
     // }
     // std::cout << "ddd  : " << totalsize << std::endl;
-    // std::cout << kfdb_[10]->mConnectedKeyFrameWeights.size() * 12 << std::endl;
+    // std::cout << kfdb_[10]->mConnectedKeyFrameWeights.size() * (sizeof(ORB_SLAM2::KeyFrame*) + sizeof(int)) << std::endl;
     // std::cout << kfdb_[10]->mvpOrderedConnectedKeyFrames.size() * sizeof(ORB_SLAM2::KeyFrame*) << std::endl;
     // std::cout << kfdb_[10]->mvOrderedWeights.size() * sizeof(int) << std::endl;
     // std::cout << sizeof(kfdb_[10]->mMutexPose) << std::endl;

@@ -105,7 +105,7 @@ int main(int argc, char **argv)
         cv::Mat abc = SLAM.TrackMonocular(im,tframe);
         
         if(abc.empty()){
-            ResultFile << ni << " " << SLAM.matchNum[ni] << " " << fail << " " << fail << " " << SLAM.refKFid[ni] << " " << SLAM.refKFpts[ni] << std::endl;
+            // ResultFile << ni << " " << SLAM.matchNum[ni] << " " << fail << " " << fail << " " << SLAM.refKFid[ni] << " " << SLAM.refKFpts[ni] << std::endl;
             failFrameNum++;
             continue;
         }

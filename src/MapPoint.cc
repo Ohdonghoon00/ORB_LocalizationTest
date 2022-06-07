@@ -145,7 +145,8 @@ void MapPoint::EraseObservation(KeyFrame* pKF)
                 mpRefKF=mObservations.begin()->first;
 
             // If only 2 observations or less, discard point
-            if(nObs<=2)
+            // dh (2 -> 0)
+            if(nObs<=0)
                 bBad=true;
         }
     }

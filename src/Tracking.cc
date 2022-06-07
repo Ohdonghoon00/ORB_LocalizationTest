@@ -262,7 +262,7 @@ cv::Mat Tracking::GrabImageMonocular(const cv::Mat &im, const double &timestamp)
 
     Track();
     trakingNum++;
-
+    if(mCurrentFrame.mTcw.empty()) return cv::Mat();
     return mCurrentFrame.mTcw.clone();
 }
 
@@ -409,7 +409,7 @@ void Tracking::Track()
             // a local map and therefore we do not perform TrackLocalMap(). Once the system relocalizes
             // the camera we will use the local map again.
             std::cout << "bOk : " << bOK << "  " << "mbVO : " << mbVO << std::endl;
-            if(trakingNum > 0) std::cout << "ref keyframe id (before track local map)   : " << mCurrentFrame.mpReferenceKF->mnId << std::endl;
+            // if(trakingNum > 0 && bOK) std::cout << "ref keyframe id (before track local map)   : " << mCurrentFrame.mpReferenceKF->mnId << std::endl;
             if(bOK && !mbVO){
                 // std::cout << "track local map!!" << std::endl;
                 bOK = TrackLocalMap();
@@ -479,6 +479,8 @@ void Tracking::Track()
         // Reset if the camera get lost soon after initialization
         if(mState==LOST)
         {
+            std::cout << "relocalization fail?? " << std::endl;
+            return;
             if(mpMap->KeyFramesInMap()<=5)
             {
                 cout << "Track lost soon after initialisation, reseting..." << endl;
@@ -486,13 +488,13 @@ void Tracking::Track()
                 return;
             }
         }
-
+        std::cout << "ad" << std::endl;
         if(!mCurrentFrame.mpReferenceKF)
             mCurrentFrame.mpReferenceKF = mpReferenceKF;
 
         mLastFrame = Frame(mCurrentFrame);
     }
-
+    std::cout << "add" << std::endl;
     // Store frame pose information to retrieve the complete camera trajectory afterwards.
     if(!mCurrentFrame.mTcw.empty())
     {

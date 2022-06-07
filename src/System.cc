@@ -284,6 +284,10 @@ cv::Mat System::TrackMonocular(const cv::Mat &im, const double &timestamp)
     }
 
     cv::Mat Tcw = mpTracker->GrabImageMonocular(im,timestamp);
+    if(Tcw.empty()){
+        std::cout << "Relocalization Fail ! " << std::endl;
+        return Tcw;
+    } 
     std::cout << "ref keyframe id : " << mpTracker->mCurrentFrame.mpReferenceKF->mnId << std::endl;
     std::cout << "ref keyframe total point Num : " << mpTracker->mCurrentFrame.mpReferenceKF->GetMapPoints().size() << std::endl;
     int matchCnt = 0;
