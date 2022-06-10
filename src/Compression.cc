@@ -183,6 +183,10 @@ int Compression::removalKeyframe2()
     return totalRemoveMemory;
 }
 
+void Compression::removalKeyframe3()
+{
+    // remove keyframe by ILP method
+}
 
 void Compression::initializing()
 {

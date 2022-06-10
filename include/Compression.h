@@ -61,6 +61,8 @@ public:
     void LandmarkSparsification();
     int removalKeyframe1();
     int removalKeyframe2();
+    void removalKeyframe3();
+
     
     // preparing
     void setInitial(double kfCompressedRatio_);
