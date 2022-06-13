@@ -26,14 +26,15 @@ public:
     // ORB_SLAM2::KeyFrame* Keyframe;
     ORB_SLAM2::KeyFrameDatabase* dbKeyframe;
 
-    double originalKeyframeNum;
+    int originalKeyframeNum;
     long unsigned int totalKeyframeNum;
     long unsigned int totalMapPointNum;    
     
     // Keyframe Removal Member
     Eigen::MatrixXd similarityMatrix;
     Eigen::VectorXd invScoreVec;
-    Eigen::VectorXf reprojectionErr;
+    Eigen::VectorXf reprojectionErrAvg;
+    Eigen::VectorXf reprojectionErrInlier;
     inline static Eigen::VectorXd KeyframeInvWeight;
     
     std::vector<double> kfObsNums;
@@ -57,11 +58,16 @@ public:
     double neighborKeyframeTranslationThres = 0.6;
     double neighborKeyframeRotationThres = 20;
     
+    // reprojection Err
+    float inlierRatioInKeyframe;
+
     // Compresssion
     void LandmarkSparsification();
     int removalKeyframe1();
     int removalKeyframe2();
     void removalKeyframe3();
+
+    
 
     
     // preparing
@@ -78,7 +84,7 @@ public:
 
     // Reprojection Err
     void getAllKeyframeReprojErr();
-    float getreprojectionErr(ORB_SLAM2::KeyFrame* kf);
+    float getreprojectionErrAvg(ORB_SLAM2::KeyFrame* kf);
 
     // Keyframe Similarity
     void getKeyframeSimilarityMatrix();
@@ -94,6 +100,8 @@ public:
 
 
     std::vector<ORB_SLAM2::MapPoint*> getKeyframeMap(ORB_SLAM2::KeyFrame* kf);
+    int getKeyframeObs1Num(ORB_SLAM2::KeyFrame* kf);
+
     void iterateKeyframeRemoval();
 
 ///////////////////////////////////////////////////////////////////////   

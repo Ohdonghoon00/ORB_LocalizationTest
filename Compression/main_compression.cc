@@ -48,65 +48,54 @@ int main(int argc, char** argv)
     
     std::cout << " Keyframe Num : " << compression.Map->KeyFramesInMap() << " Landmark Num : " << compression.Map->MapPointsInMap() << std::endl;
     std::cout << " Compression Preparing ... " << std::endl;
-    // compression.iterateKeyframeRemoval();
-    // compression.preparing();
 
-    // std::vector<ORB_SLAM2::KeyFrame*> kfdb = compression.Map->GetAllKeyFrames();
-    // std::sort(kfdb.begin(),kfdb.end(),ORB_SLAM2::KeyFrame::lId);
-    // for(size_t i = 0; i < kfdb.size(); i++){
-    //     std::set<ORB_SLAM2::MapPoint*> kfMpts = kfdb[i]->GetMapPoints();
-    //     std::vector<ORB_SLAM2::MapPoint*> kfMpts_vec = kfdb[i]->GetMapPointMatches();
-    //     std::cout << kfdb.size() << " " << i << " " << kfdb[i]->mnId << " " << kfMpts.size() << "  " << kfMpts_vec.size() << std::endl;
-    // }
-    
-    // Compression
-    // compression.getKeyframeScoreVector();
-    // compression.getKeyframeSimilarityMatrix();
-    
-    // compression.originalKeyframeNum = (double)compression.Map->GetAllKeyFrames().size();
-    // compression.kfNewIds.resize(originalKeyframeNum);
-    // for(size_t i = 0; i < compression.kfNewIds.size(); i++) compression.kfNewIds[i] = i;
     double compRatio = std::stod(argv[2]);
     compression.setInitial(compRatio);
     std::cout << "id threshold : " << compression.neighborKeyframeIdThres << std::endl;
     
     std::cout << " remove Keyframe ... " << std::endl;
     // compression.removalKeyframe1();
-    // int totalRemovedMemory = compression.removalKeyframe2();
+    int totalRemovedMemory = compression.removalKeyframe2();
     // compression.LandmarkSparsification();
     std::cout << " Finish Compression !! " << std::endl;
     
     // memory for removing keyframe
-    // int totalRemovedLandmark = 36829 - compression.Map->MapPointsInMap();
-    // totalRemovedMemory += totalRemovedLandmark * 736;
-    // std::cout <<  " Total memory of removed mapPoints : " << totalRemovedMemory << std::endl;
+    int totalRemovedLandmark = 36829 - compression.Map->MapPointsInMap();
+    totalRemovedMemory += totalRemovedLandmark * 736;
+    std::cout <<  " Total memory of removed mapPoints : " << totalRemovedMemory << std::endl;
     
     std::cout << " print Compressed Keyframe Info ... " << std::endl;
     compression.iterateKeyframeRemoval();
     compression.printKeyframeInfo("CompressionKeyframeInfo.txt");
-    
-    // compression.initializing();
-    // std::vector<ORB_SLAM2::KeyFrame*> kfdb = compression.Map->GetAllKeyFrames();
-    // std::sort(kfdb.begin(),kfdb.end(),ORB_SLAM2::KeyFrame::lId);
-    // std::cout << kfdb[92]->fx << " " <<  kfdb[92]->fy << " " << kfdb[92]->cx << " " << kfdb[92]->cy << std::endl;
-    // obs file
-    // std::vector<ORB_SLAM2::MapPoint*> mpDB = compression.Map->GetAllMapPoints();
-    // for(size_t i = 0; i < mpDB.size(); i++){
-        
-    //     obsfile << mpDB[i]->mObservations.size() << std::endl;
-    // }
+
 
     std::cout << " Keyframe Num : " << compression.Map->KeyFramesInMap() << " Landmark Num : " << compression.Map->MapPointsInMap() << std::endl;
 
+///////////////////////////////////////////////////////////////////////////////////////////////
+    // compression.getAllKeyframeReprojErr();
+    // compression.printKeyframeInfo("CompressionKeyframeInfo.txt");
     // std::vector<ORB_SLAM2::KeyFrame*> kfdb_ = compression.Map->GetAllKeyFrames();
     // std::sort(kfdb_.begin(),kfdb_.end(),ORB_SLAM2::KeyFrame::lId);
+    // int totalmp = 0;
+    // int totalObsdd = 0;
+    // std::vector<ORB_SLAM2::MapPoint*> mpdb_ = compression.Map->GetAllMapPoints();
     // for(size_t i = 0; i < kfdb_.size(); i++){
-    //     std::set<ORB_SLAM2::MapPoint*> kfMpts = kfdb_[i]->GetMapPoints();
-    //     std::vector<ORB_SLAM2::MapPoint*> kfMpts_vec = kfdb_[i]->GetMapPointMatches();
-    //     std::cout << kfdb_.size() << " " << i << " " << kfdb_[i]->mnId << " " << kfMpts.size() << "  " << kfMpts_vec.size() << std::endl;
-    //     f << kfdb_[i]->mnId << " " << kfMpts.size() << std::endl;
+    //     totalmp += compression.kfMpNums[i];
+    //     // std::cout << compression.kfMpNums[i] << " ";
+    //     // std::set<ORB_SLAM2::MapPoint*> kfMpts = kfdb_[i]->GetMapPoints();
+    //     // std::vector<ORB_SLAM2::MapPoint*> kfMpts_vec = kfdb_[i]->GetMapPointMatches();
+    //     // std::cout << kfdb_.size() << " " << i << " " << kfdb_[i]->mnId << " " << kfMpts.size() << "  " << kfMpts_vec.size() << std::endl;
+    //     // f << kfdb_[i]->mnId << " " << kfMpts.size() << std::endl;
     //     // std::cout << sizeof(kfMpts[i]) << std::endl;
+    //     compression.getreprojectionErr(kfdb_[i]);
+    //     std::cout << std::endl;
     // }
+    // totalmp += compression.getKeyframeMap(kfdb_[0]).size();
+    // for(size_t i = 0; i < mpdb_.size(); i++){
+    //     totalObsdd += mpdb_[i]->mObservations.size();
+    //     // std::cout << mpdb_[i]->mObservations.size() << " ";
+    // }
+    // std::cout << totalmp << " " << totalObsdd << std::endl;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
     
     // std::cout << sizeof(ORB_SLAM2::MapPoint) << std::endl;

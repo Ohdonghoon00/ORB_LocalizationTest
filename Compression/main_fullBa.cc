@@ -33,7 +33,6 @@ int main(int argc, char** argv)
     // full ba
     ceres::Problem global_BA; 
     for(size_t j = 0; j < kfdb.size(); j++){
-            
         std::vector<ORB_SLAM2::MapPoint*> mapKf = compression.getKeyframeMap(kfdb[j]);
         cv::Mat proj = kfdb[j]->GetPose();
         Vector6d projVec6 = ORB_SLAM2::Converter::toProjvec6(proj);
@@ -44,7 +43,7 @@ int main(int argc, char** argv)
                 
             int keypointIdx = (mapKf[i])->GetIndexInKeyFrame(kfdb[j]);
             cv::Point2f keyPoint = kfdb[j]->mvKeys[keypointIdx].pt;
-            
+            // std::cout << kfdb[j]->mvuRight[keypointIdx] << "  " << mapKf[i]->nObs << " " << mapKf[i]->GetObservations().size() << std::endl;
             ceres::CostFunction* map_only_cost_func = map_point_only_ReprojectionError::create(keyPoint, CamPose, (double)kfdb[j]->fx, cv::Point2d(kfdb[j]->cx, kfdb[j]->cy));
 
             mapKf[i]->savePoint3d(); 

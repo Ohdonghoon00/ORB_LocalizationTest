@@ -133,8 +133,10 @@ int Compression::removalKeyframe2()
         Eigen::VectorXd invScoreVec_(totalKeyframeNum);
         for(int i = 0; i < invScoreVec_.size(); i++) invScoreVec_[i] = 1.0;        
     
+        for(int i = 0; i < totalKeyframeNum; i++) KeyframeInvWeight[i] = 1.0 - (double)reprojectionErrInlier[i];
+        
         // KeyframeInvWeight = invScoreVec;
-        KeyframeInvWeight = similarityMatrix * invScoreVec_;        
+        // KeyframeInvWeight = similarityMatrix * invScoreVec_;        
         // std::cout << kfdb.size() << "   " << totalKeyframeNum << std::endl;
 
 
@@ -191,12 +193,14 @@ void Compression::removalKeyframe3()
 void Compression::initializing()
 {
     totalKeyframeNum = Map->KeyFramesInMap() - 1; // Exclude first Keyframe 
-    totalMapPointNum = Map->MapPointsInMap() - 1;
+    totalMapPointNum = Map->MapPointsInMap();
     
-    reprojectionErr.resize(totalKeyframeNum);
+    reprojectionErrAvg.resize(totalKeyframeNum);
+    reprojectionErrInlier.resize(totalKeyframeNum);
     similarityMatrix.resize(totalKeyframeNum, totalKeyframeNum);
     invScoreVec.resize(totalKeyframeNum);
-    
+    KeyframeInvWeight.resize(totalKeyframeNum);
+
     kfObsNums.resize(totalKeyframeNum);
     kfMpNums.resize(totalKeyframeNum);
 
@@ -264,7 +268,7 @@ void Compression::getKeyframeScoreVector()
         // invScoreVec[i] = 1.0 - (obsRatio * kfObsNumsRatio[i]); // for debug
         invScoreVec[i] = (obsRatio * kfObsNumsRatio[i]);
     }
-    minMaxNormalize(&invScoreVec);
+    // minMaxNormalize(&invScoreVec);
 
 }
 
@@ -346,11 +350,13 @@ void Compression::getAllKeyframeReprojErr()
     std::sort(kfdb.begin(),kfdb.end(),ORB_SLAM2::KeyFrame::lId);  
 
     for(size_t i = 1; i < kfdb.size(); i++){
-        reprojectionErr[i - 1] =  getreprojectionErr(kfdb[i]); 
+        reprojectionErrAvg[i - 1] =  getreprojectionErrAvg(kfdb[i]);
+        reprojectionErrInlier[i - 1] =  inlierRatioInKeyframe;
+        // std::cout << std::endl;
     } 
 }
 
-float Compression::getreprojectionErr(ORB_SLAM2::KeyFrame* kf)
+float Compression::getreprojectionErrAvg(ORB_SLAM2::KeyFrame* kf)
 {
     float reprojErr = 0.0;
     // std::set<ORB_SLAM2::MapPoint*> kfMapPoints = kf->GetMapPoints();
@@ -378,11 +384,11 @@ float Compression::getreprojectionErr(ORB_SLAM2::KeyFrame* kf)
         worldPoints(2, i) = mapPoint.at<float>(2, 0);
         worldPoints(3, i) = 1.0f;
         
-        imgPoints(0, i) = kf->mvKeysUn[idx].pt.x;
-        imgPoints(1, i) = kf->mvKeysUn[idx].pt.y;
+        imgPoints(0, i) = kf->mvKeys[idx].pt.x;
+        imgPoints(1, i) = kf->mvKeys[idx].pt.y;
         imgPoints(2, i) = 1.0f;
         
-        // std::cout << imgPoints(0, i) << " " << imgPoints(1, i) << " " << imgPoints(2, i) << "    ";
+        // std::cout << imgPoints(0, i) << " " << imgPoints(1, i) << " " << imgPoints(2, i) << std::endl;
         // std::cout << worldPoints(0, i) << " " << worldPoints(1, i) << " " << worldPoints(2, i) << " " << worldPoints(3, i) << std::endl;
     }
     
@@ -398,6 +404,7 @@ float Compression::getreprojectionErr(ORB_SLAM2::KeyFrame* kf)
     }
     reprojectPoints = K_ * reprojectPoints;    
 
+    int inlier = 0;
     std::vector<float> ReprojectErr(worldPoints.cols());
     for(int i = 0; i < worldPoints.cols(); i++){
         ReprojectErr[i] = std::sqrt( (imgPoints(0, i) - reprojectPoints(0, i)) * 
@@ -405,8 +412,10 @@ float Compression::getreprojectionErr(ORB_SLAM2::KeyFrame* kf)
                                      (imgPoints(1, i) - reprojectPoints(1, i)) *
                                      (imgPoints(1, i) - reprojectPoints(1, i)) );
         reprojErr += ReprojectErr[i];
-        // std::cout << ReprojectErr[i] << std::endl;
+        if(ReprojectErr[i] < 1.5) inlier++;
+        // std::cout << ReprojectErr[i] << " ";
     }
+    inlierRatioInKeyframe = (float)inlier / (float)kfMapPoints.size();
     // std::cout << reprojErr/(float)kfMapPoints.size() << std::endl;
     return reprojErr/(float)kfMapPoints.size();
 }
@@ -477,7 +486,7 @@ int Compression::getNeighborKeyframeIdDist(int idx)
 
 void Compression::setInitial(double kfCompressedRatio_)
 {
-    originalKeyframeNum = (double)Map->GetAllKeyFrames().size();
+    originalKeyframeNum = Map->GetAllKeyFrames().size();
     
     std::vector<ORB_SLAM2::KeyFrame*> kfdb = Map->GetAllKeyFrames();
     std::sort(kfdb.begin(),kfdb.end(),ORB_SLAM2::KeyFrame::lId);
@@ -507,19 +516,20 @@ void Compression::printKeyframeInfo(const std::string &file)
     std::ofstream saveFile;
     saveFile.open(file);
 
-    Eigen::VectorXd invScoreVec_(totalKeyframeNum);
-    for(int i = 0; i < invScoreVec_.size(); i++) invScoreVec_[i] = 1.0;
-    Eigen::VectorXd KeyframeInvWeight_(totalKeyframeNum);        
-    KeyframeInvWeight_ = similarityMatrix * invScoreVec_;
+    // Eigen::VectorXd invScoreVec_(totalKeyframeNum);
+    // for(int i = 0; i < invScoreVec_.size(); i++) invScoreVec_[i] = 1.0;
+    // Eigen::VectorXd KeyframeInvWeight_(totalKeyframeNum);        
+    // KeyframeInvWeight_ = similarityMatrix * invScoreVec_;
     // minMaxNormalize(&KeyframeInvWeight);
     // KeyframeInvWeight_ = KeyframeInvWeight + invScoreVec;
-
+    // for(int i = 0; i < totalKeyframeNum; i++) KeyframeInvWeight[i] = invScoreVec[i] * reprojectionErrAvg[i];
+    KeyframeInvWeight = invScoreVec;
     std::cout << "KeyframeId     " << "ObsNum     " << "ObsNumRatio     " << "ObsRemoveRank     " << "MpNum     " << "MpNumRatio     " << "MpNumRemoveRank     " << std::endl; 
     for(size_t i = 1; i < kfdb.size(); i++){
         std::cout << kfdb[i]->mnId << "     " << kfObsNums[i - 1] << "     " << kfObsNumsRatio[i - 1] << "     " << kfObsRank[i - 1] << "     " 
-        << kfMpNums[i - 1] << "     " << kfMpNumsRatio[i - 1] << "     " << kfMpNumRank[i - 1] << "     " << KeyframeInvWeight_[i - 1] << "    " << reprojectionErr[i - 1] << std::endl;
-        saveFile << kfdb[i]->mnId << " " << kfObsNums[i - 1] << " " << kfMpNums[i - 1] << " " << KeyframeInvWeight_[i - 1] << " " 
-        << reprojectionErr[i - 1] << std::endl;
+        << kfMpNums[i - 1] << "     " << kfMpNumsRatio[i - 1] << "     " << kfMpNumRank[i - 1] << "     " << KeyframeInvWeight[i - 1] << "    " << reprojectionErrAvg[i - 1] << "   " << reprojectionErrInlier[i  - 1] << std::endl;
+        saveFile << kfdb[i]->mnId << " " << kfObsNums[i - 1] << " " << kfMpNums[i - 1] << " " << reprojectionErrInlier[i - 1] << " " 
+        << reprojectionErrAvg[i - 1] << " " << KeyframeInvWeight[i - 1] << std::endl;
     }
 
 
@@ -538,13 +548,17 @@ std::vector<ORB_SLAM2::MapPoint*> Compression::getKeyframeMap(ORB_SLAM2::KeyFram
     return kfMap;
 }
 
+int Compression::getKeyframeObs1Num(ORB_SLAM2::KeyFrame* kf)
+{
+    
+}
 
 void Compression::iterateKeyframeRemoval()
 {
     initializing();
     preparing();
     getKeyframeScoreVector();
-    getKeyframeSimilarityMatrix();
+    // getKeyframeSimilarityMatrix();
     getAllKeyframeReprojErr();   
 }
 
