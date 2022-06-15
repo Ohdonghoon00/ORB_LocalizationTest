@@ -674,4 +674,17 @@ int System::Loadgt(std::string queryGtTrajectoryPath, std::vector<Vector6d> *gtp
     }
 }
 
+void System::getMap()
+{
+    std::cout << "Landmark Num : " << mpMap->GetAllMapPoints().size() << std::endl;
+}
+
+void System::printFailinfo()
+{
+    std::cout <<    " fail relocalization : " << mpTracker->relocFail << 
+                    "   fail motion model : " << mpTracker->motionModelFail << 
+                    "    fail track local map : " << mpTracker->trackLocalFail << std::endl;
+}
+
+
 } //namespace ORB_SLAM

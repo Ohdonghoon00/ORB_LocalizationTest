@@ -116,7 +116,12 @@ public:
 
     void Reset();
 
+    // dh
     int trakingNum = 0;
+    int relocFail = 0;
+    int trackLocalFail = 0;
+    int motionModelFail = 0;
+
 
 protected:
 

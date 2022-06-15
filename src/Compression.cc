@@ -1,6 +1,6 @@
 #include "Compression.h"
-
-
+#include <random>
+#include <ctime>
 
 
 
@@ -119,6 +119,9 @@ int Compression::removalKeyframe2()
     int iterateNum = 0;
     int totalRemoveMemory = 0;
     
+    constexpr int MIN = 0;
+    constexpr int MAX = 1;
+
     // std::cout << KeyframeInvWeight.transpose() << std::endl;
     
     while(true){
@@ -130,31 +133,49 @@ int Compression::removalKeyframe2()
         
         std::cout << "...................................     iterate  ....   " <<  iterateNum <<  std::endl; 
     
-        Eigen::VectorXd invScoreVec_(totalKeyframeNum);
-        for(int i = 0; i < invScoreVec_.size(); i++) invScoreVec_[i] = 1.0;        
-    
-        for(int i = 0; i < totalKeyframeNum; i++) KeyframeInvWeight[i] = 1.0 - (double)reprojectionErrInlier[i];
+        // Eigen::VectorXd invScoreVec_(totalKeyframeNum);
+        // for(int i = 0; i < invScoreVec_.size(); i++) invScoreVec_[i] = 1.0;        
         
+        // minMaxNormalize(&reprojectionErrAvg);
+        // for(int i = 0; i < totalKeyframeNum; i++) KeyframeInvWeight[i] = 1.0 - (double)reprojectionErrInlier[i];
+        for(int i = 0; i < totalKeyframeNum; i++) KeyframeInvWeight[i] = (double)reprojectionErrAvg[i];
+        // for(int i = 0; i < totalKeyframeNum; i++) KeyframeInvWeight[i] = invScoreVec[i] * (double)reprojectionErrAvg[i];
+        // for(int i = 0; i < totalKeyframeNum; i++) KeyframeInvWeight[i] = invScoreVec[i] * (1.0 - (double)reprojectionErrInlier[i]);
         // KeyframeInvWeight = invScoreVec;
-        // KeyframeInvWeight = similarityMatrix * invScoreVec_;        
-        // std::cout << kfdb.size() << "   " << totalKeyframeNum << std::endl;
+
+        // for(int i = 0; i < totalKeyframeNum; i++) KeyframeInvWeight[i] = 1.0 - obs1NumRatio[i];
+        // for(int i = 0; i < totalKeyframeNum; i++) KeyframeInvWeight[i] = (1.0 - obs1NumRatio[i]) * invScoreVec[i];
+        
+        // srand((unsigned int)time(NULL));
+        // for(int i = 0; i < totalKeyframeNum; i++){
+        //     double f = (double)rand() / RAND_MAX;
+        //     KeyframeInvWeight[i] = MIN + f * (MAX - MIN);
+        // }    
+        
 
 
         std::vector<int> sortIdx(totalKeyframeNum);
-        for(size_t j = 0; j < totalKeyframeNum; j++) sortIdx[j] = j + 1;
+        for(size_t j = 0; j < totalKeyframeNum; j++) sortIdx[j] = j;
+            
+        
         std::sort(sortIdx.begin(), sortIdx.end(), weightComp);
         long unsigned int sortArr = 0;
         int neightborIter = 0;
         bool reachRemoveKf = false;
-        
+
         while(true){
             
-            int idx = sortIdx[sortArr];
+            int idx = sortIdx[sortArr] + 1;
             // int neighborKfNum = getNeighborKeyframeNum(kfdb[idx]);
             int neighborKfNum = 100;
-            int neighborKfIdDist = getNeighborKeyframeIdDist(idx); 
+            int neighborKfIdDist = getNeighborKeyframeIdDist(idx);
+            double obs1Ratio = getKeyframeObs1Num(kfdb[idx]) ;
+            // && obs1Ratio < obs1RatioThres
+            // std::cout << "idid : " << idx << std::endl;
+            // std::cout << "high value : " << obs1Ratio << std::endl;
             if(neighborKfNum > neighborKeyframeNumThres && neighborKfIdDist <= neighborKeyframeIdThres){
                 std::cout << " removed keyframe Id : " << kfdb[idx]->mnId << "     neighbor Keyframe Num : " << neighborKfNum << "   neighbor iter num : " << neightborIter << std::endl;
+                std::cout << " Obs 1 Num Ratio : " << obs1Ratio << std::endl;
                 std::cout << " id distant : " << neighborKfIdDist << std::endl;
                 int currMemory = getMemory(kfdb[idx]);
                 totalRemoveMemory += currMemory;
@@ -197,6 +218,7 @@ void Compression::initializing()
     
     reprojectionErrAvg.resize(totalKeyframeNum);
     reprojectionErrInlier.resize(totalKeyframeNum);
+    obs1NumRatio.resize(totalKeyframeNum);
     similarityMatrix.resize(totalKeyframeNum, totalKeyframeNum);
     invScoreVec.resize(totalKeyframeNum);
     KeyframeInvWeight.resize(totalKeyframeNum);
@@ -306,6 +328,7 @@ double Compression::getObservation(ORB_SLAM2::KeyFrame* kf)
 
     for(size_t i = 0; i < kfmp.size(); i++){
         double mpObsNum = (double)getObservation(kfmp[i]);
+        // std::cout << i << "   " << mpObsNum << std::endl;
         total += mpObsNum;        
     }
 
@@ -548,9 +571,27 @@ std::vector<ORB_SLAM2::MapPoint*> Compression::getKeyframeMap(ORB_SLAM2::KeyFram
     return kfMap;
 }
 
-int Compression::getKeyframeObs1Num(ORB_SLAM2::KeyFrame* kf)
+double Compression::getKeyframeObs1Num(ORB_SLAM2::KeyFrame* kf)
 {
+    int obs1Num = 0;
+    std::vector<ORB_SLAM2::MapPoint*> kfmpDb = getKeyframeMap(kf);
+    for(size_t i = 0; i < kfmpDb.size(); i++){
+        int obsNum = kfmpDb[i]->GetObservations().size();
+        if(obsNum == 1) obs1Num++;
+    }
+    return (double)obs1Num / (double)kfmpDb.size();
+}
+
+void Compression::getAllObs1Ratio()
+{
+    std::vector<ORB_SLAM2::KeyFrame*> kfdb = Map->GetAllKeyFrames();
+    std::sort(kfdb.begin(),kfdb.end(),ORB_SLAM2::KeyFrame::lId);    
     
+    for(size_t i = 1; i < kfdb.size(); i++){
+        
+        obs1NumRatio[i - 1] = getKeyframeObs1Num(kfdb[i]);
+
+    }
 }
 
 void Compression::iterateKeyframeRemoval()
@@ -559,7 +600,8 @@ void Compression::iterateKeyframeRemoval()
     preparing();
     getKeyframeScoreVector();
     // getKeyframeSimilarityMatrix();
-    getAllKeyframeReprojErr();   
+    getAllKeyframeReprojErr();
+    getAllObs1Ratio();   
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -602,6 +644,20 @@ void Compression::minMaxNormalize(Eigen::VectorXd *vec)
     
     for(int i = 0; i < vec->size(); i++){
         double a = (*vec)[i];
+        (*vec)[i] = (a - minVal) / (maxVal - minVal);
+    }
+}
+
+void Compression::minMaxNormalize(Eigen::VectorXf *vec)
+{
+    std::vector<float> vec2(vec->size());
+    for(int i = 0; i < vec->size(); i++) vec2[i] = (*vec)[i];
+    
+    float maxVal = *max_element(vec2.begin(), vec2.end());
+    float minVal = *min_element(vec2.begin(), vec2.end());
+    
+    for(int i = 0; i < vec->size(); i++){
+        float a = (*vec)[i];
         (*vec)[i] = (a - minVal) / (maxVal - minVal);
     }
 }

@@ -329,6 +329,7 @@ void Tracking::Track()
             if(mState==LOST)
             {
                 bOK = Relocalization();
+                if(!bOK) relocFail++;
             }
             else
             {
@@ -340,6 +341,7 @@ void Tracking::Track()
                     {
                         std::cout << "motion model !! " << std::endl;
                         bOK = TrackWithMotionModel();
+                        if(!bOK) motionModelFail++;
                     }
                     else
                     {
@@ -413,6 +415,7 @@ void Tracking::Track()
             if(bOK && !mbVO){
                 // std::cout << "track local map!!" << std::endl;
                 bOK = TrackLocalMap();
+                if(!bOK) trackLocalFail++;
             }
             
         }
@@ -488,13 +491,12 @@ void Tracking::Track()
                 return;
             }
         }
-        std::cout << "ad" << std::endl;
         if(!mCurrentFrame.mpReferenceKF)
             mCurrentFrame.mpReferenceKF = mpReferenceKF;
 
         mLastFrame = Frame(mCurrentFrame);
     }
-    std::cout << "add" << std::endl;
+    
     // Store frame pose information to retrieve the complete camera trajectory afterwards.
     if(!mCurrentFrame.mTcw.empty())
     {
@@ -982,8 +984,9 @@ std::cout << "track local map" << std::endl;
     std::cout << "Final Match inlier Num : " << mnMatchesInliers << "   inlierRatio : " << (double)mnMatchesInliers / (double)(mnMatchesInliers+outLierMatch) << std::endl;
     // Decide if the tracking was succesful
     // More restrictive if there was a relocalization recently
-    if(mCurrentFrame.mnId<mnLastRelocFrameId+mMaxFrames && mnMatchesInliers<50)
-        return false;
+    // dh ( // 2 line below)
+    // if(mCurrentFrame.mnId<mnLastRelocFrameId+mMaxFrames && mnMatchesInliers<50)
+    //     return false;
 
     if(mnMatchesInliers<30)
         return false;
@@ -1401,7 +1404,8 @@ bool Tracking::Relocalization()
         {
             int nmatches = matcher.SearchByBoW(pKF,mCurrentFrame,vvpMapPointMatches[i]);
             std::cout << "nmatches : " << nmatches << "   ";
-            if(nmatches<15)
+            // 15 -> 10
+            if(nmatches<10)
             {
                 vbDiscarded[i] = true;
                 continue;
@@ -1437,7 +1441,7 @@ bool Tracking::Relocalization()
             bool bNoMore;
 
             PnPsolver* pSolver = vpPnPsolvers[i];
-            cv::Mat Tcw = pSolver->iterate(5,bNoMore,vbInliers,nInliers);
+            cv::Mat Tcw = pSolver->iterate(30,bNoMore,vbInliers,nInliers);
 
             std::cout << "Inliers Num : " << nInliers << std::endl;
 
@@ -1517,7 +1521,8 @@ bool Tracking::Relocalization()
                 std::cout << "Final nGood Num : " << nGood << std::endl;
 
                 // If the pose is supported by enough inliers stop ransacs and continue
-                if(nGood>=50)
+                // dh 50 -> 10
+                if(nGood>=10)
                 {
                     bMatch = true;
                     break;

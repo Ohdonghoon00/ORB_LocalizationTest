@@ -33,6 +33,7 @@ public:
     // Keyframe Removal Member
     Eigen::MatrixXd similarityMatrix;
     Eigen::VectorXd invScoreVec;
+    Eigen::VectorXd obs1NumRatio;
     Eigen::VectorXf reprojectionErrAvg;
     Eigen::VectorXf reprojectionErrInlier;
     inline static Eigen::VectorXd KeyframeInvWeight;
@@ -57,6 +58,7 @@ public:
     int neighborKeyframeIdThres; 
     double neighborKeyframeTranslationThres = 0.6;
     double neighborKeyframeRotationThres = 20;
+    double obs1RatioThres = 0.5;
     
     // reprojection Err
     float inlierRatioInKeyframe;
@@ -86,6 +88,9 @@ public:
     void getAllKeyframeReprojErr();
     float getreprojectionErrAvg(ORB_SLAM2::KeyFrame* kf);
 
+    // obs 1
+    void getAllObs1Ratio();
+
     // Keyframe Similarity
     void getKeyframeSimilarityMatrix();
     int getCovisibilityMpNum(ORB_SLAM2::KeyFrame* kf1, ORB_SLAM2::KeyFrame* kf2);
@@ -100,7 +105,7 @@ public:
 
 
     std::vector<ORB_SLAM2::MapPoint*> getKeyframeMap(ORB_SLAM2::KeyFrame* kf);
-    int getKeyframeObs1Num(ORB_SLAM2::KeyFrame* kf);
+    double getKeyframeObs1Num(ORB_SLAM2::KeyFrame* kf);
 
     void iterateKeyframeRemoval();
 
@@ -112,6 +117,7 @@ public:
     
     int cvMatSize(cv::Mat a);
     void minMaxNormalize(Eigen::VectorXd *vec);
+    void minMaxNormalize(Eigen::VectorXf *vec);
     void minMaxNormalize(std::vector<double> *vec);
     void RMSError(Vector6d EsPose, Vector6d gtPose, double *err);
 

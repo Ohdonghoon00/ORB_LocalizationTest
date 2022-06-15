@@ -126,6 +126,8 @@ public:
     // void MapCompression(Map* mpMap, double CompressionRatio);
     void RMSError(Vector6d EsPose, Vector6d gtPose, double *err);
     int Loadgt(std::string queryGtTrajectoryPath, std::vector<Vector6d> *gtposes);
+    void getMap();
+    void printFailinfo();
     std::vector<int> matchNum;
     std::vector<int> refKFid;
     std::vector<int> refKFpts;

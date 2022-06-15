@@ -59,14 +59,15 @@ int main(int argc, char** argv)
     // compression.LandmarkSparsification();
     std::cout << " Finish Compression !! " << std::endl;
     
+    std::cout << " print Compressed Keyframe Info ... " << std::endl;
+    compression.iterateKeyframeRemoval();
+    compression.printKeyframeInfo("CompressionKeyframeInfo.txt");
+    
     // memory for removing keyframe
     int totalRemovedLandmark = 36829 - compression.Map->MapPointsInMap();
     totalRemovedMemory += totalRemovedLandmark * 736;
     std::cout <<  " Total memory of removed mapPoints : " << totalRemovedMemory << std::endl;
     
-    std::cout << " print Compressed Keyframe Info ... " << std::endl;
-    compression.iterateKeyframeRemoval();
-    compression.printKeyframeInfo("CompressionKeyframeInfo.txt");
 
 
     std::cout << " Keyframe Num : " << compression.Map->KeyFramesInMap() << " Landmark Num : " << compression.Map->MapPointsInMap() << std::endl;
@@ -90,6 +91,11 @@ int main(int argc, char** argv)
     //     compression.getreprojectionErr(kfdb_[i]);
     //     std::cout << std::endl;
     // }
+    //     std::cout << compression.getObservation(kfdb_[336]) << " ";
+    // std::cout << std::endl;
+    // cv::imshow("335left", kfdb_[335]->LeftImg);
+    // cv::imshow("336left", kfdb_[336]->LeftImg);
+    // cv::waitKey();
     // totalmp += compression.getKeyframeMap(kfdb_[0]).size();
     // for(size_t i = 0; i < mpdb_.size(); i++){
     //     totalObsdd += mpdb_[i]->mObservations.size();

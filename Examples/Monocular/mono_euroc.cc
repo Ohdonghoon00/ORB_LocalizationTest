@@ -76,6 +76,7 @@ int main(int argc, char **argv)
 
     // Main loop
     int failFrameNum(0);
+    int successFrameNum(0);
     float fail(-0.2);
     double totalTransErr(0.0), totalRotErr(0.0); 
     cv::Mat im;
@@ -109,7 +110,8 @@ int main(int argc, char **argv)
             failFrameNum++;
             continue;
         }
-        std::cout << abc << std::endl;
+        // std::cout << abc << std::endl;
+        successFrameNum++;
         Vector6d currPose = ORB_SLAM2::Converter::Proj2Vec6(abc);
         // std::cout << "final pose : " << currPose << std::endl;
         double err[2];
@@ -120,7 +122,7 @@ int main(int argc, char **argv)
         std::cout << "TransError : " << err[0] << std::endl;
         std::cout << "RotError : " << ORB_SLAM2::Converter::Rad2Degree(err[1]) << std::endl;
         ResultFile << ni << " " << SLAM.matchNum[ni] << " " << err[0] << " " << ORB_SLAM2::Converter::Rad2Degree(err[1]) << " " << SLAM.refKFid[ni] << " " << SLAM.refKFpts[ni] << std::endl;
-
+        
 #ifdef COMPILEDWITHC11
         std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
 #else
@@ -155,12 +157,15 @@ int main(int argc, char **argv)
     {
         totaltime+=vTimesTrack[ni];
     }
+    
     cout << "-------" << endl << endl;
     cout << "median tracking time: " << vTimesTrack[nImages/2] << endl;
     cout << "mean tracking time: " << totaltime/nImages << endl;
-    std::cout << "Fail Frame Num is : " << failFrameNum << std::endl;
+    std::cout << "Fail Frame Num is : " << failFrameNum << "    Success Frame Num is : " << successFrameNum << std::endl;
+    SLAM.printFailinfo(); 
     std::cout << " Average Trans Err : " << totalTransErr/(nImages - failFrameNum) << std::endl;
     std::cout << " Average Rot Err : " << totalRotErr/(nImages - failFrameNum) << std::endl;
+    SLAM.getMap(); // print Landmark Num
     
     // Save camera trajectory
     SLAM.SaveKeyFrameTrajectoryTUM("KeyFrameTrajectory.txt");
