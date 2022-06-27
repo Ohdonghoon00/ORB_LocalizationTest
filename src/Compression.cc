@@ -208,6 +208,11 @@ int Compression::removalKeyframe2()
 
 void Compression::removalKeyframe3()
 {
+    // Map Compression
+    std::cout << "Map Compression ... " << std::endl;
+    GRBEnv env = GRBEnv();
+    GRBModel model = GRBModel(env);    
+    
     // remove keyframe by ILP method
 }
 
