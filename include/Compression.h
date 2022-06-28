@@ -63,6 +63,12 @@ public:
     // reprojection Err
     float inlierRatioInKeyframe;
 
+    // Cube info
+    Eigen::Vector3i minPoint;
+    Eigen::Vector3i maxPoint;
+    int smallCubeXNum, smallCubeYNum, smallCubeZNum, totalSmallCubeNum;
+    Eigen::MatrixXi cubeMatrix;
+
     // Compresssion
     void LandmarkSparsification();
     int removalKeyframe1();
@@ -108,6 +114,16 @@ public:
     double getKeyframeObs1Num(ORB_SLAM2::KeyFrame* kf);
 
     void iterateKeyframeRemoval();
+
+    // calculate map shape
+    void estimateMapShape();
+    void getBigCube(    std::vector<ORB_SLAM2::MapPoint*> mpDb,
+                        Eigen::Vector3d* minPoint,
+                        Eigen::Vector3d* maxPoint);
+    void getSmallCube();
+    int getCubeId(ORB_SLAM2::MapPoint* mp);
+    void getCubeMatrix();
+
 
 ///////////////////////////////////////////////////////////////////////   
 

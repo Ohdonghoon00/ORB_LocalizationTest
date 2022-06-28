@@ -9,6 +9,7 @@
 #include<algorithm>
 #include<fstream>
 #include <string>
+// #include <cmath>
 
 
 
@@ -53,6 +54,11 @@ int main(int argc, char** argv)
     compression.setInitial(compRatio);
     std::cout << "id threshold : " << compression.neighborKeyframeIdThres << std::endl;
     
+    //
+    // double t1(-0.3), t2(-0.8);
+    // std::cout << std::floor(t1) << "  " << std::ceil(t2) << std::endl;
+    // std::cout << (int)(t1) << "  " << (int)(t2) << std::endl;
+
     std::cout << " remove Keyframe ... " << std::endl;
     // compression.removalKeyframe1();
     // int totalRemovedMemory = compression.removalKeyframe2();

@@ -654,6 +654,72 @@ void Compression::iterateKeyframeRemoval()
     getAllObs1Ratio();   
 }
 
+void Compression::estimateMapShape()
+{
+
+}
+
+void Compression::getBigCube(   std::vector<ORB_SLAM2::MapPoint*> mpDb,
+                                Eigen::Vector3d* minPoint,
+                                Eigen::Vector3d* maxPoint)
+{
+    for(size_t i = 0; i < mpDb.size(); i++){
+        
+        cv::Mat pointPos = mpDb[i]->GetWorldPos();
+        Eigen::Vector3d pos;
+        pos <<  (double)pointPos.at<float>(0, 0),
+                (double)pointPos.at<float>(1, 0),
+                (double)pointPos.at<float>(2, 0);
+
+        minPoint->x() = std::min(minPoint->x(), pos.x());
+        minPoint->y() = std::min(minPoint->y(), pos.y());
+        minPoint->z() = std::min(minPoint->z(), pos.z());
+	
+        maxPoint->x() = std::max(maxPoint->x(), pos.x());
+        maxPoint->y() = std::max(maxPoint->y(), pos.y());
+        maxPoint->z() = std::max(maxPoint->z(), pos.z());
+    }    
+}
+
+void Compression::getSmallCube()
+{
+    std::vector<ORB_SLAM2::MapPoint*> mpDB = Map->GetAllMapPoints();
+    Eigen::Vector3d minp(DBL_MAX, DBL_MAX, DBL_MAX), maxp(-DBL_MAX, -DBL_MAX, -DBL_MAX);
+    getBigCube(mpDB, &minp, &maxp);
+    
+    minPoint.x() = (minp.x() >=0) ? std::ceil(minp.x()) : std::floor(minp.x());
+    minPoint.y() = (minp.y() >=0) ? std::ceil(minp.y()) : std::floor(minp.y());
+    minPoint.z() = (minp.z() >=0) ? std::ceil(minp.z()) : std::floor(minp.z());
+
+    maxPoint.x() = (maxp.x() >=0) ? std::ceil(maxp.x()) : std::floor(maxp.x());
+    maxPoint.y() = (maxp.y() >=0) ? std::ceil(maxp.y()) : std::floor(maxp.y());
+    maxPoint.z() = (maxp.z() >=0) ? std::ceil(maxp.z()) : std::floor(maxp.z());
+    
+    // small Cube Num
+    smallCubeXNum = maxPoint.x() - minPoint.x();
+    smallCubeYNum = maxPoint.y() - minPoint.y();
+    smallCubeZNum = maxPoint.z() - minPoint.z();
+    totalSmallCubeNum = smallCubeXNum * smallCubeYNum * smallCubeZNum;
+    cubeMatrix.resize(totalSmallCubeNum, originalKeyframeNum - 1);
+
+
+}
+
+int Compression::getCubeId(ORB_SLAM2::MapPoint* mp)
+{
+
+}
+
+void Compression::getCubeMatrix()
+{
+    std::vector<ORB_SLAM2::KeyFrame*> kfdb = Map->GetAllKeyFrames();
+    std::sort(kfdb.begin(),kfdb.end(),ORB_SLAM2::KeyFrame::lId);
+    std::vector<ORB_SLAM2::MapPoint*> mpDB = Map->GetAllMapPoints();
+    for(size_t i = 0; i < mpDB.size(); i++){
+
+    }
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 int Compression::cvMatSize(cv::Mat a)
