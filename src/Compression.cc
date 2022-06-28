@@ -19,17 +19,17 @@ void Compression::LandmarkSparsification()
     std::cout << "before Compression Point Num : " << PointCloudNum << std::endl;
     std::cout << " Create Variables ... " << std::endl;
     // Create Variables
-    std::vector<GRBVar> x = CreateVariablesBinaryVector(PointCloudNum, model);
+    std::vector<GRBVar> x = CreateVariablesBinaryVectorForLandmark(PointCloudNum, model);
 
     std::cout << " Set Objective ... " << std::endl;
     // Set Objective
     Eigen::Matrix<double, Eigen::Dynamic, 1> q = CalculateObservationCountWeight(Map);
-    SetObjectiveILP(x, q, model);
+    SetObjectiveILPforLandmark(x, q, model);
 
     std::cout << " Add Constraint ... " << std::endl;
     // Add Constraint
     Eigen::MatrixXd A = CalculateVisibilityMatrix(Map);
-    AddConstraint(Map, model, A, x, kfCompressedRatio);
+    AddConstraintForLandmark(Map, model, A, x, kfCompressedRatio);
 
     std::cout << std::endl;
 
@@ -206,15 +206,60 @@ int Compression::removalKeyframe2()
     return totalRemoveMemory;
 }
 
-void Compression::removalKeyframe3()
+int Compression::removalKeyframe3()
 {
+    std::vector<ORB_SLAM2::KeyFrame*> kfdb = Map->GetAllKeyFrames();
+    std::sort(kfdb.begin(),kfdb.end(),ORB_SLAM2::KeyFrame::lId);
+    int totalRemoveMemory = 0;
+
     // Map Compression
     std::cout << "Map Compression ... " << std::endl;
     GRBEnv env = GRBEnv();
     GRBModel model = GRBModel(env);    
     
-    // remove keyframe by ILP method
-}
+    int keyframeNum = (int)Map->KeyFramesInMap();
+
+    std::cout << "before Compression keyframe Num : " << keyframeNum << std::endl;
+    std::cout << " Create Variables ... " << std::endl;
+    // Create Variables
+    std::vector<GRBVar> x = CreateVariablesBinaryVectorForKeyframe(keyframeNum, model);
+
+    std::cout << " Set Objective ... " << std::endl;
+    // Set Objective
+    Eigen::MatrixXd S = calculateKeyframeSimilarity(Map);
+    SetObjectiveILPforKeyframe(x, S, model);
+
+    std::cout << " Add Constraint ... " << std::endl;
+    // Add Constraint
+    AddConstraintForKeyframe(Map, model, x, kfCompressedRatio, neighborKeyframeIdThres);
+
+    std::cout << std::endl;
+
+    std::cout << " Optimize model ... " << std::endl;
+    // Optimize model
+    model.optimize();
+
+    std::cout << "Obj: " << model.get(GRB_DoubleAttr_ObjVal) << endl;
+
+    std::cout << std::endl;
+
+    // Erase Keyframe
+
+    for (size_t i = 0; i < x.size(); i++){
+
+        if (x[i].get(GRB_DoubleAttr_X) == 0){
+            
+            int currMemory = getMemory(kfdb[i + 1]);
+            totalRemoveMemory += currMemory;
+            kfdb[i + 1]->SetBadFlag();
+
+        }
+    }
+
+    return totalRemoveMemory;
+
+    
+} // remove keyframe by ILP method
 
 void Compression::initializing()
 {

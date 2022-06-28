@@ -67,7 +67,7 @@ public:
     void LandmarkSparsification();
     int removalKeyframe1();
     int removalKeyframe2();
-    void removalKeyframe3();
+    int removalKeyframe3();
 
     
 
@@ -93,7 +93,7 @@ public:
 
     // Keyframe Similarity
     void getKeyframeSimilarityMatrix();
-    int getCovisibilityMpNum(ORB_SLAM2::KeyFrame* kf1, ORB_SLAM2::KeyFrame* kf2);
+    static int getCovisibilityMpNum(ORB_SLAM2::KeyFrame* kf1, ORB_SLAM2::KeyFrame* kf2);
     
     // Constraint
     void getRelativePose(ORB_SLAM2::KeyFrame* kf1, ORB_SLAM2::KeyFrame* kf2);
@@ -104,7 +104,7 @@ public:
     void printKeyframeInfo(const std::string &file);
 
 
-    std::vector<ORB_SLAM2::MapPoint*> getKeyframeMap(ORB_SLAM2::KeyFrame* kf);
+    static std::vector<ORB_SLAM2::MapPoint*> getKeyframeMap(ORB_SLAM2::KeyFrame* kf);
     double getKeyframeObs1Num(ORB_SLAM2::KeyFrame* kf);
 
     void iterateKeyframeRemoval();

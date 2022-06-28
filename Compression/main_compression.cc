@@ -55,13 +55,14 @@ int main(int argc, char** argv)
     
     std::cout << " remove Keyframe ... " << std::endl;
     // compression.removalKeyframe1();
-    int totalRemovedMemory = compression.removalKeyframe2();
+    // int totalRemovedMemory = compression.removalKeyframe2();
+    int totalRemovedMemory = compression.removalKeyframe3();
     // compression.LandmarkSparsification();
     std::cout << " Finish Compression !! " << std::endl;
     
     std::cout << " print Compressed Keyframe Info ... " << std::endl;
-    compression.iterateKeyframeRemoval();
-    compression.printKeyframeInfo("CompressionKeyframeInfo.txt");
+    // compression.iterateKeyframeRemoval();
+    // compression.printKeyframeInfo("CompressionKeyframeInfo.txt");
     
     // memory for removing keyframe
     int totalRemovedLandmark = 36829 - compression.Map->MapPointsInMap();

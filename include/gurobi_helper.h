@@ -6,17 +6,38 @@
 #include "algorithm"
 #include "Map.h"
 #include "System.h"
+#include "Compression.h"
 
 
-std::vector<GRBVar> CreateVariablesBinaryVector(int PointCloudNum, GRBModel& model_);
+std::vector<GRBVar> CreateVariablesBinaryVectorForLandmark( int PointCloudNum, 
+                                                            GRBModel& model_);
+std::vector<GRBVar> CreateVariablesBinaryVectorForKeyframe( int keyframeNum, 
+                                                            GRBModel& model_);
 
 Eigen::Matrix<double, Eigen::Dynamic, 1> CalculateObservationCountWeight(ORB_SLAM2::Map* map_data);
+Eigen::MatrixXd calculateKeyframeSimilarity(ORB_SLAM2::Map* map_data);
 // Eigen::Matrix<double, Eigen::Dynamic, 1> CalculateObservationCountWeight2(DataBase* DB);
 
-void SetObjectiveILP(std::vector<GRBVar> x_, Eigen::Matrix<double, Eigen::Dynamic, 1> q_, GRBModel& model_);
+void SetObjectiveILPforLandmark(std::vector<GRBVar> x_, 
+                                Eigen::Matrix<double, Eigen::Dynamic, 1> q_,
+                                GRBModel& model_);
+void SetObjectiveILPforKeyframe(std::vector<GRBVar> x_, 
+                                Eigen::MatrixXd S, 
+                                GRBModel& model_);
+
 
 Eigen::MatrixXd CalculateVisibilityMatrix(ORB_SLAM2::Map* map_data);
 // Eigen::MatrixXd CalculateVisibilityMatrix2(DataBase* DB);
 
-void AddConstraint(ORB_SLAM2::Map* map_data, GRBModel& model_, Eigen::MatrixXd A, std::vector<GRBVar> x, double CompressionRatio);
+void AddConstraintForLandmark( ORB_SLAM2::Map* map_data, 
+                    GRBModel& model_, 
+                    Eigen::MatrixXd A, 
+                    std::vector<GRBVar> x, 
+                    double CompressionRatio);
+void AddConstraintForKeyframe( ORB_SLAM2::Map* map_data, 
+                    GRBModel& model_, 
+                    std::vector<GRBVar> x, 
+                    double CompressionRatio,
+                    int neighborKeyframeIdThres);
+
 // void AddConstraint2(DataBase* DB, GRBModel& model_, Eigen::MatrixXd A, std::vector<GRBVar> x, double CompressionRatio);

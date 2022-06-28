@@ -1,12 +1,25 @@
 #include "gurobi_helper.h"
 
 
-std::vector<GRBVar> CreateVariablesBinaryVector(int PointCloudNum, GRBModel& model_)
+std::vector<GRBVar> CreateVariablesBinaryVectorForLandmark(int PointCloudNum, GRBModel& model_)
 {
     
     std::vector<GRBVar> x;
     x.resize(PointCloudNum);
     for(int i = 0; i < PointCloudNum; i++ )
+    {
+        x[i] = model_.addVar(0.0, 1.0, 0.0, GRB_BINARY);
+    }
+
+    return x;
+}
+
+std::vector<GRBVar> CreateVariablesBinaryVectorForKeyframe(int keyframeNum, GRBModel& model_)
+{
+    
+    std::vector<GRBVar> x;
+    x.resize(keyframeNum - 1);
+    for(int i = 0; i < keyframeNum - 1; i++ )
     {
         x[i] = model_.addVar(0.0, 1.0, 0.0, GRB_BINARY);
     }
@@ -42,6 +55,38 @@ Eigen::Matrix<double, Eigen::Dynamic, 1> CalculateObservationCountWeight(ORB_SLA
     return q;
 }
 
+Eigen::MatrixXd calculateKeyframeSimilarity(ORB_SLAM2::Map* map_data)
+{
+    std::vector<ORB_SLAM2::KeyFrame*> kfdb = map_data->GetAllKeyFrames();
+    std::sort(kfdb.begin(),kfdb.end(),ORB_SLAM2::KeyFrame::lId);
+
+    int keyframeNum = kfdb.size();
+
+    Eigen::MatrixXd S;
+    S.resize(keyframeNum - 1, keyframeNum - 1);
+
+    for(size_t i = 1; i < kfdb.size(); i++){
+
+        int lastKeyframeMpNum = Compression::getKeyframeMap(kfdb[i]).size();
+        for(size_t j = 1; j < kfdb.size(); j++){
+            
+            // getRelativePose(kfdb[i], kfdb[j]);
+            // // std::cout << relPoseErr[0] << "    " << ORB_SLAM2::Converter::Rad2Degree(relPoseErr[1]) << std::endl;
+            // if(relPoseErr[0] < 1.0){
+
+                int covisibilityMpNum = Compression::getCovisibilityMpNum(kfdb[i], kfdb[j]);
+                S(i - 1, j - 1) = (double)covisibilityMpNum / (double)lastKeyframeMpNum;
+            // }
+            // else
+            //     similarityMatrix(i - 1, j - 1) = 0.0;
+
+        }
+    
+    }
+
+    return S;
+}
+
 // Eigen::Matrix<double, Eigen::Dynamic, 1> CalculateObservationCountWeight2(DataBase* DB)
 // {
 //     Eigen::Matrix<double, Eigen::Dynamic, 1> q;
@@ -58,16 +103,32 @@ Eigen::Matrix<double, Eigen::Dynamic, 1> CalculateObservationCountWeight(ORB_SLA
 //     return q;
 // }
 
-void SetObjectiveILP(std::vector<GRBVar> x_, Eigen::Matrix<double, Eigen::Dynamic, 1> q_, GRBModel& model_)
+void SetObjectiveILPforLandmark(std::vector<GRBVar> x_, 
+                                Eigen::Matrix<double, Eigen::Dynamic, 1> q_, 
+                                GRBModel& model_)
 {
     GRBLinExpr obj = 0;
     for(size_t i = 0; i < x_.size(); i++)
-    {
         obj += q_[i] * x_[i];
-    } 
-    model_.setObjective(obj);
     
+    model_.setObjective(obj);
 }
+    
+
+void SetObjectiveILPforKeyframe(std::vector<GRBVar> x_, 
+                                Eigen::MatrixXd S, 
+                                GRBModel& model_)
+{
+    GRBLinExpr obj = 0;
+    for(size_t i = 0; i < x_.size(); i++)
+        for(size_t j = 0; j < x_.size(); j++)
+            obj += S(i, j) * x_[j];
+        
+    model_.setObjective(obj);
+}
+        
+    
+
 
 Eigen::MatrixXd CalculateVisibilityMatrix(ORB_SLAM2::Map* map_data)
 {
@@ -76,20 +137,19 @@ Eigen::MatrixXd CalculateVisibilityMatrix(ORB_SLAM2::Map* map_data)
     std::vector<ORB_SLAM2::KeyFrame*> AllKFptr = map_data->GetAllKeyFrames();
     Eigen::MatrixXd A(map_data->KeyFramesInMap(), map_data->MapPointsInMap()); 
     A.setZero();
-    for(int i = 0; i < A.rows(); i++ ) // keyFrame Num
-        {
-            for(int j = 0; j < A.cols(); j++) // mapPoint Num
-            {
-                
+    for(int i = 0; i < A.rows(); i++ ){ // keyFrame Num
+            for(int j = 0; j < A.cols(); j++){ // mapPoint Num
+            
                 bool IsInKF = AllMpptr[j]->IsInKeyFrame(AllKFptr[i]);
-                if(IsInKF){
+                if(IsInKF)
                     A(i, j) = 1.0;
-                }    
             }
-
         }
     return A;
 }
+                
+                   
+
 
 // Eigen::MatrixXd CalculateVisibilityMatrix2(DataBase* DB)
 // {
@@ -113,7 +173,11 @@ Eigen::MatrixXd CalculateVisibilityMatrix(ORB_SLAM2::Map* map_data)
                 
 
 
-void AddConstraint(ORB_SLAM2::Map* map_data, GRBModel& model_, Eigen::MatrixXd A, std::vector<GRBVar> x, double CompressionRatio)
+void AddConstraintForLandmark(  ORB_SLAM2::Map* map_data, 
+                                GRBModel& model_, 
+                                Eigen::MatrixXd A, 
+                                std::vector<GRBVar> x, 
+                                double CompressionRatio)
 {
     GRBLinExpr MinKeyframePointNum = 0;
     GRBLinExpr TotalPointNum = 0;
@@ -123,7 +187,7 @@ void AddConstraint(ORB_SLAM2::Map* map_data, GRBModel& model_, Eigen::MatrixXd A
 
     double totalNum = (double)(int)(map_data->MapPointsInMap() * CompressionRatio);
     // double totalNum = 4000.0;
-std::cout << totalNum << std::endl;
+std::cout << "total Pointcloud num : " << totalNum << std::endl;
     for(size_t i = 0; i < map_data->KeyFramesInMap(); i++)
     {
        MinKeyframePointNum.clear();
@@ -141,6 +205,32 @@ std::cout << totalNum << std::endl;
         TotalPointNum = TotalPointNum + x[i];
     }
     model_.addConstr(TotalPointNum, GRB_EQUAL, totalNum);
+}
+
+void AddConstraintForKeyframe(  ORB_SLAM2::Map* map_data, 
+                                GRBModel& model_, 
+                                std::vector<GRBVar> x, 
+                                double CompressionRatio,
+                                int neighborKeyframeIdThres)
+{
+    GRBLinExpr totalKeyframeNum = 0;
+    double totalNum = (double)(int)(map_data->KeyFramesInMap() * CompressionRatio);
+
+    for(size_t i = 0; i < x.size() - neighborKeyframeIdThres + 1; i++){
+        
+        GRBLinExpr neighborKeyframe = 0;
+        for(int j = 0; j < neighborKeyframeIdThres; j++){
+            neighborKeyframe += x[i + j]; 
+        }
+        model_.addConstr(neighborKeyframe >= 1.0);
+    }
+
+    for(size_t i = 0; i < map_data->KeyFramesInMap() - 1; i++){
+
+        totalKeyframeNum = totalKeyframeNum + x[i];
+    }
+
+    model_.addConstr(totalKeyframeNum, GRB_EQUAL, totalNum);
 }
 
 // void AddConstraint2(DataBase* DB, GRBModel& model_, Eigen::MatrixXd A, std::vector<GRBVar> x, double CompressionRatio)
