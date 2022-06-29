@@ -121,12 +121,20 @@ void SetObjectiveILPforKeyframe(std::vector<GRBVar> x_,
                                 GRBModel& model_)
 {
     GRBLinExpr obj = 0;
-    for(size_t i = 0; i < x_.size(); i++)
-        for(size_t j = 0; j < x_.size(); j++)
-            obj += S(i, j) * x_[j];
+    for(size_t i = 0; i < x_.size(); i++){
         
+        if(x_[i].get(GRB_DoubleAttr_X) == 1){
+            for(size_t j = 0; j < x_.size(); j++){
+                obj += S(i, j) * x_[j];
+            }                
+        }
+    }    
+    
     model_.setObjective(obj);
 }
+
+
+            
         
 void SetObjectiveforKeyframeMapCube(std::vector<GRBVar> x_, 
                                     Eigen::MatrixXi visibilityMatrix,
@@ -170,19 +178,19 @@ void SetObjectiveforKeyframeMapCube(std::vector<GRBVar> x_,
                 compressedCubeVector[idx] += 1 * observationVector[i];
             }        
         }
+        
         // delete smaller than thres
-        // std::cout << "delete smaller than thres ... " << std::endl;
-        // int eraseIdx = 0;
-        // for(size_t i = 0; i < originalCubeVector.size(); i++){
-        //     std::cout << i << " ";
-        //     if(originalCubeVector[i - eraseIdx] == 0){
+        std::cout << "delete smaller than thres ... " << std::endl;
+        int eraseIdx = 0;
+        for(size_t i = 0; i < originalCubeVector.size(); i++){
+            if(originalCubeVector[i - eraseIdx] < 4){
                 
-        //         originalCubeVector.erase(originalCubeVector.begin() + i - eraseIdx);
-        //         compressedCubeVector.erase(compressedCubeVector.begin() + i - eraseIdx);
-        //         eraseIdx++;
-        //     }
+                originalCubeVector.erase(originalCubeVector.begin() + i - eraseIdx);
+                compressedCubeVector.erase(compressedCubeVector.begin() + i - eraseIdx);
+                eraseIdx++;
+            }
+        }
                 
-        // }
 
         
         // Ratio of CubeVector between Original and Compressed Map

@@ -767,22 +767,15 @@ int Compression::getOriginalCubeVector()
     }
     
     
-    // for(size_t i = 0; i < originalCubeVector.size(); i++){
-        // a += originalCubeVector[i];
-        // std::cout << originalCubeVector[i] << " ";
-    // }
-    
-    
-    // // delete smaller than thres
+    // delete smaller than thres
     // std::cout << "delete smaller than thres ... " << std::endl;
     // int eraseIdx = 0;
     // for(size_t i = 0; i < originalCubeVector.size(); i++){
-    //     if(originalCubeVector[i - eraseIdx] == 0){
+    //     if(originalCubeVector[i - eraseIdx] < 5){
             
     //         originalCubeVector.erase(originalCubeVector.begin() + i - eraseIdx);
     //         eraseIdx++;
     //     }
-    //     std::cout << eraseIdx << std::endl;   
     // }
 }
 
