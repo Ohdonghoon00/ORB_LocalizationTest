@@ -120,16 +120,23 @@ void SetObjectiveILPforKeyframe(std::vector<GRBVar> x_,
                                 Eigen::MatrixXd S, 
                                 GRBModel& model_)
 {
-    GRBLinExpr obj = 0;
+    GRBQuadExpr obj = 0;
+    std::vector<GRBLinExpr> similarityKeyframe(x_.size());
     for(size_t i = 0; i < x_.size(); i++){
         
-        if(x_[i].get(GRB_DoubleAttr_X) == 1){
+        // if(x_[i].get(GRB_DoubleAttr_X) == 1){
             for(size_t j = 0; j < x_.size(); j++){
-                obj += S(i, j) * x_[j];
+                similarityKeyframe[i] += S(i, j) * x_[j];
             }                
-        }
+        // }
     }    
     
+    for(size_t i = 0; i < x_.size(); i++){
+        
+        obj += similarityKeyframe[i] * x_[i];
+    }      
+    
+
     model_.setObjective(obj);
 }
 
@@ -191,7 +198,7 @@ void SetObjectiveforKeyframeMapCube(std::vector<GRBVar> x_,
             }
         }
                 
-
+        std::cout << "small cube size : " << originalCubeVector.size() << std::endl;
         
         // Ratio of CubeVector between Original and Compressed Map
         std::cout << "Caculate Ratio of CubeVector ... " << std::endl;
@@ -199,8 +206,8 @@ void SetObjectiveforKeyframeMapCube(std::vector<GRBVar> x_,
         GRBLinExpr avg = 0;
         for(size_t i = 0; i < compressedCubeVector.size(); i++){
 
-            // cubeVectorRatio[i] = compressedCubeVector[i]/(double)originalCubeVector[i];
-            cubeVectorRatio[i] =  (double)originalCubeVector[i] - compressedCubeVector[i];
+            cubeVectorRatio[i] = compressedCubeVector[i]/(double)originalCubeVector[i];
+            // cubeVectorRatio[i] =  (double)originalCubeVector[i] - compressedCubeVector[i];
             avg += cubeVectorRatio[i];
         }
         avg /= (double)compressedCubeVector.size();
