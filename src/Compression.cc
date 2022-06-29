@@ -707,7 +707,7 @@ void Compression::getSmallCube()
 
 int Compression::getCubeId(ORB_SLAM2::MapPoint* mp)
 {
-
+    
 }
 
 void Compression::getCubeMatrix()
