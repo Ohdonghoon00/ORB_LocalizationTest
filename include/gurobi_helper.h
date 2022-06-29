@@ -24,6 +24,12 @@ void SetObjectiveILPforLandmark(std::vector<GRBVar> x_,
 void SetObjectiveILPforKeyframe(std::vector<GRBVar> x_, 
                                 Eigen::MatrixXd S, 
                                 GRBModel& model_);
+void SetObjectiveforKeyframeMapCube(std::vector<GRBVar> x_, 
+                                    Eigen::MatrixXi visibilityMatrix,
+                                    std::vector<int> originalCubeVector,
+                                    std::vector<int> cubeIds,
+                                    std::set<int> cubeIdsSet,
+                                    GRBModel& model_);
 
 
 Eigen::MatrixXd CalculateVisibilityMatrix(ORB_SLAM2::Map* map_data);

@@ -87,6 +87,7 @@ Eigen::MatrixXd calculateKeyframeSimilarity(ORB_SLAM2::Map* map_data)
     return S;
 }
 
+
 // Eigen::Matrix<double, Eigen::Dynamic, 1> CalculateObservationCountWeight2(DataBase* DB)
 // {
 //     Eigen::Matrix<double, Eigen::Dynamic, 1> q;
@@ -127,7 +128,91 @@ void SetObjectiveILPforKeyframe(std::vector<GRBVar> x_,
     model_.setObjective(obj);
 }
         
+void SetObjectiveforKeyframeMapCube(std::vector<GRBVar> x_, 
+                                    Eigen::MatrixXi visibilityMatrix,
+                                    std::vector<int> originalCubeVector,
+                                    std::vector<int> cubeIds,
+                                    std::set<int> cubeIdsSet,
+                                    GRBModel& model_)
+{
+    // try{
+        GRBQuadExpr obj = 0;
+        
+        // Create Observation Vector
+        std::cout << "create observation vector ... " << std::endl;
+        std::vector<GRBLinExpr> observationVector(visibilityMatrix.rows());
+        for(int i = 0; i < visibilityMatrix.rows(); i++){
+            
+            GRBLinExpr obs = 0;
+            for(int j = 0; j < visibilityMatrix.cols(); j++){
+                obs += (double)visibilityMatrix(i, j) * x_[j];
+            }
+            if(obs.getConstant() == 0)
+                observationVector[i] = 0;
+            else
+                observationVector[i] = 1;
+        }
+                
+
+        // Caculate MapPoint Num in Small Cube
+        std::cout << "Caculate compressedCubeVector ... " << std::endl;
+        std::vector<GRBLinExpr> compressedCubeVector(cubeIdsSet.size(), 0);
+        for(size_t i = 0; i < cubeIds.size(); i++){
+            
+            int cubeid_ = cubeIds[i];
+            int idx = Compression::getSetIndex(cubeIdsSet, cubeid_);
+            
+            if(idx == -1){
+                
+                std::cout << "not found,,,?? " << std::endl;
+            }
+            else{
+                compressedCubeVector[idx] += 1 * observationVector[i];
+            }        
+        }
+        // delete smaller than thres
+        // std::cout << "delete smaller than thres ... " << std::endl;
+        // int eraseIdx = 0;
+        // for(size_t i = 0; i < originalCubeVector.size(); i++){
+        //     std::cout << i << " ";
+        //     if(originalCubeVector[i - eraseIdx] == 0){
+                
+        //         originalCubeVector.erase(originalCubeVector.begin() + i - eraseIdx);
+        //         compressedCubeVector.erase(compressedCubeVector.begin() + i - eraseIdx);
+        //         eraseIdx++;
+        //     }
+                
+        // }
+
+        
+        // Ratio of CubeVector between Original and Compressed Map
+        std::cout << "Caculate Ratio of CubeVector ... " << std::endl;
+        std::vector<GRBLinExpr> cubeVectorRatio(compressedCubeVector.size());
+        GRBLinExpr avg = 0;
+        for(size_t i = 0; i < compressedCubeVector.size(); i++){
+
+            // cubeVectorRatio[i] = compressedCubeVector[i]/(double)originalCubeVector[i];
+            cubeVectorRatio[i] =  (double)originalCubeVector[i] - compressedCubeVector[i];
+            avg += cubeVectorRatio[i];
+        }
+        avg /= (double)compressedCubeVector.size();
+        
+        // Caculate variance for objective
+        std::cout << "Caculate variance ... " << std::endl; 
+        GRBQuadExpr variance = 0;
+        for(size_t i = 0; i < cubeVectorRatio.size(); i++){
+            variance += (cubeVectorRatio[i] - avg) * (cubeVectorRatio[i] - avg);
+        }
+        obj = variance / (double)cubeVectorRatio.size();
+        
+        
+        model_.setObjective(obj);
     
+    // } catch (GRBException e) {
+    //     cout << "Error number: " << e.getErrorCode() << endl;
+    //     cout << e.getMessage() << endl;
+    //   } 
+}    
 
 
 Eigen::MatrixXd CalculateVisibilityMatrix(ORB_SLAM2::Map* map_data)
@@ -213,6 +298,7 @@ void AddConstraintForKeyframe(  ORB_SLAM2::Map* map_data,
                                 double CompressionRatio,
                                 int neighborKeyframeIdThres)
 {
+    // try{
     GRBLinExpr totalKeyframeNum = 0;
     double totalNum = (double)(int)(map_data->KeyFramesInMap() * CompressionRatio);
 
@@ -231,6 +317,11 @@ void AddConstraintForKeyframe(  ORB_SLAM2::Map* map_data,
     }
 
     model_.addConstr(totalKeyframeNum, GRB_EQUAL, totalNum);
+
+    //     } catch (GRBException e) {
+    //     cout << "Error number: " << e.getErrorCode() << endl;
+    //     cout << e.getMessage() << endl;
+    // } 
 }
 
 // void AddConstraint2(DataBase* DB, GRBModel& model_, Eigen::MatrixXd A, std::vector<GRBVar> x, double CompressionRatio)

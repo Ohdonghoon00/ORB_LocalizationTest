@@ -261,6 +261,72 @@ int Compression::removalKeyframe3()
     
 } // remove keyframe by ILP method
 
+int Compression::removalKeyframe4()
+{
+    
+    
+    std::vector<ORB_SLAM2::KeyFrame*> kfdb = Map->GetAllKeyFrames();
+    std::sort(kfdb.begin(),kfdb.end(),ORB_SLAM2::KeyFrame::lId);
+    int totalRemoveMemory = 0;
+
+    // Map Compression
+    std::cout << "Map Compression ... " << std::endl;
+    GRBEnv env = GRBEnv();
+    GRBModel model = GRBModel(env);    
+    
+    int keyframeNum = (int)Map->KeyFramesInMap();
+    std::cout << "before Compression keyframe Num : " << keyframeNum << std::endl;
+
+    std::cout << " Create Variables ... " << std::endl;
+    // Create Variables
+    std::vector<GRBVar> x = CreateVariablesBinaryVectorForKeyframe(keyframeNum, model);
+    
+    std::cout << "estimate cube ... " << std::endl;
+    estimateCube();
+    std::cout << "VisibilityMatrix ... " << std::endl;
+    getVisibilityMatrix();
+    std::cout << "OriginalCubeVector ... " << std::endl;
+    getOriginalCubeVector();
+
+    // Set Objective
+    std::cout << " Set Objective ... " << std::endl;
+    SetObjectiveforKeyframeMapCube(x, visibilityMatrix, originalCubeVector, cubeIds, cubeIdsSet, model);
+
+    std::cout << " Add Constraint ... " << std::endl;
+    // Add Constraint
+    AddConstraintForKeyframe(Map, model, x, kfCompressedRatio, neighborKeyframeIdThres);
+
+    std::cout << " Optimize model ... " << std::endl;
+    
+    // try{
+    // Optimize model
+    model.optimize();
+
+    // } catch (GRBException e) {
+    //     cout << "Error number: " << e.getErrorCode() << endl;
+    //     cout << e.getMessage() << endl;
+    // } 
+    std::cout << "Obj: " << model.get(GRB_DoubleAttr_ObjVal) << endl;
+
+    std::cout << std::endl;
+
+    // Erase Keyframe
+
+    for (size_t i = 0; i < x.size(); i++){
+
+        if (x[i].get(GRB_DoubleAttr_X) == 0){
+            
+            int currMemory = getMemory(kfdb[i + 1]);
+            totalRemoveMemory += currMemory;
+            kfdb[i + 1]->SetBadFlag();
+
+        }
+    }
+
+    return totalRemoveMemory;
+
+}
+
 void Compression::initializing()
 {
     totalKeyframeNum = Map->KeyFramesInMap() - 1; // Exclude first Keyframe 
@@ -559,7 +625,8 @@ int Compression::getNeighborKeyframeIdDist(int idx)
 
 void Compression::setInitial(double kfCompressedRatio_)
 {
-    originalKeyframeNum = Map->GetAllKeyFrames().size();
+    originalKeyframeNum = (int)Map->GetAllKeyFrames().size();
+    originalMapPointNum = (int)Map->GetAllMapPoints().size();
     
     std::vector<ORB_SLAM2::KeyFrame*> kfdb = Map->GetAllKeyFrames();
     std::sort(kfdb.begin(),kfdb.end(),ORB_SLAM2::KeyFrame::lId);
@@ -654,10 +721,71 @@ void Compression::iterateKeyframeRemoval()
     getAllObs1Ratio();   
 }
 
-void Compression::estimateMapShape()
+void Compression::estimateCube()
 {
-
+    std::cout << "get small cube ... " << std::endl;
+    getSmallCube();
+    std::cout << "get CubeIds ... " << std::endl;
+    getCubeIds();
 }
+
+int Compression::getOriginalCubeVector()
+{
+    originalCubeVector.resize(totalSmallCubeNum, 0);
+
+    // Create original Observation Vector
+    std::vector<int> observationVector(visibilityMatrix.rows()); // Landmark Num
+    std::vector<int> x(visibilityMatrix.cols(), 1); // Keyframe Num
+    
+    std::cout << "Caculate observation vector ... " << std::endl;
+    for(int i = 0; i < visibilityMatrix.rows(); i++){
+        
+        int obs = 0;
+        for(int j = 0; j < visibilityMatrix.cols(); j++){
+            obs += visibilityMatrix(i, j) * x[j];
+        }
+        if(obs == 0)
+            observationVector[i] = 0;
+        else
+            observationVector[i] = 1;
+    }
+    
+    // Caculate original MapPoint Num in Small Cube
+    std::cout << "Caculate originalCubeVector ... " << std::endl;
+    for(size_t i = 0; i < cubeIds.size(); i++){
+        
+        int cubeid_ = cubeIds[i];
+        int idx = getSetIndex(cubeIdsSet, cubeid_);
+        
+        if(idx == -1){
+            
+            std::cout << "not found,,,?? " << std::endl;
+        }
+        else{
+            originalCubeVector[idx] += 1 * observationVector[i];
+        }
+    }
+    
+    
+    // for(size_t i = 0; i < originalCubeVector.size(); i++){
+        // a += originalCubeVector[i];
+        // std::cout << originalCubeVector[i] << " ";
+    // }
+    
+    
+    // // delete smaller than thres
+    // std::cout << "delete smaller than thres ... " << std::endl;
+    // int eraseIdx = 0;
+    // for(size_t i = 0; i < originalCubeVector.size(); i++){
+    //     if(originalCubeVector[i - eraseIdx] == 0){
+            
+    //         originalCubeVector.erase(originalCubeVector.begin() + i - eraseIdx);
+    //         eraseIdx++;
+    //     }
+    //     std::cout << eraseIdx << std::endl;   
+    // }
+}
+
 
 void Compression::getBigCube(   std::vector<ORB_SLAM2::MapPoint*> mpDb,
                                 Eigen::Vector3d* minPoint,
@@ -699,26 +827,68 @@ void Compression::getSmallCube()
     smallCubeXNum = maxPoint.x() - minPoint.x();
     smallCubeYNum = maxPoint.y() - minPoint.y();
     smallCubeZNum = maxPoint.z() - minPoint.z();
+    std::cout << "SmallCubeNum    : " << smallCubeXNum << "  " << smallCubeYNum << "  " << smallCubeZNum << std::endl;
     totalSmallCubeNum = smallCubeXNum * smallCubeYNum * smallCubeZNum;
-    cubeMatrix.resize(totalSmallCubeNum, originalKeyframeNum - 1);
+    std::cout << "totalSmallCubeNum    : " << totalSmallCubeNum << std::endl; 
+
 
 
 }
 
 int Compression::getCubeId(ORB_SLAM2::MapPoint* mp)
 {
+    int cubeId = 0;
     
+    cv::Mat pointPos = mp->GetWorldPos();
+    Eigen::Vector3d pos;
+    pos <<  (double)pointPos.at<float>(0, 0),
+            (double)pointPos.at<float>(1, 0),
+            (double)pointPos.at<float>(2, 0);
+
+    int cubeIdX = std::floor(pos.x() - (double)minPoint.x());
+    int cubeIdY = std::floor(pos.y() - (double)minPoint.y());
+    int cubeIdZ = std::floor(pos.z() - (double)minPoint.z());
+
+    cubeId = cubeIdX + smallCubeXNum * cubeIdY + smallCubeXNum * smallCubeYNum * cubeIdZ;
+    return cubeId;
 }
 
-void Compression::getCubeMatrix()
+void Compression::getCubeIds()
 {
+    std::vector<ORB_SLAM2::MapPoint*> mpDB = Map->GetAllMapPoints();
+    cubeIds.resize(mpDB.size());
+    for(size_t i = 0; i < mpDB.size(); i++){
+        int cubeId = getCubeId(mpDB[i]);
+        cubeIds[i] = cubeId;
+    }
+
+    for(auto i : cubeIds) cubeIdsSet.insert(i);
+    
+    std::cout << "cube Num : " << cubeIdsSet.size() << std::endl;
+    totalSmallCubeNum = cubeIdsSet.size();
+}
+
+
+void Compression::getVisibilityMatrix()
+{
+    std::vector<ORB_SLAM2::MapPoint*> mpDB = Map->GetAllMapPoints();
     std::vector<ORB_SLAM2::KeyFrame*> kfdb = Map->GetAllKeyFrames();
     std::sort(kfdb.begin(),kfdb.end(),ORB_SLAM2::KeyFrame::lId);
-    std::vector<ORB_SLAM2::MapPoint*> mpDB = Map->GetAllMapPoints();
-    for(size_t i = 0; i < mpDB.size(); i++){
+    
+    visibilityMatrix.resize(originalMapPointNum, originalKeyframeNum - 1);
+    visibilityMatrix.setZero();
 
+    for(size_t i = 0; i < mpDB.size(); i++){
+        for(size_t j = 1; j < kfdb.size(); j++){
+            bool isInKeyframe = mpDB[i]->IsInKeyFrame(kfdb[j]);
+            if(isInKeyframe){
+                visibilityMatrix(i, j - 1) = 1;
+            }
+        }
     }
 }
+
+    
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -806,4 +976,20 @@ void Compression::RMSError(Vector6d EsPose, Vector6d gtPose, double *err)
     Eigen::Vector3d RelativeRot = ORB_SLAM2::Converter::ToVec3(RelativeRot_);
     err[1] = std::sqrt(RelativeRot.dot(RelativeRot));
 
+}
+
+int Compression::getSetIndex(std::set<int> S, int K)
+{
+ 
+    int Index = 0;
+ 
+    for (auto u : S) {
+ 
+        if (u == K)
+            return Index;
+ 
+        Index++;
+    }
+    
+    return -1;
 }

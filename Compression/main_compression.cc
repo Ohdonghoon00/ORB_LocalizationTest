@@ -58,11 +58,14 @@ int main(int argc, char** argv)
     // double t1(-0.3), t2(-0.8);
     // std::cout << std::floor(t1) << "  " << std::ceil(t2) << std::endl;
     // std::cout << (int)(t1) << "  " << (int)(t2) << std::endl;
+    // std::vector<ORB_SLAM2::MapPoint*> AllMpptr = compression.Map->GetAllMapPoints();
+    // std::cout << "   dddd   " << AllMpptr.size() << "     " << compression.Map->MapPointsInMap() << std::endl;
 
     std::cout << " remove Keyframe ... " << std::endl;
     // compression.removalKeyframe1();
     // int totalRemovedMemory = compression.removalKeyframe2();
     int totalRemovedMemory = compression.removalKeyframe3();
+    // int totalRemovedMemory = compression.removalKeyframe4();
     // compression.LandmarkSparsification();
     std::cout << " Finish Compression !! " << std::endl;
     

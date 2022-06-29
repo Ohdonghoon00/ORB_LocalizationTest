@@ -26,7 +26,7 @@ public:
     // ORB_SLAM2::KeyFrame* Keyframe;
     ORB_SLAM2::KeyFrameDatabase* dbKeyframe;
 
-    int originalKeyframeNum;
+    int originalKeyframeNum, originalMapPointNum;
     long unsigned int totalKeyframeNum;
     long unsigned int totalMapPointNum;    
     
@@ -67,13 +67,18 @@ public:
     Eigen::Vector3i minPoint;
     Eigen::Vector3i maxPoint;
     int smallCubeXNum, smallCubeYNum, smallCubeZNum, totalSmallCubeNum;
-    Eigen::MatrixXi cubeMatrix;
+    std::vector<int> cubeIds;
+    std::set<int> cubeIdsSet;
+    Eigen::MatrixXi visibilityMatrix;
+    std::vector<int> originalCubeVector;
 
-    // Compresssion
+    // main Compresssion
     void LandmarkSparsification();
     int removalKeyframe1();
     int removalKeyframe2();
     int removalKeyframe3();
+    int removalKeyframe4();
+
 
     
 
@@ -116,13 +121,16 @@ public:
     void iterateKeyframeRemoval();
 
     // calculate map shape
-    void estimateMapShape();
+    void estimateCube();
     void getBigCube(    std::vector<ORB_SLAM2::MapPoint*> mpDb,
                         Eigen::Vector3d* minPoint,
                         Eigen::Vector3d* maxPoint);
     void getSmallCube();
     int getCubeId(ORB_SLAM2::MapPoint* mp);
-    void getCubeMatrix();
+    void getCubeIds();
+    void getVisibilityMatrix();
+    int getOriginalCubeVector();
+
 
 
 ///////////////////////////////////////////////////////////////////////   
@@ -136,6 +144,7 @@ public:
     void minMaxNormalize(Eigen::VectorXf *vec);
     void minMaxNormalize(std::vector<double> *vec);
     void RMSError(Vector6d EsPose, Vector6d gtPose, double *err);
+    static int getSetIndex(std::set<int> S, int K);
 
     static bool weightComp(int i, int j){return KeyframeInvWeight[i] > KeyframeInvWeight[j];}
     static bool obsScoreComp(int i, int j){return kfObsNumsRatio[i] > kfObsNumsRatio[j];}
