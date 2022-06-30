@@ -31,6 +31,8 @@ int main(int argc, char** argv)
     std::ofstream f;
     f.open("abc.txt");
     
+    std::ofstream d;
+    d.open("cubevector.txt");
     // std::ofstream obsfile;
     // obsfile.open("KeyframeInfo.txt");
 
@@ -54,19 +56,26 @@ int main(int argc, char** argv)
     compression.setInitial(compRatio);
     std::cout << "id threshold : " << compression.neighborKeyframeIdThres << std::endl;
     
-    //
-    // double t1(-0.3), t2(-0.8);
-    // std::cout << std::floor(t1) << "  " << std::ceil(t2) << std::endl;
-    // std::cout << (int)(t1) << "  " << (int)(t2) << std::endl;
-    // std::vector<ORB_SLAM2::MapPoint*> AllMpptr = compression.Map->GetAllMapPoints();
-    // std::cout << "   dddd   " << AllMpptr.size() << "     " << compression.Map->MapPointsInMap() << std::endl;
+
+
+    // 
+    // std::cout << "estimate cube ... " << std::endl;
+    // compression.estimateCube();
+    // std::cout << "VisibilityMatrix ... " << std::endl;
+    // compression.getVisibilityMatrix();
+    // std::cout << "OriginalCubeVector ... " << std::endl;
+    // compression.getOriginalCubeVector();
+
+    // for(size_t i = 0; i < compression.originalCubeVector.size(); i++){
+    //     d << compression.originalCubeVector[i] << std::endl;
+    // }
 
     std::cout << " remove Keyframe ... " << std::endl;
     // compression.removalKeyframe1();
     // int totalRemovedMemory = compression.removalKeyframe2();
-    int totalRemovedMemory = compression.removalKeyframe3();
+    // int totalRemovedMemory = compression.removalKeyframe3();
     // int totalRemovedMemory = compression.removalKeyframe4();
-    // compression.LandmarkSparsification();
+    compression.LandmarkSparsification();
     std::cout << " Finish Compression !! " << std::endl;
     
     std::cout << " print Compressed Keyframe Info ... " << std::endl;
@@ -74,9 +83,9 @@ int main(int argc, char** argv)
     // compression.printKeyframeInfo("CompressionKeyframeInfo.txt");
     
     // memory for removing keyframe
-    int totalRemovedLandmark = 36829 - compression.Map->MapPointsInMap();
-    totalRemovedMemory += totalRemovedLandmark * 736;
-    std::cout <<  " Total memory of removed mapPoints : " << totalRemovedMemory << std::endl;
+    // int totalRemovedLandmark = 36829 - compression.Map->MapPointsInMap();
+    // totalRemovedMemory += totalRemovedLandmark * 736;
+    // std::cout <<  " Total memory of removed mapPoints : " << totalRemovedMemory << std::endl;
     
 
 

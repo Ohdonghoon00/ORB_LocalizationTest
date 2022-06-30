@@ -29,6 +29,7 @@ void SetObjectiveforKeyframeMapCube(std::vector<GRBVar> x_,
                                     std::vector<int> originalCubeVector,
                                     std::vector<int> cubeIds,
                                     std::set<int> cubeIdsSet,
+                                    Eigen::MatrixXd S,
                                     GRBModel& model_);
 
 

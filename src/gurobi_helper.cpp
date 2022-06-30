@@ -126,15 +126,16 @@ void SetObjectiveILPforKeyframe(std::vector<GRBVar> x_,
         
         // if(x_[i].get(GRB_DoubleAttr_X) == 1){
             for(size_t j = 0; j < x_.size(); j++){
-                similarityKeyframe[i] += S(i, j) * x_[j];
+                obj += S(i, j) * x_[j];
+                // similarityKeyframe[i] += S(i, j) * x_[j];
             }                
         // }
     }    
     
-    for(size_t i = 0; i < x_.size(); i++){
+    // for(size_t i = 0; i < x_.size(); i++){
         
-        obj += similarityKeyframe[i] * x_[i];
-    }      
+    //     obj += similarityKeyframe[i] * x_[i];
+    // }      
     
 
     model_.setObjective(obj);
@@ -148,6 +149,7 @@ void SetObjectiveforKeyframeMapCube(std::vector<GRBVar> x_,
                                     std::vector<int> originalCubeVector,
                                     std::vector<int> cubeIds,
                                     std::set<int> cubeIdsSet,
+                                    Eigen::MatrixXd S,
                                     GRBModel& model_)
 {
     // try{
@@ -203,14 +205,14 @@ void SetObjectiveforKeyframeMapCube(std::vector<GRBVar> x_,
         // Ratio of CubeVector between Original and Compressed Map
         std::cout << "Caculate Ratio of CubeVector ... " << std::endl;
         std::vector<GRBLinExpr> cubeVectorRatio(compressedCubeVector.size());
-        GRBLinExpr avg = 0;
+        GRBLinExpr total = 0;
         for(size_t i = 0; i < compressedCubeVector.size(); i++){
 
-            cubeVectorRatio[i] = compressedCubeVector[i]/(double)originalCubeVector[i];
+            cubeVectorRatio[i] * (double)originalCubeVector[i] = compressedCubeVector[i];
             // cubeVectorRatio[i] =  (double)originalCubeVector[i] - compressedCubeVector[i];
-            avg += cubeVectorRatio[i];
+            total += cubeVectorRatio[i];
         }
-        avg /= (double)compressedCubeVector.size();
+        GRBLinExpr avg = total * (double)compressedCubeVector.size();
         
         // Caculate variance for objective
         std::cout << "Caculate variance ... " << std::endl; 
@@ -218,8 +220,24 @@ void SetObjectiveforKeyframeMapCube(std::vector<GRBVar> x_,
         for(size_t i = 0; i < cubeVectorRatio.size(); i++){
             variance += (cubeVectorRatio[i] - avg) * (cubeVectorRatio[i] - avg);
         }
-        obj = variance / (double)cubeVectorRatio.size();
+        obj * (double)cubeVectorRatio.size() = variance;
         
+        //////////// debug
+        std::vector<GRBLinExpr> similarityKeyframe(x_.size());
+        for(size_t i = 0; i < x_.size(); i++){
+        
+        // if(x_[i].get(GRB_DoubleAttr_X) == 1){
+            for(size_t j = 0; j < x_.size(); j++){
+                obj += S(i, j) * x_[j];
+                // similarityKeyframe[i] += S(i, j) * x_[j];
+            }                
+        // }
+        }    
+    
+        // for(size_t i = 0; i < x_.size(); i++){
+        
+        //     obj += similarityKeyframe[i] * x_[i];
+        // }      
         
         model_.setObjective(obj);
     

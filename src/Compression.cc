@@ -288,9 +288,12 @@ int Compression::removalKeyframe4()
     std::cout << "OriginalCubeVector ... " << std::endl;
     getOriginalCubeVector();
 
+    Eigen::MatrixXd S = calculateKeyframeSimilarity(Map);
+    // SetObjectiveILPforKeyframe(x, S, model);
+
     // Set Objective
     std::cout << " Set Objective ... " << std::endl;
-    SetObjectiveforKeyframeMapCube(x, visibilityMatrix, originalCubeVector, cubeIds, cubeIdsSet, model);
+    SetObjectiveforKeyframeMapCube(x, visibilityMatrix, originalCubeVector, cubeIds, cubeIdsSet, S, model);
 
     std::cout << " Add Constraint ... " << std::endl;
     // Add Constraint
@@ -768,15 +771,18 @@ int Compression::getOriginalCubeVector()
     
     
     // delete smaller than thres
-    // std::cout << "delete smaller than thres ... " << std::endl;
-    // int eraseIdx = 0;
-    // for(size_t i = 0; i < originalCubeVector.size(); i++){
-    //     if(originalCubeVector[i - eraseIdx] < 5){
+    std::cout << "delete smaller than thres ... " << std::endl;
+    int eraseIdx = 0;
+    int totalNum = originalCubeVector.size();
+    for(size_t i = 0; i < totalNum; i++){
+        if(originalCubeVector[i - eraseIdx] < 5){
             
-    //         originalCubeVector.erase(originalCubeVector.begin() + i - eraseIdx);
-    //         eraseIdx++;
-    //     }
-    // }
+            originalCubeVector.erase(originalCubeVector.begin() + i - eraseIdx);
+            eraseIdx++;
+        }
+    }
+
+
 }
 
 
