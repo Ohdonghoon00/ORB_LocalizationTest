@@ -75,7 +75,7 @@ int main(int argc, char** argv)
     // int totalRemovedMemory = compression.removalKeyframe2();
     // int totalRemovedMemory = compression.removalKeyframe3();
     // int totalRemovedMemory = compression.removalKeyframe4();
-    compression.LandmarkSparsification();
+    // compression.LandmarkSparsification();
     std::cout << " Finish Compression !! " << std::endl;
     
     std::cout << " print Compressed Keyframe Info ... " << std::endl;
@@ -90,6 +90,12 @@ int main(int argc, char** argv)
 
 
     std::cout << " Keyframe Num : " << compression.Map->KeyFramesInMap() << " Landmark Num : " << compression.Map->MapPointsInMap() << std::endl;
+
+    std::vector<ORB_SLAM2::KeyFrame*> kfdb_ = compression.Map->GetAllKeyFrames();
+    std::sort(kfdb_.begin(),kfdb_.end(),ORB_SLAM2::KeyFrame::lId);
+    for(size_t i = 0; i < kfdb_.size(); i++ ){
+        std::cout << kfdb_[i]->mDescriptors.size() << "    ";
+    }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
     // compression.getAllKeyframeReprojErr();
