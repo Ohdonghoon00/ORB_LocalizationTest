@@ -211,12 +211,14 @@ int Compression::removalKeyframe3()
     std::vector<ORB_SLAM2::KeyFrame*> kfdb = Map->GetAllKeyFrames();
     std::sort(kfdb.begin(),kfdb.end(),ORB_SLAM2::KeyFrame::lId);
     int totalRemoveMemory = 0;
-
+try{
     // Map Compression
     std::cout << "Map Compression ... " << std::endl;
     GRBEnv env = GRBEnv();
     GRBModel model = GRBModel(env);    
     
+
+
     int keyframeNum = (int)Map->KeyFramesInMap();
 
     std::cout << "before Compression keyframe Num : " << keyframeNum << std::endl;
@@ -235,15 +237,85 @@ int Compression::removalKeyframe3()
 
     std::cout << std::endl;
 
+    // if (model.get(GRB_IntAttr_IsMIP) == 0) {
+    //   throw GRBException("Model is not a MIP");
+    // }
+
     std::cout << " Optimize model ... " << std::endl;
     // Optimize model
+    model.set(GRB_DoubleParam_IterationLimit, 100000);
     model.optimize();
 
-    std::cout << "Obj: " << model.get(GRB_DoubleAttr_ObjVal) << endl;
+    // int optimstatus = model.get(GRB_IntAttr_Status);
+    // cout << "Optimization complete" << endl;
+    // double objval = 0;
+    // if (optimstatus == GRB_OPTIMAL) {
+    //   objval = model.get(GRB_DoubleAttr_ObjVal);
+    //   cout << "Optimal objective: " << objval << endl;
+    // } else if (optimstatus == GRB_INF_OR_UNBD) {
+    //   cout << "Model is infeasible or unbounded" << endl;
+    //   return 0;
+    // } else if (optimstatus == GRB_INFEASIBLE) {
+    //   cout << "Model is infeasible" << endl;
+    //   return 0;
+    // } else if (optimstatus == GRB_UNBOUNDED) {
+    //   cout << "Model is unbounded" << endl;
+    //   return 0;
+    // } else {
+    //   cout << "Optimization was stopped with status = "
+    //        << optimstatus << endl;
+    //   return 0;
+    // }
 
-    std::cout << std::endl;
+    model.set(GRB_IntParam_OutputFlag, 0);
 
-    // Erase Keyframe
+    cout << endl;
+    for ( int k = 0; k < model.get(GRB_IntAttr_SolCount); ++k ) {
+      model.set(GRB_IntParam_SolutionNumber, k);
+      double objn = model.get(GRB_DoubleAttr_PoolObjVal);
+
+      cout << "Solution " << k << " has objective: " << objn << endl;
+    }
+    cout << endl;
+
+    // std::cout << "Obj: " << model.get(GRB_DoubleAttr_ObjVal) << endl;
+
+
+
+    model.set(GRB_IntParam_OutputFlag, 1);
+
+    /* Create a fixed model, turn off presolve and solve */
+
+    GRBModel fixed = model.fixedModel();
+
+    fixed.set(GRB_IntParam_Presolve, 0);
+
+    fixed.optimize();
+
+    int foptimstatus = fixed.get(GRB_IntAttr_Status);
+
+    if (foptimstatus != GRB_OPTIMAL) {
+      cerr << "Error: fixed model isn't optimal" << endl;
+      return 0;
+    }
+
+    double fobjval = fixed.get(GRB_DoubleAttr_ObjVal);
+
+    // if (fabs(fobjval - objval) > 1.0e-6 * (1.0 + fabs(objval))) {
+    //   cerr << "Error: objective values are different" << endl;
+    //   return 0;
+    // }
+
+    // int numvars = model.get(GRB_IntAttr_NumVars);
+    // fvars = fixed.getVars();
+    // for (int j = 0; j < numvars; j++) {
+    //   GRBVar v = fvars[j];
+    //   if (v.get(GRB_DoubleAttr_X) != 0.0) {
+    //     cout << v.get(GRB_StringAttr_VarName) << " "
+    //          << v.get(GRB_DoubleAttr_X) << endl;
+    // std::cout << std::endl;
+    //   }
+    // }
 
     for (size_t i = 0; i < x.size(); i++){
 
@@ -255,7 +327,10 @@ int Compression::removalKeyframe3()
 
         }
     }
-
+    } catch (GRBException e) {
+        cout << "Error number: " << e.getErrorCode() << endl;
+        cout << e.getMessage() << endl;
+      } 
     return totalRemoveMemory;
 
     

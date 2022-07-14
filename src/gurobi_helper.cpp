@@ -21,7 +21,7 @@ std::vector<GRBVar> CreateVariablesBinaryVectorForKeyframe(int keyframeNum, GRBM
     x.resize(keyframeNum - 1);
     for(int i = 0; i < keyframeNum - 1; i++ )
     {
-        x[i] = model_.addVar(0.0, 1.0, 0.0, GRB_BINARY);
+        x[i] = model_.addVar(0.0, 1.0, 0.0, GRB_INTEGER);
     }
 
     return x;
@@ -124,12 +124,11 @@ void SetObjectiveILPforKeyframe(std::vector<GRBVar> x_,
     std::vector<GRBLinExpr> similarityKeyframe(x_.size());
     for(size_t i = 0; i < x_.size(); i++){
         
-        // if(x_[i].get(GRB_DoubleAttr_X) == 1){
             for(size_t j = 0; j < x_.size(); j++){
-                obj += S(i, j) * x_[j];
+                obj += S(i, j) * x_[j] * x_[i];
                 // similarityKeyframe[i] += S(i, j) * x_[j];
-            }                
-        // }
+            }
+            // obj += similarityKeyframe[i] * x_[i];                
     }    
     
     // for(size_t i = 0; i < x_.size(); i++){
