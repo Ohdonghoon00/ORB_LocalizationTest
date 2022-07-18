@@ -65,6 +65,10 @@ void Compression::LandmarkSparsification()
     std::cout << "After Compression Point Num : " << PointCloudNum_ << std::endl;
 }
 
+void Compression::LandmarkSparsification2()
+{
+
+}
 int Compression::removalKeyframe1()
 {
     std::vector<ORB_SLAM2::KeyFrame*> kfdb = Map->GetAllKeyFrames();
@@ -637,6 +641,54 @@ float Compression::getreprojectionErrAvg(ORB_SLAM2::KeyFrame* kf)
     return reprojErr/(float)kfMapPoints.size();
 }
 
+float Compression::getreprojectionErrAvg(ORB_SLAM2::MapPoint* mp)
+{
+    float reprojErr = 0.0;
+
+    std::map<ORB_SLAM2::KeyFrame*, size_t> Observations = mp->GetObservations();
+    
+    Eigen::Matrix4Xf worldPoints(4, 1);
+    Eigen::Matrix3Xf imgPoints(3, 1);
+    Eigen::Matrix3Xf reprojectPoints(3, 1);
+
+    cv::Mat mapPoint = mp->GetWorldPos();
+    worldPoints(0, 1) = mapPoint.at<float>(0, 0);
+    worldPoints(1, 1) = mapPoint.at<float>(1, 0);
+    worldPoints(2, 1) = mapPoint.at<float>(2, 0);
+    worldPoints(3, 1) = 1.0f;
+    
+    for(auto iter = Observations.begin(); iter != Observations.end(); iter++){
+        
+        ORB_SLAM2::KeyFrame* kf = iter->first;
+        Eigen::Matrix<float, 3, 4> proj = ORB_SLAM2::Converter::toProj34(kf->GetPose());
+        Eigen::Matrix3f K_;
+        K_ <<   kf->fx, 0, kf->cx,
+                0, kf->fy, kf->cy,
+                0, 0, 1;    
+    
+        int idx = mp->GetIndexInKeyFrame(kf);
+        imgPoints(0, 1) = kf->mvKeys[idx].pt.x;
+        imgPoints(1, 1) = kf->mvKeys[idx].pt.y;
+        imgPoints(2, 1) = 1.0f;
+
+        // get reprojection Error 
+        reprojectPoints = proj * worldPoints;
+        
+        reprojectPoints(0, 1) /= reprojectPoints(2, 1);
+        reprojectPoints(1, 1) /= reprojectPoints(2, 1);
+        reprojectPoints(2, 1) /= reprojectPoints(2, 1);
+        reprojectPoints = K_ * reprojectPoints;
+
+       reprojErr += std::sqrt(   (imgPoints(0, 1) - reprojectPoints(0, 1)) * 
+                                            (imgPoints(0, 1) - reprojectPoints(0, 1)) + 
+                                            (imgPoints(1, 1) - reprojectPoints(1, 1)) *
+                                            (imgPoints(1, 1) - reprojectPoints(1, 1)) );
+    }
+        
+    return reprojErr/(float)Observations.size();
+
+}
+
 int Compression::getCovisibilityMpNum(ORB_SLAM2::KeyFrame* kf1, ORB_SLAM2::KeyFrame* kf2)
 {
     // std::set<ORB_SLAM2::MapPoint*> kfMapPoints = kf1->GetMapPoints();
@@ -962,7 +1014,69 @@ void Compression::getVisibilityMatrix()
     }
 }
 
+
+// TODO
+float Compression::getMaxTrackDistance(ORB_SLAM2::MapPoint* mp)
+{
+    float maxDist = 0.0;
+
+    std::map<ORB_SLAM2::KeyFrame*, size_t> Observations = mp->GetObservations();
+    if(Observations.size() < 2) return maxDist;
+    else{
+        
+        for(auto iter = Observation.begin(); iter != Observation.end(); iter++){
+            
+            ORB_SLAM2::KeyFrame* kf = iter->first;
+            Eigen::Vector3f kfPose = ORB_SLAM2::Converter::toVec3f(kf->GetPose());
+
+        }
+
+        return maxDist;
+    }
+}
+
+float Compression::getMaxAngle(ORB_SLAM2::MapPoint* mp)
+{
+    float angle = 0.0;
+
+    return angle;
+}
+
+void Compression::getLandmarkScore()
+{
+    calculateVariousScore();
+
+}
+
+void Compression::calculateVariousScore()
+{
+    std::vector<ORB_SLAM2::MapPoint*> mpDB = Map->GetAllMapPoints();
     
+    obsNum.resize(mpDB.size());
+    maxTrackDist.resize(mpDB.size());
+    maxAngle.resize(mpDB.size());
+    avgReprojectionErr.resize(mpDB.size());
+    
+    for(size_t i = 0; i < mpDB.size(); i++){
+        
+        // Observation Count
+        obsNum[i] = getObservation(mpDB[i]);
+        
+
+        std::map<ORB_SLAM2::KeyFrame*, size_t> Observations = mpDB[i]->GetObservations();
+        // Max Track Distance
+        maxTrackDist[i] = getMaxTrackDistance(mpDB[i]);
+
+        // Max Angle
+        maxAngle[i] = getMaxAngle(mpDB[i]);
+
+        // Average Reprojection Error
+        avgReprojectionErr[i] = getreprojectionErrAvg(mpDB[i]);
+    }
+}
+
+
+
 
 //////////////////////////////////////////////////////////////////////////
 

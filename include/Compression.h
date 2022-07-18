@@ -72,8 +72,15 @@ public:
     Eigen::MatrixXi visibilityMatrix;
     std::vector<int> originalCubeVector;
 
+    // Landmark Score
+    std::vector<int> obsNum;
+    std::vector<int> maxTrackDist;
+    std::vector<int> maxAngle;
+    std::vector<int> avgReprojectionErr;
+
     // main Compresssion
     void LandmarkSparsification();
+    void LandmarkSparsification2();
     int removalKeyframe1();
     int removalKeyframe2();
     int removalKeyframe3();
@@ -131,6 +138,12 @@ public:
     void getVisibilityMatrix();
     int getOriginalCubeVector();
 
+    // Calculate Landmark Score
+    void getLandmarkScore();
+    void calculateVariousScore();
+    float getMaxTrackDistance(ORB_SLAM2::MapPoint* mp);
+    float getMaxAngle(ORB_SLAM2::MapPoint* mp);
+    float getreprojectionErrAvg(ORB_SLAM2::MapPoint* mp);
 
 
 ///////////////////////////////////////////////////////////////////////   

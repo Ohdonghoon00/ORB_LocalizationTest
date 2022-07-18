@@ -60,6 +60,7 @@ public:
     static Vector6d Proj2Vec6(cv::Mat proj);
     static Eigen::Matrix<float, 3, 4> toProj34(cv::Mat proj);
     static Vector6d toProjvec6(cv::Mat proj);
+    static Eigen::Vector3f toVec3f(cv::Mat proj);
     static Eigen::MatrixXf Mat2Eigen(cv::Mat a);
     static double Rad2Degree(double rad);
     static double Ddegree2Rad(double degree);
