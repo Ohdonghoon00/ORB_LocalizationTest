@@ -125,6 +125,9 @@ public:
 
     static std::mutex mGlobalMutex;
 
+    // dh
+    float score;
+
 
 // protected:    
 

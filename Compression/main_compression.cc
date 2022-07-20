@@ -27,9 +27,10 @@ int main(int argc, char** argv)
 
     Compression compression;
 
-
-    std::ofstream f;
-    f.open("abc.txt");
+    if(argc != 8){
+        cerr << "not proper arguments!!";
+        exit(1);
+    }
     
     std::ofstream d;
     d.open("cubevector.txt");
@@ -73,11 +74,24 @@ int main(int argc, char** argv)
     std::cout << " remove Keyframe ... " << std::endl;
     // compression.removalKeyframe1();
     // int totalRemovedMemory = compression.removalKeyframe2();
-    int totalRemovedMemory = compression.removalKeyframe3();
+    // int totalRemovedMemory = compression.removalKeyframe3();
     // int totalRemovedMemory = compression.removalKeyframe4();
     // compression.LandmarkSparsification();
+    
+////////////////////////////////////////////////////////////////////////////////
+///////// landmark score and Keyframe Score Compression  ///////////////////////
+    
+    // compression.LandmarkSparsification2(
+    //     stod(argv[4]),stod(argv[5]),stod(argv[6]),stod(argv[7])
+    // );
+    
+    int totalRemovedMemory = compression.removalKeyframe5(
+        stod(argv[4]),stod(argv[5]),stod(argv[6]),stod(argv[7])
+    );
     std::cout << " Finish Compression !! " << std::endl;
     
+///////////////////////////////////////////////////////////////////////////////
+
     std::cout << " print Compressed Keyframe Info ... " << std::endl;
     // compression.iterateKeyframeRemoval();
     // compression.printKeyframeInfo("CompressionKeyframeInfo.txt");
@@ -85,6 +99,7 @@ int main(int argc, char** argv)
     // memory for removing keyframe
     int totalRemovedLandmark = 36829 - compression.Map->MapPointsInMap();
     totalRemovedMemory += totalRemovedLandmark * 736;
+    compression.removedMemory = (double)totalRemovedMemory * 1e-6;
     std::cout <<  " Total memory of removed mapPoints : " << totalRemovedMemory << std::endl;
     
 
@@ -202,9 +217,17 @@ int main(int argc, char** argv)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    // Save Result
+    std::ofstream f;
+    f.open("result/CompressionResult/keyframe/Compression_Result_"+string(argv[2])+"_"+string(argv[4])+"_"+string(argv[5])+"_"+string(argv[6])+"_"+string(argv[7])+"_.txt", ios::out);
+    f << 1.0 - compression.kfCompressedRatio << " " << compression.removedMemory << " " << compression.Map->KeyFramesInMap() << " " << compression.Map->MapPointsInMap();
+    f.close();
+
     // Save Map data
     std::cout << "Save Map ... " << std::endl;
-    std::string outpath = "MH01_KFcompression_test.bin";
+    std::string outpath = string(argv[3])+"_"+string(argv[4])+"_"+string(argv[5])+"_"+string(argv[6])+"_"+string(argv[7])+"_.bin";
+    // std::string compRatio_string = std::to_string((int)compRatio*100);
+    // std::string outpath = outName + compRatio_string;
     std::ofstream out(outpath, std::ios_base::binary);
     if (!out)
     {
@@ -218,6 +241,5 @@ int main(int argc, char** argv)
     std::cout << " ...done" << std::endl;
     std::cout << " ...done" << std::endl;
     out.close();
-    f.close();
     return 0;
 }

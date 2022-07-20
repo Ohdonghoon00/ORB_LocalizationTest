@@ -254,7 +254,7 @@ Vector6d Converter::toProjvec6(cv::Mat proj)
     return poseVec6;     
 }
 
-Eigen::Vector3f toVec3f(cv::Mat proj)
+Eigen::Vector3f Converter::toVec3f(cv::Mat proj)
 {
     Eigen::Matrix<float, 4, 4> proj44;
     proj44 <<   proj.at<float>(0, 0), proj.at<float>(0, 1), proj.at<float>(0, 2), proj.at<float>(0, 3),

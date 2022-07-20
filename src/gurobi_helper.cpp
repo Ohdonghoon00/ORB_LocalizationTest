@@ -21,7 +21,7 @@ std::vector<GRBVar> CreateVariablesBinaryVectorForKeyframe(int keyframeNum, GRBM
     x.resize(keyframeNum - 1);
     for(int i = 0; i < keyframeNum - 1; i++ )
     {
-        x[i] = model_.addVar(0.0, 1.0, 0.0, GRB_INTEGER);
+        x[i] = model_.addVar(0.0, 1.0, 0.0, GRB_BINARY);
     }
 
     return x;
@@ -54,6 +54,19 @@ Eigen::Matrix<double, Eigen::Dynamic, 1> CalculateObservationCountWeight(ORB_SLA
     }
     return q;
 }
+
+Eigen::Matrix<double, Eigen::Dynamic, 1> setLandmarkWeight(ORB_SLAM2::Map* map_data, std::vector<float> weight)
+{
+    int totalVal = 0;
+    Eigen::Matrix<double, Eigen::Dynamic, 1> q;
+    int PointCloudNum_ = map_data->MapPointsInMap();
+    q.resize(PointCloudNum_);
+    for(int i = 0; i < PointCloudNum_; i++)
+        q[i] = (double)weight[i];
+    return q;
+}
+
+    
 
 Eigen::MatrixXd calculateKeyframeSimilarity(ORB_SLAM2::Map* map_data)
 {
@@ -117,29 +130,42 @@ void SetObjectiveILPforLandmark(std::vector<GRBVar> x_,
     
 
 void SetObjectiveILPforKeyframe(std::vector<GRBVar> x_, 
-                                Eigen::MatrixXd S, 
+                                std::vector<float> keyframeScore, 
                                 GRBModel& model_)
 {
-    GRBQuadExpr obj = 0;
+    GRBLinExpr obj = 0;
     std::vector<GRBLinExpr> similarityKeyframe(x_.size());
     for(size_t i = 0; i < x_.size(); i++){
         
-            for(size_t j = 0; j < x_.size(); j++){
-                obj += S(i, j) * x_[j] * x_[i];
-                // similarityKeyframe[i] += S(i, j) * x_[j];
-            }
-            // obj += similarityKeyframe[i] * x_[i];                
+        obj +=  (double)keyframeScore[i + 1] * x_[i];
+            
     }    
-    
-    // for(size_t i = 0; i < x_.size(); i++){
-        
-    //     obj += similarityKeyframe[i] * x_[i];
-    // }      
+
     
 
     model_.setObjective(obj);
 }
 
+void SetObjectiveIQPforKeyframe(std::vector<GRBVar> x_, 
+                                Eigen::MatrixXd S,
+                                std::vector<float> keyframeScore, 
+                                GRBModel& model_)
+{
+    GRBQuadExpr obj = 0;
+    for(size_t i = 0; i < x_.size(); i++){
+        
+            for(size_t j = 0; j < x_.size(); j++){
+                obj += S(i, j) * x_[j] * x_[i];
+            }
+
+            obj += (double)keyframeScore[i + 1] * x_[i];
+    }    
+    
+
+    
+
+    model_.setObjective(obj);
+}
 
             
         

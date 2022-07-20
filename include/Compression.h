@@ -20,6 +20,8 @@ public:
     {}
 
     double kfCompressedRatio;
+    int remainLandmark;
+    double removedMemory;
 
     ORB_SLAM2::Map* Map;
     // ORB_SLAM2::MapPoint* MapPoint;
@@ -74,17 +76,22 @@ public:
 
     // Landmark Score
     std::vector<int> obsNum;
-    std::vector<int> maxTrackDist;
-    std::vector<int> maxAngle;
-    std::vector<int> avgReprojectionErr;
+    std::vector<float> maxTrackDist;
+    std::vector<float> maxAngle;
+    std::vector<float> avgReprojectionErr;
+    std::vector<float> landmarkScore;
+
+    // Keyframe Score
+    std::vector<float> keyframeScore;
 
     // main Compresssion
     void LandmarkSparsification();
-    void LandmarkSparsification2();
+    void LandmarkSparsification2(const double a, const double b,const double c,const double d);
     int removalKeyframe1();
     int removalKeyframe2();
     int removalKeyframe3();
     int removalKeyframe4();
+    int removalKeyframe5(const double a, const double b,const double c,const double d);
 
 
     
@@ -115,6 +122,9 @@ public:
     
     // Constraint
     void getRelativePose(ORB_SLAM2::KeyFrame* kf1, ORB_SLAM2::KeyFrame* kf2);
+    float getRelativeTranslation(ORB_SLAM2::KeyFrame* kf1, ORB_SLAM2::KeyFrame* kf2);
+    float getRelativeRotation(ORB_SLAM2::KeyFrame* kf1, ORB_SLAM2::KeyFrame* kf2, Eigen::Vector3f landmarkPos);
+
     int getNeighborKeyframeNum(ORB_SLAM2::KeyFrame* kf);
     int getNeighborKeyframeIdDist(int idx);
     
@@ -139,11 +149,14 @@ public:
     int getOriginalCubeVector();
 
     // Calculate Landmark Score
-    void getLandmarkScore();
+    void getLandmarkScore(const double a, const double b,const double c,const double d);
     void calculateVariousScore();
     float getMaxTrackDistance(ORB_SLAM2::MapPoint* mp);
     float getMaxAngle(ORB_SLAM2::MapPoint* mp);
     float getreprojectionErrAvg(ORB_SLAM2::MapPoint* mp);
+
+    // Calculate Keyframe Score
+    void getKeyframeScore();
 
 
 ///////////////////////////////////////////////////////////////////////   
@@ -155,7 +168,11 @@ public:
     int cvMatSize(cv::Mat a);
     void minMaxNormalize(Eigen::VectorXd *vec);
     void minMaxNormalize(Eigen::VectorXf *vec);
+    void minMaxNormalizeInv(std::vector<float> *vec);
     void minMaxNormalize(std::vector<double> *vec);
+    void minMaxNormalize(std::vector<float> *vec);
+    std::vector<float> minMaxNormalize(std::vector<int> *vec);
+    void zScoreNormalize(std::vector<int> *vec);
     void RMSError(Vector6d EsPose, Vector6d gtPose, double *err);
     static int getSetIndex(std::set<int> S, int K);
 

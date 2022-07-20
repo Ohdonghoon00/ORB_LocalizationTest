@@ -36,7 +36,7 @@ void LoadImages(const string &strImagePath, const string &strPathTimes,
 
 int main(int argc, char **argv)
 {
-    if(argc != 6)
+    if(argc != 7)
     {
         cerr << endl << "Usage: ./mono_tum path_to_vocabulary path_to_settings path_to_image_folder path_to_times_file" << endl;
         return 1;
@@ -56,7 +56,7 @@ int main(int argc, char **argv)
     }
 
     // Create SLAM system. It initializes all system threads and gets ready to process frames.
-    ORB_SLAM2::System SLAM(argv[1],argv[2],ORB_SLAM2::System::MONOCULAR,true);
+    ORB_SLAM2::System SLAM(argv[1],argv[2],argv[6], ORB_SLAM2::System::MONOCULAR,true);
 
     // Vector for tracking time statistics
     vector<float> vTimesTrack;
@@ -143,7 +143,7 @@ int main(int argc, char **argv)
         if(ttrack<T)
             std::this_thread::sleep_for(std::chrono::microseconds(static_cast<size_t>((T-ttrack)*1e6)));
 
-        if(ni < 5) cv::waitKey();
+        // if(ni < 5) cv::waitKey();
     }
 
     // Stop all threads
@@ -167,6 +167,15 @@ int main(int argc, char **argv)
     std::cout << " Average Rot Err : " << totalRotErr/(nImages - failFrameNum) << std::endl;
     SLAM.getMap(); // print Landmark Num
     
+    std::ofstream fout;
+    string tmp = string(argv[6]);
+    istringstream tmpStr(tmp);
+    string trash;
+    vector<string> acc;
+    while(getline(tmpStr, trash, '/')) acc.push_back(trash);
+    string finalStr = acc[acc.size()-1];
+    fout.open("result/VPSResult/keyframe/VPS_Result"+finalStr+".txt", std::ios::out);
+    fout << totalTransErr/(nImages - failFrameNum) << " " << totalRotErr/(nImages - failFrameNum) << " " << failFrameNum << std::endl;
     // Save camera trajectory
     SLAM.SaveKeyFrameTrajectoryTUM("KeyFrameTrajectory.txt");
 

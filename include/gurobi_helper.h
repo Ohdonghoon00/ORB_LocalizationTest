@@ -15,6 +15,7 @@ std::vector<GRBVar> CreateVariablesBinaryVectorForKeyframe( int keyframeNum,
                                                             GRBModel& model_);
 
 Eigen::Matrix<double, Eigen::Dynamic, 1> CalculateObservationCountWeight(ORB_SLAM2::Map* map_data);
+Eigen::Matrix<double, Eigen::Dynamic, 1> setLandmarkWeight(ORB_SLAM2::Map* map_data, std::vector<float> weight);
 Eigen::MatrixXd calculateKeyframeSimilarity(ORB_SLAM2::Map* map_data);
 // Eigen::Matrix<double, Eigen::Dynamic, 1> CalculateObservationCountWeight2(DataBase* DB);
 
@@ -22,7 +23,11 @@ void SetObjectiveILPforLandmark(std::vector<GRBVar> x_,
                                 Eigen::Matrix<double, Eigen::Dynamic, 1> q_,
                                 GRBModel& model_);
 void SetObjectiveILPforKeyframe(std::vector<GRBVar> x_, 
-                                Eigen::MatrixXd S, 
+                                std::vector<float> keyframeScore, 
+                                GRBModel& model_);
+void SetObjectiveIQPforKeyframe(std::vector<GRBVar> x_, 
+                                Eigen::MatrixXd S,
+                                std::vector<float> keyframeScore, 
                                 GRBModel& model_);
 void SetObjectiveforKeyframeMapCube(std::vector<GRBVar> x_, 
                                     Eigen::MatrixXi visibilityMatrix,
