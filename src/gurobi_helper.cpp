@@ -62,7 +62,7 @@ Eigen::Matrix<double, Eigen::Dynamic, 1> setLandmarkWeight(ORB_SLAM2::Map* map_d
     int PointCloudNum_ = map_data->MapPointsInMap();
     q.resize(PointCloudNum_);
     for(int i = 0; i < PointCloudNum_; i++)
-        q[i] = (double)weight[i];
+        q[i] = 1.0 - (double)weight[i];
     return q;
 }
 
@@ -137,7 +137,7 @@ void SetObjectiveILPforKeyframe(std::vector<GRBVar> x_,
     std::vector<GRBLinExpr> similarityKeyframe(x_.size());
     for(size_t i = 0; i < x_.size(); i++){
         
-        obj +=  (double)keyframeScore[i + 1] * x_[i];
+        obj += (1.0 - (double)keyframeScore[i + 1]) * x_[i];
             
     }    
 
@@ -158,7 +158,7 @@ void SetObjectiveIQPforKeyframe(std::vector<GRBVar> x_,
                 obj += S(i, j) * x_[j] * x_[i];
             }
 
-            obj += (double)keyframeScore[i + 1] * x_[i];
+            obj += (1.0 - (double)keyframeScore[i + 1]) * x_[i];
     }    
     
 

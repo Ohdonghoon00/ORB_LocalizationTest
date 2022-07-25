@@ -526,8 +526,9 @@ int Compression::removalKeyframe5(
         getLandmarkScore(a, b, c, d);
         getKeyframeScore();
 
-        SetObjectiveIQPforKeyframe(x, S, keyframeScore, model);
-
+        // SetObjectiveIQPforKeyframe(x, S, keyframeScore, model);
+        SetObjectiveILPforKeyframe(x, keyframeScore, model);
+        
         std::cout << " Add Constraint ... " << std::endl;
         // Add Constraint
         AddConstraintForKeyframe(Map, model, x, kfCompressedRatio, neighborKeyframeIdThres);
@@ -1381,6 +1382,7 @@ void Compression::getLandmarkScore(
         landmarkScore[i] = a * obsNum_[i] + b * maxTrackDist[i] + c * maxAngle[i] + d * avgReprojectionErr[i];
         mpDB[i]->score = landmarkScore[i];
     }
+    minMaxNormalize(&landmarkScore);
 }
 
 void Compression::getKeyframeScore()
@@ -1400,6 +1402,7 @@ void Compression::getKeyframeScore()
         }
         keyframeScore[i] /= (float)keyframeMap.size();
     }
+    minMaxNormalize(&keyframeScore);
 }
 
 void Compression::calculateVariousScore()

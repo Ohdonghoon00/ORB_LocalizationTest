@@ -3,63 +3,51 @@ import numpy as np
 
 
 # compressionResultPath = [
-#     '../result/CompressionResult/keyframe/Compression_Result_0.9_1._1._1._1._.txt',
-#     '../result/CompressionResult/keyframe/Compression_Result_0.8_1._1._1._1._.txt',
-#     '../result/CompressionResult/keyframe/Compression_Result_0.7_1._1._1._1._.txt',
-#     '../result/CompressionResult/keyframe/Compression_Result_0.6_1._1._1._1._.txt',
-#     '../result/CompressionResult/keyframe/Compression_Result_0.5_1._1._1._1._.txt',
-#     '../result/CompressionResult/keyframe/Compression_Result_0.4_1._1._1._1._.txt',
-#     '../result/CompressionResult/keyframe/Compression_Result_0.3_1._1._1._1._.txt',
-#     '../result/CompressionResult/keyframe/Compression_Result_0.2_1._1._1._1._.txt',
-#     '../result/CompressionResult/keyframe/Compression_Result_0.15_1._1._1._1._.txt',
-#     '../result/CompressionResult/keyframe/Compression_Result_0.10_1._1._1._1._.txt',
-#     '../result/CompressionResult/keyframe/Compression_Result_0.08_1._1._1._1._.txt',
-#     '../result/CompressionResult/keyframe/Compression_Result_0.06_1._1._1._1._.txt'
+#     '../result/CompressionResult/landmark/Compression_Result_0.9_1._1._1._1._.txt',
+#     '../result/CompressionResult/landmark/Compression_Result_0.8_1._1._1._1._.txt',
+#     '../result/CompressionResult/landmark/Compression_Result_0.7_1._1._1._1._.txt',
+#     '../result/CompressionResult/landmark/Compression_Result_0.6_1._1._1._1._.txt',
+#     '../result/CompressionResult/landmark/Compression_Result_0.5_1._1._1._1._.txt',
+#     '../result/CompressionResult/landmark/Compression_Result_0.4_1._1._1._1._.txt',
+#     '../result/CompressionResult/landmark/Compression_Result_0.3_1._1._1._1._.txt',
+#     '../result/CompressionResult/landmark/Compression_Result_0.2_1._1._1._1._.txt',
+#     '../result/CompressionResult/landmark/Compression_Result_0.15_1._1._1._1._.txt',
+#     '../result/CompressionResult/landmark/Compression_Result_0.10_1._1._1._1._.txt',
+#     '../result/CompressionResult/landmark/Compression_Result_0.08_1._1._1._1._.txt',
+#     '../result/CompressionResult/landmark/Compression_Result_0.06_1._1._1._1._.txt',
+#     '../result/CompressionResult/landmark/Compression_Result_0.05_1._1._1._1._.txt',
+#     '../result/CompressionResult/landmark/Compression_Result_0.04_1._1._1._1._.txt',
+#     '../result/CompressionResult/landmark/Compression_Result_0.03_1._1._1._1._.txt'
 # ]
 
 # VPSResultPath = [
-#     '../result/VPSResult/keyframe/VPS_ResultMH01_Keyframe_compression_test_90.bin_1._1._1._1._.bin.txt',
-#     '../result/VPSResult/keyframe/VPS_ResultMH01_Keyframe_compression_test_80.bin_1._1._1._1._.bin.txt',
-#     '../result/VPSResult/keyframe/VPS_ResultMH01_Keyframe_compression_test_70.bin_1._1._1._1._.bin.txt',
-#     '../result/VPSResult/keyframe/VPS_ResultMH01_Keyframe_compression_test_60.bin_1._1._1._1._.bin.txt',
-#     '../result/VPSResult/keyframe/VPS_ResultMH01_Keyframe_compression_test_50.bin_1._1._1._1._.bin.txt',
-#     '../result/VPSResult/keyframe/VPS_ResultMH01_Keyframe_compression_test_40.bin_1._1._1._1._.bin.txt',
-#     '../result/VPSResult/keyframe/VPS_ResultMH01_Keyframe_compression_test_30.bin_1._1._1._1._.bin.txt',
-#     '../result/VPSResult/keyframe/VPS_ResultMH01_Keyframe_compression_test_20.bin_1._1._1._1._.bin.txt',
-#     '../result/VPSResult/keyframe/VPS_ResultMH01_Keyframe_compression_test_15.bin_1._1._1._1._.bin.txt',
-#     '../result/VPSResult/keyframe/VPS_ResultMH01_Keyframe_compression_test_10.bin_1._1._1._1._.bin.txt',
-#     '../result/VPSResult/keyframe/VPS_ResultMH01_Keyframe_compression_test_08.bin_1._1._1._1._.bin.txt',
-#     '../result/VPSResult/keyframe/VPS_ResultMH01_Keyframe_compression_test_06.bin_1._1._1._1._.bin.txt',
+#     '../result/VPSResult/landmark/VPS_ResultMH01_Landmark_compression_test_90.bin_1._1._1._1._.bin.txt',
+#     '../result/VPSResult/landmark/VPS_ResultMH01_Landmark_compression_test_80.bin_1._1._1._1._.bin.txt',
+#     '../result/VPSResult/landmark/VPS_ResultMH01_Landmark_compression_test_70.bin_1._1._1._1._.bin.txt',
+#     '../result/VPSResult/landmark/VPS_ResultMH01_Landmark_compression_test_60.bin_1._1._1._1._.bin.txt',
+#     '../result/VPSResult/landmark/VPS_ResultMH01_Landmark_compression_test_50.bin_1._1._1._1._.bin.txt',
+#     '../result/VPSResult/landmark/VPS_ResultMH01_Landmark_compression_test_40.bin_1._1._1._1._.bin.txt',
+#     '../result/VPSResult/landmark/VPS_ResultMH01_Landmark_compression_test_30.bin_1._1._1._1._.bin.txt',
+#     '../result/VPSResult/landmark/VPS_ResultMH01_Landmark_compression_test_20.bin_1._1._1._1._.bin.txt',
+#     '../result/VPSResult/landmark/VPS_ResultMH01_Landmark_compression_test_15.bin_1._1._1._1._.bin.txt',
+#     '../result/VPSResult/landmark/VPS_ResultMH01_Landmark_compression_test_10.bin_1._1._1._1._.bin.txt',
+#     '../result/VPSResult/landmark/VPS_ResultMH01_Landmark_compression_test_08.bin_1._1._1._1._.bin.txt',
+#     '../result/VPSResult/landmark/VPS_ResultMH01_Landmark_compression_test_06.bin_1._1._1._1._.bin.txt',
+#     '../result/VPSResult/landmark/VPS_ResultMH01_Landmark_compression_test_05.bin_1._1._1._1._.bin.txt',
+#     '../result/VPSResult/landmark/VPS_ResultMH01_Landmark_compression_test_04.bin_1._1._1._1._.bin.txt',
+#     '../result/VPSResult/landmark/VPS_ResultMH01_Landmark_compression_test_03.bin_1._1._1._1._.bin.txt'
 # ]
 
 compressionResultPath = [
-    '../result/CompressionResult/landmark/Compression_Result_0.2_1._1._1._1._.txt',
-    '../result/CompressionResult/landmark/Compression_Result_0.2_1._1._1._1._.txt',
-    '../result/CompressionResult/landmark/Compression_Result_0.2_1._1._1._1._.txt',
-    '../result/CompressionResult/landmark/Compression_Result_0.2_1._1._1._1._.txt',
-    '../result/CompressionResult/landmark/Compression_Result_0.2_1._1._1._1._.txt',
-    '../result/CompressionResult/landmark/Compression_Result_0.2_1._1._1._1._.txt',
-    '../result/CompressionResult/landmark/Compression_Result_0.2_1._1._1._1._.txt',
-    '../result/CompressionResult/landmark/Compression_Result_0.2_1._1._1._1._.txt',
-    '../result/CompressionResult/landmark/Compression_Result_0.2_1._1._1._1._.txt',
-    '../result/CompressionResult/landmark/Compression_Result_0.2_1._1._1._1._.txt',
-    '../result/CompressionResult/landmark/Compression_Result_0.2_1._1._1._1._.txt',
-    '../result/CompressionResult/landmark/Compression_Result_0.2_1._1._1._1._.txt'
+    '../result/IQP/CompressionResult/landmark/Compression_Result_0.10_1._1._1._1._.txt',
+    '../result/IQP/CompressionResult/landmark/Compression_Result_0.1_2._1._1._1._.txt',
+    '../result/IQP/CompressionResult/landmark/Compression_Result_0.1_3._1._1._1._.txt'
 ]
 
 VPSResultPath = [
-    '../result/VPSResult/landmark/VPS_ResultMH01_Landmark_compression_test_90.bin_1._1._1._1._.bin.txt',
-    '../result/VPSResult/landmark/VPS_ResultMH01_Landmark_compression_test_80.bin_1._1._1._1._.bin.txt',
-    '../result/VPSResult/landmark/VPS_ResultMH01_Landmark_compression_test_70.bin_1._1._1._1._.bin.txt',
-    '../result/VPSResult/landmark/VPS_ResultMH01_Landmark_compression_test_60.bin_1._1._1._1._.bin.txt',
-    '../result/VPSResult/landmark/VPS_ResultMH01_Landmark_compression_test_50.bin_1._1._1._1._.bin.txt',
-    '../result/VPSResult/landmark/VPS_ResultMH01_Landmark_compression_test_40.bin_1._1._1._1._.bin.txt',
-    '../result/VPSResult/landmark/VPS_ResultMH01_Landmark_compression_test_30.bin_1._1._1._1._.bin.txt',
-    '../result/VPSResult/landmark/VPS_ResultMH01_Landmark_compression_test_20.bin_1._1._1._1._.bin.txt',
-    '../result/VPSResult/landmark/VPS_ResultMH01_Landmark_compression_test_15.bin_1._1._1._1._.bin.txt',
-    '../result/VPSResult/landmark/VPS_ResultMH01_Landmark_compression_test_10.bin_1._1._1._1._.bin.txt',
-    '../result/VPSResult/landmark/VPS_ResultMH01_Landmark_compression_test_08.bin_1._1._1._1._.bin.txt',
-    '../result/VPSResult/landmark/VPS_ResultMH01_Landmark_compression_test_06.bin_1._1._1._1._.bin.txt',
+    '../result/IQP/VPSResult/landmark/VPS_ResultMH01_Landmark_compression_test_10.bin_1._1._1._1._.bin.txt',
+    '../result/IQP/VPSResult/landmark/VPS_ResultMH01_Landmark_compression_test_10.bin_2._1._1._1._.bin.txt',
+    '../result/IQP/VPSResult/landmark/VPS_ResultMH01_Landmark_compression_test_10.bin_3._1._1._1._.bin.txt'
 ]
 
 def readfile(path):
@@ -86,7 +74,7 @@ def writefile(path, result1, result2):
 
 if __name__ == '__main__':
 
-    resultFilePath = 'finalKeyframeCompressionResult.txt'
+    resultFilePath = 'finalLandmarkCompressionResult(observation).txt'
     for i in range(0, len(compressionResultPath)):
         
         compressionResult = readfile(compressionResultPath[i]) + ' '
