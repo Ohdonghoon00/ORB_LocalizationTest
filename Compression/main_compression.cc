@@ -81,13 +81,13 @@ int main(int argc, char** argv)
 ////////////////////////////////////////////////////////////////////////////////
 ///////// landmark score and Keyframe Score Compression  ///////////////////////
     
-    // compression.LandmarkSparsification2(
-    //     stod(argv[4]),stod(argv[5]),stod(argv[6]),stod(argv[7])
-    // );
-    
-    int totalRemovedMemory = compression.removalKeyframe5(
+    compression.LandmarkSparsification2(
         stod(argv[4]),stod(argv[5]),stod(argv[6]),stod(argv[7])
     );
+    
+    // int totalRemovedMemory = compression.removalKeyframe5(
+    //     stod(argv[4]),stod(argv[5]),stod(argv[6]),stod(argv[7])
+    // );
     std::cout << " Finish Compression !! " << std::endl;
     
 ///////////////////////////////////////////////////////////////////////////////
@@ -97,10 +97,10 @@ int main(int argc, char** argv)
     // compression.printKeyframeInfo("CompressionKeyframeInfo.txt");
     
     // memory for removing keyframe
-    int totalRemovedLandmark = 36829 - compression.Map->MapPointsInMap();
-    totalRemovedMemory += totalRemovedLandmark * 736;
-    compression.removedMemory = (double)totalRemovedMemory * 1e-6;
-    std::cout <<  " Total memory of removed mapPoints : " << totalRemovedMemory << std::endl;
+    // int totalRemovedLandmark = 36829 - compression.Map->MapPointsInMap();
+    // totalRemovedMemory += totalRemovedLandmark * 736;
+    // compression.removedMemory = (double)totalRemovedMemory * 1e-6;
+    // std::cout <<  " Total memory of removed mapPoints : " << totalRemovedMemory << std::endl;
     
 
 
@@ -219,7 +219,7 @@ int main(int argc, char** argv)
 
     // Save Result
     std::ofstream f;
-    f.open("result/CompressionResult/keyframe/Compression_Result_"+string(argv[2])+"_"+string(argv[4])+"_"+string(argv[5])+"_"+string(argv[6])+"_"+string(argv[7])+"_.txt", ios::out);
+    f.open("result/220725/CompressionResult/Landmark/Compression_Result_"+string(argv[2])+"_"+string(argv[4])+"_"+string(argv[5])+"_"+string(argv[6])+"_"+string(argv[7])+"_.txt", ios::out);
     f << 1.0 - compression.kfCompressedRatio << " " << compression.removedMemory << " " << compression.Map->KeyFramesInMap() << " " << compression.Map->MapPointsInMap();
     f.close();
 

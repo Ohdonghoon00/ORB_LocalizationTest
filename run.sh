@@ -19,12 +19,36 @@
 
 # ./Compression/compression build/MH01_ba.bin 0.1 build/MH01_Landmark_compression_test_10.bin 1. 1. 1. 2.
 # ./Compression/compression build/MH01_ba.bin 0.1 build/MH01_Landmark_compression_test_10.bin 1. 1. 1. 3.
+# ./Compression/compression build/MH01_ba.bin 0.1 build/MH01_Landmark_compression_test_10.bin 1. 1. 1. 4.
+# ./Compression/compression build/MH01_ba.bin 0.1 build/MH01_Landmark_compression_test_10.bin 1. 1. 1. 5.
+# ./Compression/compression build/MH01_ba.bin 0.1 build/MH01_Landmark_compression_test_10.bin 1. 1. 1. 6.
+# ./Compression/compression build/MH01_ba.bin 0.1 build/MH01_Landmark_compression_test_10.bin 1. 1. 1. 7.
+# ./Compression/compression build/MH01_ba.bin 0.1 build/MH01_Landmark_compression_test_10.bin 1. 1. 1. 8.
+
 # ./Compression/compression build/MH01_ba.bin 0.1 build/MH01_Landmark_compression_test_10.bin 1. 1. 2. 1.
 # ./Compression/compression build/MH01_ba.bin 0.1 build/MH01_Landmark_compression_test_10.bin 1. 1. 3. 1.
+# ./Compression/compression build/MH01_ba.bin 0.1 build/MH01_Landmark_compression_test_10.bin 1. 1. 4. 1.
+# ./Compression/compression build/MH01_ba.bin 0.1 build/MH01_Landmark_compression_test_10.bin 1. 1. 5. 1.
+# ./Compression/compression build/MH01_ba.bin 0.1 build/MH01_Landmark_compression_test_10.bin 1. 1. 6. 1.
+# ./Compression/compression build/MH01_ba.bin 0.1 build/MH01_Landmark_compression_test_10.bin 1. 1. 7. 1.
+# ./Compression/compression build/MH01_ba.bin 0.1 build/MH01_Landmark_compression_test_10.bin 1. 1. 8. 1.
+
 # ./Compression/compression build/MH01_ba.bin 0.1 build/MH01_Landmark_compression_test_10.bin 1. 2. 1. 1.
 # ./Compression/compression build/MH01_ba.bin 0.1 build/MH01_Landmark_compression_test_10.bin 1. 3. 1. 1.
+# ./Compression/compression build/MH01_ba.bin 0.1 build/MH01_Landmark_compression_test_10.bin 1. 4. 1. 1.
+# ./Compression/compression build/MH01_ba.bin 0.1 build/MH01_Landmark_compression_test_10.bin 1. 5. 1. 1.
+# ./Compression/compression build/MH01_ba.bin 0.1 build/MH01_Landmark_compression_test_10.bin 1. 6. 1. 1.
+# ./Compression/compression build/MH01_ba.bin 0.1 build/MH01_Landmark_compression_test_10.bin 1. 7. 1. 1.
+# ./Compression/compression build/MH01_ba.bin 0.1 build/MH01_Landmark_compression_test_10.bin 1. 8. 1. 1.
+
+
 # ./Compression/compression build/MH01_ba.bin 0.1 build/MH01_Landmark_compression_test_10.bin 2. 1. 1. 1.
 # ./Compression/compression build/MH01_ba.bin 0.1 build/MH01_Landmark_compression_test_10.bin 3. 1. 1. 1.
+# ./Compression/compression build/MH01_ba.bin 0.1 build/MH01_Landmark_compression_test_10.bin 4. 1. 1. 1.
+# ./Compression/compression build/MH01_ba.bin 0.1 build/MH01_Landmark_compression_test_10.bin 5. 1. 1. 1.
+# ./Compression/compression build/MH01_ba.bin 0.1 build/MH01_Landmark_compression_test_10.bin 6. 1. 1. 1.
+# ./Compression/compression build/MH01_ba.bin 0.1 build/MH01_Landmark_compression_test_10.bin 7. 1. 1. 1.
+# ./Compression/compression build/MH01_ba.bin 0.1 build/MH01_Landmark_compression_test_10.bin 8. 1. 1. 1.
 
 
 # ./Compression/compression build/MH01_ba.bin 0.2 build/MH01_Landmark_compression_test_20.bin 1. 1. 1. 3.
@@ -208,72 +232,210 @@
 
 
 
-# ./Examples/Monocular/mono_euroc \
-#     ./Vocabulary/ORBvoc.txt \
-#     ./Examples/Monocular/EuRoC.yaml \
-#     /home/ohdonghoon/NewEuroC/MH02/RectCam0_for_EsPose \
-#     /home/ohdonghoon/NewEuroC/MH02/MH02_timeStamp.txt \
-#     /home/ohdonghoon/NewEuroC/MH01/MH01db_MH02cam0Pose.txt \
-#     ./build/MH01_Landmark_compression_test_10.bin_1._1._1._2._.bin
+./Examples/Monocular/mono_euroc \
+    ./Vocabulary/ORBvoc.txt \
+    ./Examples/Monocular/EuRoC.yaml \
+    /home/ohdonghoon/NewEuroC/MH02/RectCam0_for_EsPose \
+    /home/ohdonghoon/NewEuroC/MH02/MH02_timeStamp.txt \
+    /home/ohdonghoon/NewEuroC/MH01/MH01db_MH02cam0Pose.txt \
+    ./build/MH01_Landmark_compression_test_10.bin_1._1._1._2._.bin
+./Examples/Monocular/mono_euroc \
+    ./Vocabulary/ORBvoc.txt \
+    ./Examples/Monocular/EuRoC.yaml \
+    /home/ohdonghoon/NewEuroC/MH02/RectCam0_for_EsPose \
+    /home/ohdonghoon/NewEuroC/MH02/MH02_timeStamp.txt \
+    /home/ohdonghoon/NewEuroC/MH01/MH01db_MH02cam0Pose.txt \
+    ./build/MH01_Landmark_compression_test_10.bin_1._1._1._3._.bin
+./Examples/Monocular/mono_euroc \
+    ./Vocabulary/ORBvoc.txt \
+    ./Examples/Monocular/EuRoC.yaml \
+    /home/ohdonghoon/NewEuroC/MH02/RectCam0_for_EsPose \
+    /home/ohdonghoon/NewEuroC/MH02/MH02_timeStamp.txt \
+    /home/ohdonghoon/NewEuroC/MH01/MH01db_MH02cam0Pose.txt \
+    ./build/MH01_Landmark_compression_test_10.bin_1._1._1._4._.bin
+./Examples/Monocular/mono_euroc \
+    ./Vocabulary/ORBvoc.txt \
+    ./Examples/Monocular/EuRoC.yaml \
+    /home/ohdonghoon/NewEuroC/MH02/RectCam0_for_EsPose \
+    /home/ohdonghoon/NewEuroC/MH02/MH02_timeStamp.txt \
+    /home/ohdonghoon/NewEuroC/MH01/MH01db_MH02cam0Pose.txt \
+    ./build/MH01_Landmark_compression_test_10.bin_1._1._1._5._.bin
+./Examples/Monocular/mono_euroc \
+    ./Vocabulary/ORBvoc.txt \
+    ./Examples/Monocular/EuRoC.yaml \
+    /home/ohdonghoon/NewEuroC/MH02/RectCam0_for_EsPose \
+    /home/ohdonghoon/NewEuroC/MH02/MH02_timeStamp.txt \
+    /home/ohdonghoon/NewEuroC/MH01/MH01db_MH02cam0Pose.txt \
+    ./build/MH01_Landmark_compression_test_10.bin_1._1._1._6._.bin
+./Examples/Monocular/mono_euroc \
+    ./Vocabulary/ORBvoc.txt \
+    ./Examples/Monocular/EuRoC.yaml \
+    /home/ohdonghoon/NewEuroC/MH02/RectCam0_for_EsPose \
+    /home/ohdonghoon/NewEuroC/MH02/MH02_timeStamp.txt \
+    /home/ohdonghoon/NewEuroC/MH01/MH01db_MH02cam0Pose.txt \
+    ./build/MH01_Landmark_compression_test_10.bin_1._1._1._7._.bin
+./Examples/Monocular/mono_euroc \
+    ./Vocabulary/ORBvoc.txt \
+    ./Examples/Monocular/EuRoC.yaml \
+    /home/ohdonghoon/NewEuroC/MH02/RectCam0_for_EsPose \
+    /home/ohdonghoon/NewEuroC/MH02/MH02_timeStamp.txt \
+    /home/ohdonghoon/NewEuroC/MH01/MH01db_MH02cam0Pose.txt \
+    ./build/MH01_Landmark_compression_test_10.bin_1._1._1._8._.bin
 
-# ./Examples/Monocular/mono_euroc \
-#     ./Vocabulary/ORBvoc.txt \
-#     ./Examples/Monocular/EuRoC.yaml \
-#     /home/ohdonghoon/NewEuroC/MH02/RectCam0_for_EsPose \
-#     /home/ohdonghoon/NewEuroC/MH02/MH02_timeStamp.txt \
-#     /home/ohdonghoon/NewEuroC/MH01/MH01db_MH02cam0Pose.txt \
-#     ./build/MH01_Landmark_compression_test_10.bin_1._1._1._3._.bin
 
-# ./Examples/Monocular/mono_euroc \
-#     ./Vocabulary/ORBvoc.txt \
-#     ./Examples/Monocular/EuRoC.yaml \
-#     /home/ohdonghoon/NewEuroC/MH02/RectCam0_for_EsPose \
-#     /home/ohdonghoon/NewEuroC/MH02/MH02_timeStamp.txt \
-#     /home/ohdonghoon/NewEuroC/MH01/MH01db_MH02cam0Pose.txt \
-#     ./build/MH01_Landmark_compression_test_10.bin_1._1._2._1._.bin
+./Examples/Monocular/mono_euroc \
+    ./Vocabulary/ORBvoc.txt \
+    ./Examples/Monocular/EuRoC.yaml \
+    /home/ohdonghoon/NewEuroC/MH02/RectCam0_for_EsPose \
+    /home/ohdonghoon/NewEuroC/MH02/MH02_timeStamp.txt \
+    /home/ohdonghoon/NewEuroC/MH01/MH01db_MH02cam0Pose.txt \
+    ./build/MH01_Landmark_compression_test_10.bin_1._1._2._1._.bin
+./Examples/Monocular/mono_euroc \
+    ./Vocabulary/ORBvoc.txt \
+    ./Examples/Monocular/EuRoC.yaml \
+    /home/ohdonghoon/NewEuroC/MH02/RectCam0_for_EsPose \
+    /home/ohdonghoon/NewEuroC/MH02/MH02_timeStamp.txt \
+    /home/ohdonghoon/NewEuroC/MH01/MH01db_MH02cam0Pose.txt \
+    ./build/MH01_Landmark_compression_test_10.bin_1._1._3._1._.bin
+./Examples/Monocular/mono_euroc \
+    ./Vocabulary/ORBvoc.txt \
+    ./Examples/Monocular/EuRoC.yaml \
+    /home/ohdonghoon/NewEuroC/MH02/RectCam0_for_EsPose \
+    /home/ohdonghoon/NewEuroC/MH02/MH02_timeStamp.txt \
+    /home/ohdonghoon/NewEuroC/MH01/MH01db_MH02cam0Pose.txt \
+    ./build/MH01_Landmark_compression_test_10.bin_1._1._4._1._.bin
+./Examples/Monocular/mono_euroc \
+    ./Vocabulary/ORBvoc.txt \
+    ./Examples/Monocular/EuRoC.yaml \
+    /home/ohdonghoon/NewEuroC/MH02/RectCam0_for_EsPose \
+    /home/ohdonghoon/NewEuroC/MH02/MH02_timeStamp.txt \
+    /home/ohdonghoon/NewEuroC/MH01/MH01db_MH02cam0Pose.txt \
+    ./build/MH01_Landmark_compression_test_10.bin_1._1._5._1._.bin
+./Examples/Monocular/mono_euroc \
+    ./Vocabulary/ORBvoc.txt \
+    ./Examples/Monocular/EuRoC.yaml \
+    /home/ohdonghoon/NewEuroC/MH02/RectCam0_for_EsPose \
+    /home/ohdonghoon/NewEuroC/MH02/MH02_timeStamp.txt \
+    /home/ohdonghoon/NewEuroC/MH01/MH01db_MH02cam0Pose.txt \
+    ./build/MH01_Landmark_compression_test_10.bin_1._1._6._1._.bin
+./Examples/Monocular/mono_euroc \
+    ./Vocabulary/ORBvoc.txt \
+    ./Examples/Monocular/EuRoC.yaml \
+    /home/ohdonghoon/NewEuroC/MH02/RectCam0_for_EsPose \
+    /home/ohdonghoon/NewEuroC/MH02/MH02_timeStamp.txt \
+    /home/ohdonghoon/NewEuroC/MH01/MH01db_MH02cam0Pose.txt \
+    ./build/MH01_Landmark_compression_test_10.bin_1._1._7._1._.bin
+./Examples/Monocular/mono_euroc \
+    ./Vocabulary/ORBvoc.txt \
+    ./Examples/Monocular/EuRoC.yaml \
+    /home/ohdonghoon/NewEuroC/MH02/RectCam0_for_EsPose \
+    /home/ohdonghoon/NewEuroC/MH02/MH02_timeStamp.txt \
+    /home/ohdonghoon/NewEuroC/MH01/MH01db_MH02cam0Pose.txt \
+    ./build/MH01_Landmark_compression_test_10.bin_1._1._8._1._.bin
 
-# ./Examples/Monocular/mono_euroc \
-#     ./Vocabulary/ORBvoc.txt \
-#     ./Examples/Monocular/EuRoC.yaml \
-#     /home/ohdonghoon/NewEuroC/MH02/RectCam0_for_EsPose \
-#     /home/ohdonghoon/NewEuroC/MH02/MH02_timeStamp.txt \
-#     /home/ohdonghoon/NewEuroC/MH01/MH01db_MH02cam0Pose.txt \
-#     ./build/MH01_Landmark_compression_test_10.bin_1._1._3._1._.bin
+
+
+./Examples/Monocular/mono_euroc \
+    ./Vocabulary/ORBvoc.txt \
+    ./Examples/Monocular/EuRoC.yaml \
+    /home/ohdonghoon/NewEuroC/MH02/RectCam0_for_EsPose \
+    /home/ohdonghoon/NewEuroC/MH02/MH02_timeStamp.txt \
+    /home/ohdonghoon/NewEuroC/MH01/MH01db_MH02cam0Pose.txt \
+    ./build/MH01_Landmark_compression_test_10.bin_1._2._1._1._.bin
+./Examples/Monocular/mono_euroc \
+    ./Vocabulary/ORBvoc.txt \
+    ./Examples/Monocular/EuRoC.yaml \
+    /home/ohdonghoon/NewEuroC/MH02/RectCam0_for_EsPose \
+    /home/ohdonghoon/NewEuroC/MH02/MH02_timeStamp.txt \
+    /home/ohdonghoon/NewEuroC/MH01/MH01db_MH02cam0Pose.txt \
+    ./build/MH01_Landmark_compression_test_10.bin_1._3._1._1._.bin
+./Examples/Monocular/mono_euroc \
+    ./Vocabulary/ORBvoc.txt \
+    ./Examples/Monocular/EuRoC.yaml \
+    /home/ohdonghoon/NewEuroC/MH02/RectCam0_for_EsPose \
+    /home/ohdonghoon/NewEuroC/MH02/MH02_timeStamp.txt \
+    /home/ohdonghoon/NewEuroC/MH01/MH01db_MH02cam0Pose.txt \
+    ./build/MH01_Landmark_compression_test_10.bin_1._4._1._1._.bin
+./Examples/Monocular/mono_euroc \
+    ./Vocabulary/ORBvoc.txt \
+    ./Examples/Monocular/EuRoC.yaml \
+    /home/ohdonghoon/NewEuroC/MH02/RectCam0_for_EsPose \
+    /home/ohdonghoon/NewEuroC/MH02/MH02_timeStamp.txt \
+    /home/ohdonghoon/NewEuroC/MH01/MH01db_MH02cam0Pose.txt \
+    ./build/MH01_Landmark_compression_test_10.bin_1._5._1._1._.bin
+./Examples/Monocular/mono_euroc \
+    ./Vocabulary/ORBvoc.txt \
+    ./Examples/Monocular/EuRoC.yaml \
+    /home/ohdonghoon/NewEuroC/MH02/RectCam0_for_EsPose \
+    /home/ohdonghoon/NewEuroC/MH02/MH02_timeStamp.txt \
+    /home/ohdonghoon/NewEuroC/MH01/MH01db_MH02cam0Pose.txt \
+    ./build/MH01_Landmark_compression_test_10.bin_1._6._1._1._.bin
+./Examples/Monocular/mono_euroc \
+    ./Vocabulary/ORBvoc.txt \
+    ./Examples/Monocular/EuRoC.yaml \
+    /home/ohdonghoon/NewEuroC/MH02/RectCam0_for_EsPose \
+    /home/ohdonghoon/NewEuroC/MH02/MH02_timeStamp.txt \
+    /home/ohdonghoon/NewEuroC/MH01/MH01db_MH02cam0Pose.txt \
+    ./build/MH01_Landmark_compression_test_10.bin_1._7._1._1._.bin
+./Examples/Monocular/mono_euroc \
+    ./Vocabulary/ORBvoc.txt \
+    ./Examples/Monocular/EuRoC.yaml \
+    /home/ohdonghoon/NewEuroC/MH02/RectCam0_for_EsPose \
+    /home/ohdonghoon/NewEuroC/MH02/MH02_timeStamp.txt \
+    /home/ohdonghoon/NewEuroC/MH01/MH01db_MH02cam0Pose.txt \
+    ./build/MH01_Landmark_compression_test_10.bin_1._8._1._1._.bin
 
 
 
-
-# ./Examples/Monocular/mono_euroc \
-#     ./Vocabulary/ORBvoc.txt \
-#     ./Examples/Monocular/EuRoC.yaml \
-#     /home/ohdonghoon/NewEuroC/MH02/RectCam0_for_EsPose \
-#     /home/ohdonghoon/NewEuroC/MH02/MH02_timeStamp.txt \
-#     /home/ohdonghoon/NewEuroC/MH01/MH01db_MH02cam0Pose.txt \
-#     ./build/MH01_Landmark_compression_test_10.bin_1._2._1._1._.bin
-
-# ./Examples/Monocular/mono_euroc \
-#     ./Vocabulary/ORBvoc.txt \
-#     ./Examples/Monocular/EuRoC.yaml \
-#     /home/ohdonghoon/NewEuroC/MH02/RectCam0_for_EsPose \
-#     /home/ohdonghoon/NewEuroC/MH02/MH02_timeStamp.txt \
-#     /home/ohdonghoon/NewEuroC/MH01/MH01db_MH02cam0Pose.txt \
-#     ./build/MH01_Landmark_compression_test_10.bin_1._3._1._1._.bin
-
-# ./Examples/Monocular/mono_euroc \
-#     ./Vocabulary/ORBvoc.txt \
-#     ./Examples/Monocular/EuRoC.yaml \
-#     /home/ohdonghoon/NewEuroC/MH02/RectCam0_for_EsPose \
-#     /home/ohdonghoon/NewEuroC/MH02/MH02_timeStamp.txt \
-#     /home/ohdonghoon/NewEuroC/MH01/MH01db_MH02cam0Pose.txt \
-#     ./build/MH01_Landmark_compression_test_10.bin_2._1._1._1._.bin
-
-# ./Examples/Monocular/mono_euroc \
-#     ./Vocabulary/ORBvoc.txt \
-#     ./Examples/Monocular/EuRoC.yaml \
-#     /home/ohdonghoon/NewEuroC/MH02/RectCam0_for_EsPose \
-#     /home/ohdonghoon/NewEuroC/MH02/MH02_timeStamp.txt \
-#     /home/ohdonghoon/NewEuroC/MH01/MH01db_MH02cam0Pose.txt \
-#     ./build/MH01_Landmark_compression_test_10.bin_3._1._1._1._.bin
+./Examples/Monocular/mono_euroc \
+    ./Vocabulary/ORBvoc.txt \
+    ./Examples/Monocular/EuRoC.yaml \
+    /home/ohdonghoon/NewEuroC/MH02/RectCam0_for_EsPose \
+    /home/ohdonghoon/NewEuroC/MH02/MH02_timeStamp.txt \
+    /home/ohdonghoon/NewEuroC/MH01/MH01db_MH02cam0Pose.txt \
+    ./build/MH01_Landmark_compression_test_10.bin_2._1._1._1._.bin
+./Examples/Monocular/mono_euroc \
+    ./Vocabulary/ORBvoc.txt \
+    ./Examples/Monocular/EuRoC.yaml \
+    /home/ohdonghoon/NewEuroC/MH02/RectCam0_for_EsPose \
+    /home/ohdonghoon/NewEuroC/MH02/MH02_timeStamp.txt \
+    /home/ohdonghoon/NewEuroC/MH01/MH01db_MH02cam0Pose.txt \
+    ./build/MH01_Landmark_compression_test_10.bin_3._1._1._1._.bin
+./Examples/Monocular/mono_euroc \
+    ./Vocabulary/ORBvoc.txt \
+    ./Examples/Monocular/EuRoC.yaml \
+    /home/ohdonghoon/NewEuroC/MH02/RectCam0_for_EsPose \
+    /home/ohdonghoon/NewEuroC/MH02/MH02_timeStamp.txt \
+    /home/ohdonghoon/NewEuroC/MH01/MH01db_MH02cam0Pose.txt \
+    ./build/MH01_Landmark_compression_test_10.bin_4._1._1._1._.bin
+./Examples/Monocular/mono_euroc \
+    ./Vocabulary/ORBvoc.txt \
+    ./Examples/Monocular/EuRoC.yaml \
+    /home/ohdonghoon/NewEuroC/MH02/RectCam0_for_EsPose \
+    /home/ohdonghoon/NewEuroC/MH02/MH02_timeStamp.txt \
+    /home/ohdonghoon/NewEuroC/MH01/MH01db_MH02cam0Pose.txt \
+    ./build/MH01_Landmark_compression_test_10.bin_5._1._1._1._.bin
+./Examples/Monocular/mono_euroc \
+    ./Vocabulary/ORBvoc.txt \
+    ./Examples/Monocular/EuRoC.yaml \
+    /home/ohdonghoon/NewEuroC/MH02/RectCam0_for_EsPose \
+    /home/ohdonghoon/NewEuroC/MH02/MH02_timeStamp.txt \
+    /home/ohdonghoon/NewEuroC/MH01/MH01db_MH02cam0Pose.txt \
+    ./build/MH01_Landmark_compression_test_10.bin_6._1._1._1._.bin
+./Examples/Monocular/mono_euroc \
+    ./Vocabulary/ORBvoc.txt \
+    ./Examples/Monocular/EuRoC.yaml \
+    /home/ohdonghoon/NewEuroC/MH02/RectCam0_for_EsPose \
+    /home/ohdonghoon/NewEuroC/MH02/MH02_timeStamp.txt \
+    /home/ohdonghoon/NewEuroC/MH01/MH01db_MH02cam0Pose.txt \
+    ./build/MH01_Landmark_compression_test_10.bin_7._1._1._1._.bin
+./Examples/Monocular/mono_euroc \
+    ./Vocabulary/ORBvoc.txt \
+    ./Examples/Monocular/EuRoC.yaml \
+    /home/ohdonghoon/NewEuroC/MH02/RectCam0_for_EsPose \
+    /home/ohdonghoon/NewEuroC/MH02/MH02_timeStamp.txt \
+    /home/ohdonghoon/NewEuroC/MH01/MH01db_MH02cam0Pose.txt \
+    ./build/MH01_Landmark_compression_test_10.bin_8._1._1._1._.bin
 
 
 
@@ -416,59 +578,59 @@
 #     /home/ohdonghoon/NewEuroC/MH02/MH02_timeStamp.txt \
 #     /home/ohdonghoon/NewEuroC/MH01/MH01db_MH02cam0Pose.txt \
 #     ./build/MH01_Keyframe_compression_test_20.bin_1._1._1._1._.bin
-./Examples/Monocular/mono_euroc \
-    ./Vocabulary/ORBvoc.txt \
-    ./Examples/Monocular/EuRoC.yaml \
-    /home/ohdonghoon/NewEuroC/MH02/RectCam0_for_EsPose \
-    /home/ohdonghoon/NewEuroC/MH02/MH02_timeStamp.txt \
-    /home/ohdonghoon/NewEuroC/MH01/MH01db_MH02cam0Pose.txt \
-    ./build/MH01_Keyframe_compression_test_15.bin_1._1._1._1._.bin
-./Examples/Monocular/mono_euroc \
-    ./Vocabulary/ORBvoc.txt \
-    ./Examples/Monocular/EuRoC.yaml \
-    /home/ohdonghoon/NewEuroC/MH02/RectCam0_for_EsPose \
-    /home/ohdonghoon/NewEuroC/MH02/MH02_timeStamp.txt \
-    /home/ohdonghoon/NewEuroC/MH01/MH01db_MH02cam0Pose.txt \
-    ./build/MH01_Keyframe_compression_test_10.bin_1._1._1._1._.bin
-./Examples/Monocular/mono_euroc \
-    ./Vocabulary/ORBvoc.txt \
-    ./Examples/Monocular/EuRoC.yaml \
-    /home/ohdonghoon/NewEuroC/MH02/RectCam0_for_EsPose \
-    /home/ohdonghoon/NewEuroC/MH02/MH02_timeStamp.txt \
-    /home/ohdonghoon/NewEuroC/MH01/MH01db_MH02cam0Pose.txt \
-    ./build/MH01_Keyframe_compression_test_08.bin_1._1._1._1._.bin
-./Examples/Monocular/mono_euroc \
-    ./Vocabulary/ORBvoc.txt \
-    ./Examples/Monocular/EuRoC.yaml \
-    /home/ohdonghoon/NewEuroC/MH02/RectCam0_for_EsPose \
-    /home/ohdonghoon/NewEuroC/MH02/MH02_timeStamp.txt \
-    /home/ohdonghoon/NewEuroC/MH01/MH01db_MH02cam0Pose.txt \
-    ./build/MH01_Keyframe_compression_test_06.bin_1._1._1._1._.bin
+# ./Examples/Monocular/mono_euroc \
+#     ./Vocabulary/ORBvoc.txt \
+#     ./Examples/Monocular/EuRoC.yaml \
+#     /home/ohdonghoon/NewEuroC/MH02/RectCam0_for_EsPose \
+#     /home/ohdonghoon/NewEuroC/MH02/MH02_timeStamp.txt \
+#     /home/ohdonghoon/NewEuroC/MH01/MH01db_MH02cam0Pose.txt \
+#     ./build/MH01_Keyframe_compression_test_15.bin_1._1._1._1._.bin
+# ./Examples/Monocular/mono_euroc \
+#     ./Vocabulary/ORBvoc.txt \
+#     ./Examples/Monocular/EuRoC.yaml \
+#     /home/ohdonghoon/NewEuroC/MH02/RectCam0_for_EsPose \
+#     /home/ohdonghoon/NewEuroC/MH02/MH02_timeStamp.txt \
+#     /home/ohdonghoon/NewEuroC/MH01/MH01db_MH02cam0Pose.txt \
+#     ./build/MH01_Keyframe_compression_test_10.bin_1._1._1._1._.bin
+# ./Examples/Monocular/mono_euroc \
+#     ./Vocabulary/ORBvoc.txt \
+#     ./Examples/Monocular/EuRoC.yaml \
+#     /home/ohdonghoon/NewEuroC/MH02/RectCam0_for_EsPose \
+#     /home/ohdonghoon/NewEuroC/MH02/MH02_timeStamp.txt \
+#     /home/ohdonghoon/NewEuroC/MH01/MH01db_MH02cam0Pose.txt \
+#     ./build/MH01_Keyframe_compression_test_08.bin_1._1._1._1._.bin
+# ./Examples/Monocular/mono_euroc \
+#     ./Vocabulary/ORBvoc.txt \
+#     ./Examples/Monocular/EuRoC.yaml \
+#     /home/ohdonghoon/NewEuroC/MH02/RectCam0_for_EsPose \
+#     /home/ohdonghoon/NewEuroC/MH02/MH02_timeStamp.txt \
+#     /home/ohdonghoon/NewEuroC/MH01/MH01db_MH02cam0Pose.txt \
+#     ./build/MH01_Keyframe_compression_test_06.bin_1._1._1._1._.bin
 
-                # plus
-./Examples/Monocular/mono_euroc \
-    ./Vocabulary/ORBvoc.txt \
-    ./Examples/Monocular/EuRoC.yaml \
-    /home/ohdonghoon/NewEuroC/MH02/RectCam0_for_EsPose \
-    /home/ohdonghoon/NewEuroC/MH02/MH02_timeStamp.txt \
-    /home/ohdonghoon/NewEuroC/MH01/MH01db_MH02cam0Pose.txt \
-    ./build/MH01_Keyframe_compression_test_05.bin_1._1._1._1._.bin
+#                 # plus
+# ./Examples/Monocular/mono_euroc \
+#     ./Vocabulary/ORBvoc.txt \
+#     ./Examples/Monocular/EuRoC.yaml \
+#     /home/ohdonghoon/NewEuroC/MH02/RectCam0_for_EsPose \
+#     /home/ohdonghoon/NewEuroC/MH02/MH02_timeStamp.txt \
+#     /home/ohdonghoon/NewEuroC/MH01/MH01db_MH02cam0Pose.txt \
+#     ./build/MH01_Keyframe_compression_test_05.bin_1._1._1._1._.bin
 
-./Examples/Monocular/mono_euroc \
-    ./Vocabulary/ORBvoc.txt \
-    ./Examples/Monocular/EuRoC.yaml \
-    /home/ohdonghoon/NewEuroC/MH02/RectCam0_for_EsPose \
-    /home/ohdonghoon/NewEuroC/MH02/MH02_timeStamp.txt \
-    /home/ohdonghoon/NewEuroC/MH01/MH01db_MH02cam0Pose.txt \
-    ./build/MH01_Keyframe_compression_test_04.bin_1._1._1._1._.bin
+# ./Examples/Monocular/mono_euroc \
+#     ./Vocabulary/ORBvoc.txt \
+#     ./Examples/Monocular/EuRoC.yaml \
+#     /home/ohdonghoon/NewEuroC/MH02/RectCam0_for_EsPose \
+#     /home/ohdonghoon/NewEuroC/MH02/MH02_timeStamp.txt \
+#     /home/ohdonghoon/NewEuroC/MH01/MH01db_MH02cam0Pose.txt \
+#     ./build/MH01_Keyframe_compression_test_04.bin_1._1._1._1._.bin
 
-./Examples/Monocular/mono_euroc \
-    ./Vocabulary/ORBvoc.txt \
-    ./Examples/Monocular/EuRoC.yaml \
-    /home/ohdonghoon/NewEuroC/MH02/RectCam0_for_EsPose \
-    /home/ohdonghoon/NewEuroC/MH02/MH02_timeStamp.txt \
-    /home/ohdonghoon/NewEuroC/MH01/MH01db_MH02cam0Pose.txt \
-    ./build/MH01_Keyframe_compression_test_03.bin_1._1._1._1._.bin
+# ./Examples/Monocular/mono_euroc \
+#     ./Vocabulary/ORBvoc.txt \
+#     ./Examples/Monocular/EuRoC.yaml \
+#     /home/ohdonghoon/NewEuroC/MH02/RectCam0_for_EsPose \
+#     /home/ohdonghoon/NewEuroC/MH02/MH02_timeStamp.txt \
+#     /home/ohdonghoon/NewEuroC/MH01/MH01db_MH02cam0Pose.txt \
+#     ./build/MH01_Keyframe_compression_test_03.bin_1._1._1._1._.bin
 
 #################################################################
 # ./Examples/Monocular/mono_euroc \

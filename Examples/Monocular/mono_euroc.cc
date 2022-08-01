@@ -174,7 +174,7 @@ int main(int argc, char **argv)
     vector<string> acc;
     while(getline(tmpStr, trash, '/')) acc.push_back(trash);
     string finalStr = acc[acc.size()-1];
-    fout.open("result/VPSResult/keyframe/VPS_Result"+finalStr+".txt", std::ios::out);
+    fout.open("result/220725/VPSResult/Landmark/VPS_Result"+finalStr+".txt", std::ios::out);
     fout << totalTransErr/(nImages - failFrameNum) << " " << totalRotErr/(nImages - failFrameNum) << " " << failFrameNum << std::endl;
     // Save camera trajectory
     SLAM.SaveKeyFrameTrajectoryTUM("KeyFrameTrajectory.txt");
