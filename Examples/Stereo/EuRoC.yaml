@@ -118,4 +118,4 @@ Viewer.ViewpointF: 500
 # Map Parapeters
 #--------------------------------------------------------------------------------------------
 #test
-Map.mapfile: MH01.bin
+Map.mapfile: MH03.bin

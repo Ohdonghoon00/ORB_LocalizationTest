@@ -24,7 +24,7 @@
 #include<mutex>
 
 // dh
-std::string gtPath = "/home/ohdonghoon/NewEuroC/MH01/MH01db_MH01cam0Pose.txt";
+std::string gtPath = "/home/ohdonghoon/NewEuroC/MH03/MH03db_MH03cam0Pose.txt";
 std::vector<double> gtTimeStamps;
 std::vector<Vector6d> gtPose;
 int a = ReadgtPose(gtPath, &gtPose, &gtTimeStamps);
