@@ -23,6 +23,7 @@
 #include<algorithm>
 #include<fstream>
 #include<chrono>
+#include <sstream>
 
 #include<opencv2/core/core.hpp>
 
@@ -32,7 +33,27 @@
 using namespace std;
 
 void LoadImages(const string &strImagePath, const string &strPathTimes,
-                vector<string> &vstrImages, vector<double> &vTimeStamps);
+                vector<string> &vstrImages, vector<double> &vTimeStamps, std::vector<double> &beforeFixTimeStamps_);
+
+template <typename T>
+std::string to_string_with_precision(const T a_value, const int n = 6)
+{
+    std::ostringstream out;
+    out.precision(n);
+    out << std::fixed << a_value;
+    return out.str();
+}
+
+int findGtIdx(std::vector<double> gtposes, double currTime)
+{
+    int idx = -1;
+    for(size_t i = 0; i < gtposes.size(); i++){
+        if(gtposes[i] == currTime){
+            idx = i;
+        }
+    }
+    return idx;
+}
 
 int main(int argc, char **argv)
 {
@@ -45,7 +66,8 @@ int main(int argc, char **argv)
     // Retrieve paths to images
     vector<string> vstrImageFilenames;
     vector<double> vTimestamps;
-    LoadImages(string(argv[3]), string(argv[4]), vstrImageFilenames, vTimestamps);
+    std::vector<double> beforeFixTimeStamps;
+    LoadImages(string(argv[3]), string(argv[4]), vstrImageFilenames, vTimestamps, beforeFixTimeStamps);
 
     int nImages = vstrImageFilenames.size();
 
@@ -65,21 +87,41 @@ int main(int argc, char **argv)
     // Load gt trajectory for Evaluation
     std::string queryGtTrajectoryPath = argv[5];
     std::vector<Vector6d> gtPoses;
-    SLAM.Loadgt(queryGtTrajectoryPath, &gtPoses);
+    std::vector<double> gtTimeStamp;
+    SLAM.Loadgt(queryGtTrajectoryPath, &gtPoses, &gtTimeStamp);
 
     cout << endl << "-------" << endl;
     cout << "Start processing sequence ..." << endl;
     cout << "Images in the sequence: " << nImages << endl << endl;
 
-    std::ofstream ResultFile;
-    ResultFile.open("MH01_MH02_original_Result(full_ba).txt");
+
+    // Save Result
+    string tmp = string(argv[6]);
+    istringstream tmpStr(tmp);
+    string trash;
+    vector<string> acc;
+    while(getline(tmpStr, trash, '/')) acc.push_back(trash);
+    string finalStr = acc[acc.size()-1];
+
+    string tmp_ = string(argv[3]);
+    istringstream tmpStr_(tmp_);
+    string trash_;
+    vector<string> acc_;
+    while(getline(tmpStr_, trash_, '/')) acc_.push_back(trash_);
+    string finalStr_ = acc_[4];
 
     // Main loop
-    int failFrameNum(0);
-    int successFrameNum(0);
+    int failFrameNum(0), successFrameNum(0);
     float fail(-0.2);
     double totalTransErr(0.0), totalRotErr(0.0); 
     cv::Mat im;
+    std::vector<double> TransErr, RotErr;
+    std::ofstream frameResult;
+    frameResult.open("result/220818/VPSResult_0.25_2/trash/VPS_Result"+finalStr+"Query"+finalStr_+".txt", std::ios::out);
+    
+    // std::ofstream queryTimeStampResult;
+    // queryTimeStampResult.open("/home/ohdonghoon/ORB_LocalizationTest/result/imageEtc/MH03_MH02_timeStamp.txt");
+
     for(int ni=0; ni<nImages; ni++)
     {
         // Read image from file
@@ -110,18 +152,35 @@ int main(int argc, char **argv)
             failFrameNum++;
             continue;
         }
-        // std::cout << abc << std::endl;
-        successFrameNum++;
+        
+        // for VPS success Sequence
+        double currTime = beforeFixTimeStamps[ni];
+        int idx = findGtIdx(gtTimeStamp, currTime);
+        
         Vector6d currPose = ORB_SLAM2::Converter::Proj2Vec6(abc);
         // std::cout << "final pose : " << currPose << std::endl;
         double err[2];
-        SLAM.RMSError(gtPoses[ni], currPose, &err[0]);
+        SLAM.RMSError(currPose, gtPoses[idx], &err[0]);
+
+        if(err[0] > 0.25 || ORB_SLAM2::Converter::Rad2Degree(err[1]) > 2.0){
+            failFrameNum++;
+            continue;
+        }
+        
+
+        
+        // queryTimeStampResult << std::setprecision(19) << currTime << std::endl;
         totalTransErr += err[0];
         totalRotErr += ORB_SLAM2::Converter::Rad2Degree(err[1]);
         
+
+        // std::cout << currTime << std::endl;
+        // std::string imgName = "/home/ohdonghoon/ORB_LocalizationTest/result/imageEtc/MH01_MH03_timeStamp.txt" + to_string_with_precision(currTime, 0) + ".png";
+        // cv::imwrite(imgName, im);
+        successFrameNum++;
+        
         std::cout << "TransError : " << err[0] << std::endl;
         std::cout << "RotError : " << ORB_SLAM2::Converter::Rad2Degree(err[1]) << std::endl;
-        ResultFile << ni << " " << SLAM.matchNum[ni] << " " << err[0] << " " << ORB_SLAM2::Converter::Rad2Degree(err[1]) << " " << SLAM.refKFid[ni] << " " << SLAM.refKFpts[ni] << std::endl;
         
 #ifdef COMPILEDWITHC11
         std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
@@ -144,11 +203,17 @@ int main(int argc, char **argv)
             std::this_thread::sleep_for(std::chrono::microseconds(static_cast<size_t>((T-ttrack)*1e6)));
 
         // if(ni < 5) cv::waitKey();
+
+        // standard deviation
+        TransErr.emplace_back(err[0]);
+        RotErr.emplace_back(ORB_SLAM2::Converter::Rad2Degree(err[1]));
+
+        frameResult << err[0] << " " << ORB_SLAM2::Converter::Rad2Degree(err[1]) << std::endl; 
+
     }
 
     // Stop all threads
     SLAM.Shutdown();
-    ResultFile.close();
     
     // Tracking time statistics
     sort(vTimesTrack.begin(),vTimesTrack.end());
@@ -158,6 +223,18 @@ int main(int argc, char **argv)
         totaltime+=vTimesTrack[ni];
     }
     
+    // get Variance
+    double TransErrAvg = totalTransErr / (double)TransErr.size();
+    double RotErrAvg = totalRotErr / (double)RotErr.size();
+    double stdTrans(0.0), stdRot(0.0);
+    for(size_t i = 0; i < TransErr.size(); i++){
+        stdTrans += (TransErr[i] - TransErrAvg) * (TransErr[i] - TransErrAvg);
+        stdRot += (RotErr[i] - RotErrAvg) * (RotErr[i] - RotErrAvg);
+    }
+    stdTrans = std::sqrt(stdTrans / (double)TransErr.size());
+    stdRot = std::sqrt(stdRot / (double)RotErr.size());
+
+
     cout << "-------" << endl << endl;
     cout << "median tracking time: " << vTimesTrack[nImages/2] << endl;
     cout << "mean tracking time: " << totaltime/nImages << endl;
@@ -165,17 +242,19 @@ int main(int argc, char **argv)
     SLAM.printFailinfo(); 
     std::cout << " Average Trans Err : " << totalTransErr/(nImages - failFrameNum) << std::endl;
     std::cout << " Average Rot Err : " << totalRotErr/(nImages - failFrameNum) << std::endl;
+    std::cout << " standard deviation about Trans Err : " << stdTrans << std::endl;
+    std::cout << " standard deviation about Rot Err : " << stdRot << std::endl;
     SLAM.getMap(); // print Landmark Num
     
+
+
+    
     std::ofstream fout;
-    string tmp = string(argv[6]);
-    istringstream tmpStr(tmp);
-    string trash;
-    vector<string> acc;
-    while(getline(tmpStr, trash, '/')) acc.push_back(trash);
-    string finalStr = acc[acc.size()-1];
-    fout.open("result/220725/VPSResult/Landmark/VPS_Result"+finalStr+".txt", std::ios::out);
-    fout << totalTransErr/(nImages - failFrameNum) << " " << totalRotErr/(nImages - failFrameNum) << " " << failFrameNum << std::endl;
+    fout.open("result/220818/VPSResult_0.25_2/VPS_Result"+finalStr+"Query"+finalStr_+".txt", std::ios::app);
+    fout << totalTransErr/(nImages - failFrameNum) << " " << totalRotErr/(nImages - failFrameNum) << " " << (double)(nImages - failFrameNum)/(double)nImages << " " << stdTrans << " " << stdRot << std::endl;
+    fout.close();
+    frameResult.close();
+    
     // Save camera trajectory
     SLAM.SaveKeyFrameTrajectoryTUM("KeyFrameTrajectory.txt");
 
@@ -183,12 +262,13 @@ int main(int argc, char **argv)
 }
 
 void LoadImages(const string &strImagePath, const string &strPathTimes,
-                vector<string> &vstrImages, vector<double> &vTimeStamps)
+                vector<string> &vstrImages, vector<double> &vTimeStamps, std::vector<double> &beforeFixTimeStamps_)
 {
     ifstream fTimes;
     fTimes.open(strPathTimes.c_str());
     vTimeStamps.reserve(5000);
     vstrImages.reserve(5000);
+    beforeFixTimeStamps_.reserve(5000);
     while(!fTimes.eof())
     {
         string s;
@@ -200,6 +280,7 @@ void LoadImages(const string &strImagePath, const string &strPathTimes,
             vstrImages.push_back(strImagePath + "/" + ss.str() + ".png");
             double t;
             ss >> t;
+            beforeFixTimeStamps_.push_back(t);
             vTimeStamps.push_back(t/1e9);
 
         }

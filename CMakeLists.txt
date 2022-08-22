@@ -112,9 +112,9 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Examples/Stereo)
 # Examples/Stereo/stereo_kitti.cc)
 # target_link_libraries(stereo_kitti ${PROJECT_NAME})
 
-add_executable(stereo_euroc
-Examples/Stereo/stereo_euroc.cc)
-target_link_libraries(stereo_euroc ${PROJECT_NAME})
+# add_executable(stereo_euroc
+# Examples/Stereo/stereo_euroc.cc)
+# target_link_libraries(stereo_euroc ${PROJECT_NAME})
 
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Examples/Monocular)
@@ -127,17 +127,29 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Examples/Monocular)
 # Examples/Monocular/mono_kitti.cc)
 # target_link_libraries(mono_kitti ${PROJECT_NAME})
 
-# add_executable(mono_euroc
-# Examples/Monocular/mono_euroc.cc)
-# target_link_libraries(mono_euroc ${PROJECT_NAME})
+add_executable(mono_euroc
+Examples/Monocular/mono_euroc.cc)
+target_link_libraries(mono_euroc ${PROJECT_NAME})
 
 
 # Compression
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Compression)
 
-add_executable(compression
-Compression/main_compression.cc)
-target_link_libraries(compression ${PROJECT_NAME})
+add_executable(landmarkCompression
+Compression/main_landmarkCompression.cc)
+target_link_libraries(landmarkCompression ${PROJECT_NAME})
+
+add_executable(keyframeILPCompression
+Compression/main_keyframeILPCompression.cc)
+target_link_libraries(keyframeILPCompression ${PROJECT_NAME})
+
+add_executable(keyframeIQPCompression
+Compression/main_keyframeIQPCompression.cc)
+target_link_libraries(keyframeIQPCompression ${PROJECT_NAME})
+
+add_executable(randomCompression
+Compression/main_randomCompression.cc)
+target_link_libraries(randomCompression ${PROJECT_NAME})
 
 # Bundle adjusment
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Compression)

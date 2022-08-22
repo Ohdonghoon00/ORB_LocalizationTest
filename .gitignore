@@ -56,3 +56,10 @@ build/
 lib/
 result/
 Compression/compression
+Compression/keyframeCompression
+Compression/landmarkCompression
+Compression/ba
+
+plot/assembleResult
+plot/figResult
+.vscode

@@ -325,7 +325,7 @@ void Tracking::Track()
         else
         {
             // Localization Mode: Local Mapping is deactivated
-            std::cout << mState << std::endl;
+            // std::cout << mState << std::endl;
             if(mState==LOST)
             {
                 bOK = Relocalization();
@@ -339,7 +339,7 @@ void Tracking::Track()
 
                     if(!mVelocity.empty())
                     {
-                        std::cout << "motion model !! " << std::endl;
+                        // std::cout << "motion model !! " << std::endl;
                         bOK = TrackWithMotionModel();
                         if(!bOK) motionModelFail++;
                     }
@@ -410,7 +410,7 @@ void Tracking::Track()
             // mbVO true means that there are few matches to MapPoints in the map. We cannot retrieve
             // a local map and therefore we do not perform TrackLocalMap(). Once the system relocalizes
             // the camera we will use the local map again.
-            std::cout << "bOk : " << bOK << "  " << "mbVO : " << mbVO << std::endl;
+            // std::cout << "bOk : " << bOK << "  " << "mbVO : " << mbVO << std::endl;
             // if(trakingNum > 0 && bOK) std::cout << "ref keyframe id (before track local map)   : " << mCurrentFrame.mpReferenceKF->mnId << std::endl;
             if(bOK && !mbVO){
                 // std::cout << "track local map!!" << std::endl;
@@ -482,7 +482,7 @@ void Tracking::Track()
         // Reset if the camera get lost soon after initialization
         if(mState==LOST)
         {
-            std::cout << "relocalization fail?? " << std::endl;
+            // std::cout << "relocalization fail?? " << std::endl;
             return;
             if(mpMap->KeyFramesInMap()<=5)
             {
@@ -909,8 +909,8 @@ bool Tracking::TrackWithMotionModel()
         return false;
 
     // Optimize frame pose with all matches
-    std::cout << " pose optimization !! " << std::endl;
-    std::cout << "id ? : " << mCurrentFrame.mnId << std::endl;
+    // std::cout << " pose optimization !! " << std::endl;
+    // std::cout << "id ? : " << mCurrentFrame.mnId << std::endl;
     Optimizer::PoseOptimization(&mCurrentFrame);
 
     // Discard outliers
@@ -947,7 +947,7 @@ bool Tracking::TrackLocalMap()
 {
     // We have an estimation of the camera pose and some map points tracked in the frame.
     // We retrieve the local map and try to find matches to points in the local map.
-std::cout << "track local map" << std::endl;
+// std::cout << "track local map" << std::endl;
     UpdateLocalMap();
 
     SearchLocalPoints();
@@ -981,12 +981,12 @@ std::cout << "track local map" << std::endl;
     }
     
     // dh
-    std::cout << "Final Match inlier Num : " << mnMatchesInliers << "   inlierRatio : " << (double)mnMatchesInliers / (double)(mnMatchesInliers+outLierMatch) << std::endl;
+    // std::cout << "Final Match inlier Num : " << mnMatchesInliers << "   inlierRatio : " << (double)mnMatchesInliers / (double)(mnMatchesInliers+outLierMatch) << std::endl;
     // Decide if the tracking was succesful
     // More restrictive if there was a relocalization recently
     // dh ( // 2 line below)
-    // if(mCurrentFrame.mnId<mnLastRelocFrameId+mMaxFrames && mnMatchesInliers<50)
-    //     return false;
+    if(mCurrentFrame.mnId<mnLastRelocFrameId+mMaxFrames && mnMatchesInliers<50)
+        return false;
 
     if(mnMatchesInliers<30)
         return false;
@@ -1247,7 +1247,7 @@ void Tracking::UpdateLocalPoints()
         }
     }
     // dh
-    std::cout  << "Local Keyframe Num : " << mvpLocalKeyFrames.size() << "   Local Map Points size : " << mvpLocalMapPoints.size() << std::endl; 
+    // std::cout  << "Local Keyframe Num : " << mvpLocalKeyFrames.size() << "   Local Map Points size : " << mvpLocalMapPoints.size() << std::endl; 
 }
 
 
@@ -1377,8 +1377,8 @@ bool Tracking::Relocalization()
     }
 
     const int nKFs = vpCandidateKFs.size();
-    std::cout << " find candidate Num : " << nKFs << "   id : ";
-    for(int i=0; i<nKFs; i++) std::cout << vpCandidateKFs[i]->mnId << "  ";
+    // std::cout << " find candidate Num : " << nKFs << "   id : ";
+    // for(int i=0; i<nKFs; i++) std::cout << vpCandidateKFs[i]->mnId << "  ";
     std::cout << std::endl;
     // We perform first an ORB matching with each candidate
     // If enough matches are found we setup a PnP solver
@@ -1403,9 +1403,9 @@ bool Tracking::Relocalization()
         else
         {
             int nmatches = matcher.SearchByBoW(pKF,mCurrentFrame,vvpMapPointMatches[i]);
-            std::cout << "nmatches : " << nmatches << "   ";
+            // std::cout << "nmatches : " << nmatches << "   ";
             // 15 -> 10
-            if(nmatches<10)
+            if(nmatches<15)
             {
                 vbDiscarded[i] = true;
                 continue;
@@ -1416,7 +1416,7 @@ bool Tracking::Relocalization()
                 pSolver->SetRansacParameters(0.99,10,300,4,0.5,5.991);
                 vpPnPsolvers[i] = pSolver;
                 nCandidates++;
-                std::cout << "Candidate Keyframe Id : " << pKF->mnId << " Keyframe MapPoint Num : " << pKF->GetMapPoints().size() << "  Match Num : " << nmatches << std::endl; 
+                // std::cout << "Candidate Keyframe Id : " << pKF->mnId << " Keyframe MapPoint Num : " << pKF->GetMapPoints().size() << "  Match Num : " << nmatches << std::endl; 
             }
         }
     }
@@ -1441,9 +1441,9 @@ bool Tracking::Relocalization()
             bool bNoMore;
 
             PnPsolver* pSolver = vpPnPsolvers[i];
-            cv::Mat Tcw = pSolver->iterate(30,bNoMore,vbInliers,nInliers);
+            cv::Mat Tcw = pSolver->iterate(5,bNoMore,vbInliers,nInliers);
 
-            std::cout << "Inliers Num : " << nInliers << std::endl;
+            // std::cout << "Inliers Num : " << nInliers << std::endl;
 
             // If Ransac reachs max. iterations discard keyframe
             if(bNoMore)
@@ -1474,7 +1474,7 @@ bool Tracking::Relocalization()
 
                 int nGood = Optimizer::PoseOptimization(&mCurrentFrame);
 
-                std::cout << "nGood Num : " << nGood << std::endl;
+                // std::cout << "nGood Num : " << nGood << std::endl;
 
                 if(nGood<10)
                     continue;
@@ -1488,13 +1488,13 @@ bool Tracking::Relocalization()
                 {
                     int nadditional =matcher2.SearchByProjection(mCurrentFrame,vpCandidateKFs[i],sFound,10,100);
 
-                    std::cout << "Additional Inlier Num : " << nadditional << "  "; 
+                    // std::cout << "Additional Inlier Num : " << nadditional << "  "; 
 
                     if(nadditional+nGood>=50)
                     {
                         nGood = Optimizer::PoseOptimization(&mCurrentFrame);
 
-                        std::cout << " nGood Num : " << nGood << "   ";
+                        // std::cout << " nGood Num : " << nGood << "   ";
                         // If many inliers but still not enough, search by projection again in a narrower window
                         // the camera has been already optimized with many points
                         if(nGood>30 && nGood<50)
@@ -1504,13 +1504,13 @@ bool Tracking::Relocalization()
                                 if(mCurrentFrame.mvpMapPoints[ip])
                                     sFound.insert(mCurrentFrame.mvpMapPoints[ip]);
                             nadditional =matcher2.SearchByProjection(mCurrentFrame,vpCandidateKFs[i],sFound,3,64);
-                            std::cout << "Additional Inlier Num : " << nadditional << "  "; 
+                            // std::cout << "Additional Inlier Num : " << nadditional << "  "; 
 
                             // Final optimization
                             if(nGood+nadditional>=50)
                             {
                                 nGood = Optimizer::PoseOptimization(&mCurrentFrame);
-                                std::cout << " nGood Num : " << nGood << "   ";
+                                // std::cout << " nGood Num : " << nGood << "   ";
                                 for(int io =0; io<mCurrentFrame.N; io++)
                                     if(mCurrentFrame.mvbOutlier[io])
                                         mCurrentFrame.mvpMapPoints[io]=NULL;
@@ -1518,11 +1518,11 @@ bool Tracking::Relocalization()
                         }
                     }
                 }
-                std::cout << "Final nGood Num : " << nGood << std::endl;
+                // std::cout << "Final nGood Num : " << nGood << std::endl;
 
                 // If the pose is supported by enough inliers stop ransacs and continue
                 // dh 50 -> 10
-                if(nGood>=10)
+                if(nGood>=50)
                 {
                     bMatch = true;
                     break;

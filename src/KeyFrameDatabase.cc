@@ -292,7 +292,7 @@ vector<KeyFrame*> KeyFrameDatabase::DetectRelocalizationCandidates(Frame *F)
 
     // Return all those keyframes with a score higher than 0.75*bestScore
     // dh (0.75 -> 0.3)
-    float minScoreToRetain = 0.3f*bestAccScore;
+    float minScoreToRetain = 0.75f*bestAccScore;
     set<KeyFrame*> spAlreadyAddedKF;
     vector<KeyFrame*> vpRelocCandidates;
     vpRelocCandidates.reserve(lAccScoreAndMatch.size());

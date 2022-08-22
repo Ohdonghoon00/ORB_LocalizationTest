@@ -6,6 +6,7 @@
 #include "Map.h"
 #include "KeyFrameDatabase.h"
 #include "Converter.h"
+#include <random>
 
 class ORB_SLAM2::Map;
 // class ORB_SLAM2::MapPoint;
@@ -84,6 +85,10 @@ public:
     // Keyframe Score
     std::vector<float> keyframeScore;
 
+    // remove randomly
+    std::vector<std::vector<int>> storage;
+    std::vector<double> compressionRatios = {0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.15, 0.10, 0.08, 0.06, 0.05, 0.04, 0.03};
+
     // main Compresssion
     void LandmarkSparsification();
     void LandmarkSparsification2(const double a, const double b,const double c,const double d);
@@ -91,8 +96,13 @@ public:
     int removalKeyframe2();
     int removalKeyframe3();
     int removalKeyframe4();
-    int removalKeyframe5(const double a, const double b,const double c,const double d);
-
+    int removalKeyframeILP(const double a, const double b,const double c,const double d);
+    int removalKeyframeIQP(const double a, const double b,const double c,const double d);
+    
+    // random
+    void selectRandomNum();
+    int removeRandomKeyframe(int storageIdx, std::vector<ORB_SLAM2::KeyFrame *> kfdb);
+    int randomNum(int low, int high, unsigned int seed);
 
     
 

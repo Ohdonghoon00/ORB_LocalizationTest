@@ -35,8 +35,8 @@ static bool has_suffix(const std::string &str, const std::string &suffix)
 
 namespace ORB_SLAM2
 {
-// const string &mapPath,
-System::System(const string &strVocFile, const string &strSettingsFile, const eSensor sensor,
+// 
+System::System(const string &strVocFile, const string &strSettingsFile, const string &mapPath, const eSensor sensor,
                const bool bUseViewer, bool is_save_map_):mSensor(sensor), is_save_map(is_save_map_), mpViewer(static_cast<Viewer*>(NULL)), mbReset(false),
         mbActivateLocalizationMode(false), mbDeactivateLocalizationMode(false)
 {
@@ -68,8 +68,8 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
     bool bReuseMap = false;
     if (!mapfilen.empty())
     {
-        // mapfile = mapPath;
-        mapfile = (string)mapfilen;
+        mapfile = mapPath;
+        // mapfile = (string)mapfilen;
     }
 
     //Load ORB Vocabulary
@@ -286,11 +286,11 @@ cv::Mat System::TrackMonocular(const cv::Mat &im, const double &timestamp)
 
     cv::Mat Tcw = mpTracker->GrabImageMonocular(im,timestamp);
     if(Tcw.empty()){
-        std::cout << "Relocalization Fail ! " << std::endl;
+        // std::cout << "Relocalization Fail ! " << std::endl;
         return Tcw;
     } 
-    std::cout << "ref keyframe id : " << mpTracker->mCurrentFrame.mpReferenceKF->mnId << std::endl;
-    std::cout << "ref keyframe total point Num : " << mpTracker->mCurrentFrame.mpReferenceKF->GetMapPoints().size() << std::endl;
+    // std::cout << "ref keyframe id : " << mpTracker->mCurrentFrame.mpReferenceKF->mnId << std::endl;
+    // std::cout << "ref keyframe total point Num : " << mpTracker->mCurrentFrame.mpReferenceKF->GetMapPoints().size() << std::endl;
     int matchCnt = 0;
     for(std::vector<MapPoint*>::iterator vit=mpTracker->mCurrentFrame.mvpMapPoints.begin(), vend=mpTracker->mCurrentFrame.mvpMapPoints.end(); vit!=vend; vit++){
         MapPoint* pMP = *vit;
@@ -302,7 +302,7 @@ cv::Mat System::TrackMonocular(const cv::Mat &im, const double &timestamp)
     matchNum.push_back(matchCnt);
     refKFid.push_back(mpTracker->mCurrentFrame.mpReferenceKF->mnId);
     refKFpts.push_back(mpTracker->mCurrentFrame.mpReferenceKF->GetMapPoints().size());
-    std::cout << "ref keyframe match point Num : " << matchCnt << std::endl;
+    // std::cout << "ref keyframe match point Num : " << matchCnt << std::endl;
     unique_lock<mutex> lock2(mMutexState);
     mTrackingState = mpTracker->mState;
     mTrackedMapPoints = mpTracker->mCurrentFrame.mvpMapPoints;
@@ -648,7 +648,7 @@ void System::RMSError(Vector6d EsPose, Vector6d gtPose, double *err)
 
 }
 
-int System::Loadgt(std::string queryGtTrajectoryPath, std::vector<Vector6d> *gtposes)
+int System::Loadgt(std::string queryGtTrajectoryPath, std::vector<Vector6d> *gtposes, std::vector<double> *gtTimeStamp)
 {
     std::ifstream queryGtTrajectoryFile(queryGtTrajectoryPath, std::ifstream::in);
 
@@ -671,6 +671,7 @@ int System::Loadgt(std::string queryGtTrajectoryPath, std::vector<Vector6d> *gtp
         pose << std::stod(values[1]), std::stod(values[2]), std::stod(values[3]),
                 std::stod(values[4]), std::stod(values[5]), std::stod(values[6]);
 
+        gtTimeStamp->push_back(std::stod(values[0]));
         gtposes->push_back(pose);        
     }
 }

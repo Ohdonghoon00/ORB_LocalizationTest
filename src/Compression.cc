@@ -493,7 +493,7 @@ int Compression::removalKeyframe4()
     return totalRemoveMemory;
 }
 
-int Compression::removalKeyframe5(
+int Compression::removalKeyframeIQP(
     const double a,
     const double b,
     const double c,
@@ -521,6 +521,149 @@ int Compression::removalKeyframe5(
 
         std::cout << " Calculate Similarity ... " << std::endl;
         Eigen::MatrixXd S = calculateKeyframeSimilarity(Map);
+
+        std::cout << " Calculate Landmark and Keyframe Score ... " << std::endl;
+        getLandmarkScore(a, b, c, d);
+        getKeyframeScore();
+
+        SetObjectiveIQPforKeyframe(x, S, keyframeScore, model);
+        // SetObjectiveILPforKeyframe(x, keyframeScore, model);
+        
+        std::cout << " Add Constraint ... " << std::endl;
+        // Add Constraint
+        AddConstraintForKeyframe(Map, model, x, kfCompressedRatio, neighborKeyframeIdThres);
+
+        std::cout << std::endl;
+
+        // if (model.get(GRB_IntAttr_IsMIP) == 0) {
+        //   throw GRBException("Model is not a MIP");
+        // }
+
+        std::cout << " Optimize model ... " << std::endl;
+        // Optimize model
+        model.set(GRB_DoubleParam_TimeLimit, 50);
+        model.optimize();
+
+        // int optimstatus = model.get(GRB_IntAttr_Status);
+        // cout << "Optimization complete" << endl;
+        // double objval = 0;
+        // if (optimstatus == GRB_OPTIMAL) {
+        //   objval = model.get(GRB_DoubleAttr_ObjVal);
+        //   cout << "Optimal objective: " << objval << endl;
+        // } else if (optimstatus == GRB_INF_OR_UNBD) {
+        //   cout << "Model is infeasible or unbounded" << endl;
+        //   return 0;
+        // } else if (optimstatus == GRB_INFEASIBLE) {
+        //   cout << "Model is infeasible" << endl;
+        //   return 0;
+        // } else if (optimstatus == GRB_UNBOUNDED) {
+        //   cout << "Model is unbounded" << endl;
+        //   return 0;
+        // } else {
+        //   cout << "Optimization was stopped with status = "
+        //        << optimstatus << endl;
+        //   return 0;
+        // }
+
+        model.set(GRB_IntParam_OutputFlag, 0);
+
+        cout << endl;
+        for (int k = 0; k < model.get(GRB_IntAttr_SolCount); ++k)
+        {
+            model.set(GRB_IntParam_SolutionNumber, k);
+            double objn = model.get(GRB_DoubleAttr_PoolObjVal);
+
+            cout << "Solution " << k << " has objective: " << objn << endl;
+        }
+        cout << endl;
+
+        // std::cout << "Obj: " << model.get(GRB_DoubleAttr_ObjVal) << endl;
+
+        model.set(GRB_IntParam_OutputFlag, 1);
+
+        /* Create a fixed model, turn off presolve and solve */
+
+        GRBModel fixed = model.fixedModel();
+
+        fixed.set(GRB_IntParam_Presolve, 0);
+
+        fixed.optimize();
+
+        int foptimstatus = fixed.get(GRB_IntAttr_Status);
+
+        if (foptimstatus != GRB_OPTIMAL)
+        {
+            cerr << "Error: fixed model isn't optimal" << endl;
+            return 0;
+        }
+
+        double fobjval = fixed.get(GRB_DoubleAttr_ObjVal);
+
+        // if (fabs(fobjval - objval) > 1.0e-6 * (1.0 + fabs(objval))) {
+        //   cerr << "Error: objective values are different" << endl;
+        //   return 0;
+        // }
+
+        // int numvars = model.get(GRB_IntAttr_NumVars);
+        // fvars = fixed.getVars();
+        // for (int j = 0; j < numvars; j++) {
+        //   GRBVar v = fvars[j];
+        //   if (v.get(GRB_DoubleAttr_X) != 0.0) {
+        //     cout << v.get(GRB_StringAttr_VarName) << " "
+        //          << v.get(GRB_DoubleAttr_X) << endl;
+        // std::cout << std::endl;
+        //   }
+        // }
+
+        for (size_t i = 0; i < x.size(); i++)
+        {
+
+            if (x[i].get(GRB_DoubleAttr_X) == 0)
+            {
+
+                int currMemory = getMemory(kfdb[i + 1]);
+                totalRemoveMemory += currMemory;
+                kfdb[i + 1]->SetBadFlag();
+            }
+        }
+    }
+    catch (GRBException e)
+    {
+        cout << "Error number: " << e.getErrorCode() << endl;
+        cout << e.getMessage() << endl;
+    }
+    return totalRemoveMemory;
+
+} // remove keyframe by IQP method
+
+int Compression::removalKeyframeILP(
+    const double a,
+    const double b,
+    const double c,
+    const double d)
+{
+    std::vector<ORB_SLAM2::KeyFrame *> kfdb = Map->GetAllKeyFrames();
+    std::sort(kfdb.begin(), kfdb.end(), ORB_SLAM2::KeyFrame::lId);
+    int totalRemoveMemory = 0;
+    try
+    {
+        // Map Compression
+        std::cout << "Map Compression ... " << std::endl;
+        GRBEnv env = GRBEnv();
+        GRBModel model = GRBModel(env);
+
+        int keyframeNum = (int)Map->KeyFramesInMap();
+
+        std::cout << "before Compression keyframe Num : " << keyframeNum << std::endl;
+        std::cout << " Create Variables ... " << std::endl;
+        // Create Variables
+        std::vector<GRBVar> x = CreateVariablesBinaryVectorForKeyframe(keyframeNum, model);
+
+        std::cout << " Set Objective ... " << std::endl;
+        // Set Objective
+
+        // std::cout << " Calculate Similarity ... " << std::endl;
+        // Eigen::MatrixXd S = calculateKeyframeSimilarity(Map);
 
         std::cout << " Calculate Landmark and Keyframe Score ... " << std::endl;
         getLandmarkScore(a, b, c, d);
@@ -635,6 +778,111 @@ int Compression::removalKeyframe5(
     return totalRemoveMemory;
 
 } // remove keyframe by ILP method
+
+void Compression::selectRandomNum()
+{
+
+    std::cout << "abc" << std::endl;
+
+    int oriKeyframeNum = Map->GetAllKeyFrames().size();
+    std::vector<int> remainedKfsId(oriKeyframeNum);
+    for(int i = 0; i < oriKeyframeNum; i++) remainedKfsId[i] = i;
+    // std::vector<int> selectedkfId; 
+    int selectedSize = 0;
+    
+    storage.resize(compressionRatios.size());
+    std::cout << "Compression size : " << compressionRatios.size() << " " << compressionRatios.capacity()<<std::endl;
+    for(size_t i = 0; i < compressionRatios.size(); i++) {
+        std::cout << (compressionRatios)[i] << " ";
+    }
+    // std::random_device rd;
+    std::mt19937 gen;
+    std::cout << std::endl;
+    int var = 0;
+    for(size_t i = 0; i < compressionRatios.size(); i++){
+        
+        std::cout << "Compression size : " << compressionRatios.size() << std::endl;
+        std::cout << "abc   " << i <<  std::endl;
+        std::cout << (int)(oriKeyframeNum * (1.0 - (compressionRatios)[i])) << " " << (1.0 - (compressionRatios)[i]) << " " << (compressionRatios).at(i) << " " << selectedSize << std::endl;
+        int randomSelectNum = (int)(oriKeyframeNum * (1.0 - (compressionRatios)[i])) - selectedSize;
+        
+        // random num
+
+        std::uniform_int_distribution<int> dis(1, remainedKfsId.size() - 1);
+
+        std::cout << randomSelectNum << " " << remainedKfsId.size() << std::endl;
+        std::vector<int> idxs(randomSelectNum);
+        std::vector<int> newRemovingkfId;
+        for(int j = 0; j < randomSelectNum; j++){
+            
+            // int a = 1;
+            while(true){
+                var = dis(gen);
+                // var = randomNum(1, remainedKfsId.size() - 1, clock());
+                // int var = j;
+                // std::cout << var << "   ";
+                auto it = std::find(idxs.begin(), idxs.end(), var);
+                if(it == idxs.end()){
+                    std::cout << var << " ";
+                    idxs[j] = var;
+                    break;
+                }
+                // a++; 
+            }    
+        }
+        
+        selectedSize += idxs.size();        
+        
+        newRemovingkfId.resize(idxs.size());    
+        for(size_t j = 0; j < idxs.size(); j++) {
+            // std::cout << idxs[j] << " ";
+            newRemovingkfId[j] = remainedKfsId[idxs[j]];
+        }
+        
+        int eraseIdx = 0;
+        for(size_t j = 0; j < idxs.size(); j++){
+            // std::cout << "remainkfs size : " << remainedKfsId.size() << " " << "erase idx : " << idxs[j] << std::endl;
+            remainedKfsId.erase(remainedKfsId.begin() + idxs[j] - eraseIdx);
+            eraseIdx++;
+        }
+        
+        storage[i] = newRemovingkfId;
+        // for debug
+        // for(size_t i = 0; i < storage.size(); i++){
+        //     for(size_t j = 0; j < storage[i].size(); j++) std::cout << storage[i][j] <<" ";
+        //     std::cout << std::endl; 
+        // }
+        std::cout << std::endl;
+    }
+    std::cout << "abcd" << std::endl;
+}
+
+int Compression::removeRandomKeyframe(int storageIdx, std::vector<ORB_SLAM2::KeyFrame *> kfdb)
+{
+
+    int totalRandomRemovedMemory = 0;
+    for(size_t i = 0; i < storage[storageIdx].size(); i++){
+
+        int currMemory = getMemory(kfdb[storage[storageIdx][i]]);
+        totalRandomRemovedMemory += currMemory;
+        kfdb[storage[storageIdx][i]]->SetBadFlag();
+    }
+
+    return totalRandomRemovedMemory;
+}       
+
+int Compression::randomNum(int low, int high, unsigned int seed)
+{
+    // std::uniform_int_distribution<int> dis(low, high);
+    // return dis(gen);
+    
+    // srand(seed);
+    // int f = rand();
+
+    // return f + rand() * (high - low);
+}
+        
+
 
 void Compression::initializing()
 {

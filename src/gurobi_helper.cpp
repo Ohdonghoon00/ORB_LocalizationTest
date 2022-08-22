@@ -334,13 +334,19 @@ std::cout << "total Pointcloud num : " << totalNum << std::endl;
     for(size_t i = 0; i < map_data->KeyFramesInMap(); i++)
     {
        MinKeyframePointNum.clear();
+       double mapPointsInKeyframe = 0.0;
        for(size_t j = 0; j < map_data->MapPointsInMap(); j++)
        {
         
             MinKeyframePointNum += A(i, j) * x[j];
+            mapPointsInKeyframe += A(i, j);
 
        }
-       model_.addConstr(MinKeyframePointNum >= b);
+       
+       if(mapPointsInKeyframe < b) model_.addConstr(MinKeyframePointNum >= mapPointsInKeyframe);
+       else model_.addConstr(MinKeyframePointNum >= b);
+       
+       
 
     }
     for(size_t i = 0; i < map_data->MapPointsInMap(); i++){
@@ -360,14 +366,14 @@ void AddConstraintForKeyframe(  ORB_SLAM2::Map* map_data,
     GRBLinExpr totalKeyframeNum = 0;
     double totalNum = (double)(int)(map_data->KeyFramesInMap() * CompressionRatio);
 
-    for(size_t i = 0; i < x.size() - neighborKeyframeIdThres + 1; i++){
+    // for(size_t i = 0; i < x.size() - neighborKeyframeIdThres + 1; i++){
         
-        GRBLinExpr neighborKeyframe = 0;
-        for(int j = 0; j < neighborKeyframeIdThres; j++){
-            neighborKeyframe += x[i + j]; 
-        }
-        model_.addConstr(neighborKeyframe >= 1.0);
-    }
+    //     GRBLinExpr neighborKeyframe = 0;
+    //     for(int j = 0; j < neighborKeyframeIdThres; j++){
+    //         neighborKeyframe += x[i + j]; 
+    //     }
+    //     model_.addConstr(neighborKeyframe >= 1.0);
+    // }
 
     for(size_t i = 0; i < map_data->KeyFramesInMap() - 1; i++){
 
