@@ -7,70 +7,71 @@ rotErr1 = []
 successRate1 = []
 stdTrans1 = []
 stdRot1 = []
+time1 = []
 
-db = "MH01" # MH01 MH02 MH03
+db = "MH03" # MH01 MH02 MH03
 query = "MH02"
-method = "KeyframeIQP" # KeyframeILP, KeyframeIQP, Landmark
-recall = "VPSResult_0.5_5.0" # VPSResult_0.5_5.0  VPSResult_0.25_2
+method = "KeyframeSimilarity" # KeyframeILP, KeyframeIQP, KeyframeSimilarity, Landmark, KeyframeILPIQP, LandmarkIQP
+recall = "VPSResult_0.5_5.0" # VPSResult_0.5_5.0  VPSResult_0.25_2.0
 # compressionRatioArr=(0.8 0.6 0.4 0.2 0.10 0.08 0.05 0.03) # 8
 
-# compressionResultPath = [
-#     '../build/Db/CompressionResult/' + db + method + '_Compression_Result_0.9_1._1._1._1._.txt',
-#     '../build/Db/CompressionResult/' + db + method + '_Compression_Result_0.8_1._1._1._1._.txt',
-#     '../build/Db/CompressionResult/' + db + method + '_Compression_Result_0.7_1._1._1._1._.txt',
-#     '../build/Db/CompressionResult/' + db + method + '_Compression_Result_0.6_1._1._1._1._.txt',
-#     '../build/Db/CompressionResult/' + db + method + '_Compression_Result_0.5_1._1._1._1._.txt',
-#     '../build/Db/CompressionResult/' + db + method + '_Compression_Result_0.4_1._1._1._1._.txt',
-#     '../build/Db/CompressionResult/' + db + method + '_Compression_Result_0.3_1._1._1._1._.txt',
-#     '../build/Db/CompressionResult/' + db + method + '_Compression_Result_0.2_1._1._1._1._.txt',
-#     '../build/Db/CompressionResult/' + db + method + '_Compression_Result_0.15_1._1._1._1._.txt',
-#     '../build/Db/CompressionResult/' + db + method + '_Compression_Result_0.10_1._1._1._1._.txt',
-#     '../build/Db/CompressionResult/' + db + method + '_Compression_Result_0.08_1._1._1._1._.txt',
-#     '../build/Db/CompressionResult/' + db + method + '_Compression_Result_0.06_1._1._1._1._.txt',
-#     '../build/Db/CompressionResult/' + db + method + '_Compression_Result_0.05_1._1._1._1._.txt',
-#     '../build/Db/CompressionResult/' + db + method + '_Compression_Result_0.04_1._1._1._1._.txt',
-#     '../build/Db/CompressionResult/' + db + method + '_Compression_Result_0.03_1._1._1._1._.txt'
-# ]
-
-# VPSResultPath = [
-#     '../result/220816/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.9.bin_1._1._1._1._.binQuery' + query + '.txt',
-#     '../result/220816/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.8.bin_1._1._1._1._.binQuery' + query + '.txt',
-#     '../result/220816/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.7.bin_1._1._1._1._.binQuery' + query + '.txt',
-#     '../result/220816/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.6.bin_1._1._1._1._.binQuery' + query + '.txt',
-#     '../result/220816/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.5.bin_1._1._1._1._.binQuery' + query + '.txt',
-#     '../result/220816/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.4.bin_1._1._1._1._.binQuery' + query + '.txt',
-#     '../result/220816/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.3.bin_1._1._1._1._.binQuery' + query + '.txt',
-#     '../result/220816/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.2.bin_1._1._1._1._.binQuery' + query + '.txt',
-#     '../result/220816/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.15.bin_1._1._1._1._.binQuery' + query + '.txt',
-#     '../result/220816/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.10.bin_1._1._1._1._.binQuery' + query + '.txt',
-#     '../result/220816/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.08.bin_1._1._1._1._.binQuery' + query + '.txt',
-#     '../result/220816/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.06.bin_1._1._1._1._.binQuery' + query + '.txt',
-#     '../result/220816/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.05.bin_1._1._1._1._.binQuery' + query + '.txt',
-#     '../result/220816/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.04.bin_1._1._1._1._.binQuery' + query + '.txt',
-#     '../result/220816/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.03.bin_1._1._1._1._.binQuery' + query + '.txt'
-# ]
-
 compressionResultPath = [
+    '../build/Db/CompressionResult/' + db + method + '_Compression_Result_0.9_1._1._1._1._.txt',
     '../build/Db/CompressionResult/' + db + method + '_Compression_Result_0.8_1._1._1._1._.txt',
+    '../build/Db/CompressionResult/' + db + method + '_Compression_Result_0.7_1._1._1._1._.txt',
     '../build/Db/CompressionResult/' + db + method + '_Compression_Result_0.6_1._1._1._1._.txt',
+    '../build/Db/CompressionResult/' + db + method + '_Compression_Result_0.5_1._1._1._1._.txt',
     '../build/Db/CompressionResult/' + db + method + '_Compression_Result_0.4_1._1._1._1._.txt',
+    '../build/Db/CompressionResult/' + db + method + '_Compression_Result_0.3_1._1._1._1._.txt',
     '../build/Db/CompressionResult/' + db + method + '_Compression_Result_0.2_1._1._1._1._.txt',
+    '../build/Db/CompressionResult/' + db + method + '_Compression_Result_0.15_1._1._1._1._.txt',
     '../build/Db/CompressionResult/' + db + method + '_Compression_Result_0.10_1._1._1._1._.txt',
     '../build/Db/CompressionResult/' + db + method + '_Compression_Result_0.08_1._1._1._1._.txt',
+    '../build/Db/CompressionResult/' + db + method + '_Compression_Result_0.06_1._1._1._1._.txt',
     '../build/Db/CompressionResult/' + db + method + '_Compression_Result_0.05_1._1._1._1._.txt',
+    '../build/Db/CompressionResult/' + db + method + '_Compression_Result_0.04_1._1._1._1._.txt',
     '../build/Db/CompressionResult/' + db + method + '_Compression_Result_0.03_1._1._1._1._.txt'
 ]
 
 VPSResultPath = [
-    '../result/220816/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.8.bin_1._1._1._1._.binQuery' + query + '.txt',
-    '../result/220816/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.6.bin_1._1._1._1._.binQuery' + query + '.txt',
-    '../result/220816/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.4.bin_1._1._1._1._.binQuery' + query + '.txt',
-    '../result/220816/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.2.bin_1._1._1._1._.binQuery' + query + '.txt',
-    '../result/220816/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.10.bin_1._1._1._1._.binQuery' + query + '.txt',
-    '../result/220816/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.08.bin_1._1._1._1._.binQuery' + query + '.txt',
-    '../result/220816/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.05.bin_1._1._1._1._.binQuery' + query + '.txt',
-    '../result/220816/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.03.bin_1._1._1._1._.binQuery' + query + '.txt'
+    '../result/220905/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.9.bin_1._1._1._1._.binQuery' + query + '.txt',
+    '../result/220905/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.8.bin_1._1._1._1._.binQuery' + query + '.txt',
+    '../result/220905/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.7.bin_1._1._1._1._.binQuery' + query + '.txt',
+    '../result/220905/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.6.bin_1._1._1._1._.binQuery' + query + '.txt',
+    '../result/220905/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.5.bin_1._1._1._1._.binQuery' + query + '.txt',
+    '../result/220905/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.4.bin_1._1._1._1._.binQuery' + query + '.txt',
+    '../result/220905/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.3.bin_1._1._1._1._.binQuery' + query + '.txt',
+    '../result/220905/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.2.bin_1._1._1._1._.binQuery' + query + '.txt',
+    '../result/220905/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.15.bin_1._1._1._1._.binQuery' + query + '.txt',
+    '../result/220905/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.10.bin_1._1._1._1._.binQuery' + query + '.txt',
+    '../result/220905/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.08.bin_1._1._1._1._.binQuery' + query + '.txt',
+    '../result/220905/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.06.bin_1._1._1._1._.binQuery' + query + '.txt',
+    '../result/220905/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.05.bin_1._1._1._1._.binQuery' + query + '.txt',
+    '../result/220905/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.04.bin_1._1._1._1._.binQuery' + query + '.txt',
+    '../result/220905/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.03.bin_1._1._1._1._.binQuery' + query + '.txt'
 ]
+
+# compressionResultPath = [
+#     '../build/Db/CompressionResult/' + db + method + '_Compression_Result_0.8_1._1._1._1._.txt',
+#     '../build/Db/CompressionResult/' + db + method + '_Compression_Result_0.6_1._1._1._1._.txt',
+#     '../build/Db/CompressionResult/' + db + method + '_Compression_Result_0.4_1._1._1._1._.txt',
+#     '../build/Db/CompressionResult/' + db + method + '_Compression_Result_0.2_1._1._1._1._.txt',
+#     '../build/Db/CompressionResult/' + db + method + '_Compression_Result_0.10_1._1._1._1._.txt',
+#     '../build/Db/CompressionResult/' + db + method + '_Compression_Result_0.08_1._1._1._1._.txt',
+#     '../build/Db/CompressionResult/' + db + method + '_Compression_Result_0.05_1._1._1._1._.txt',
+#     '../build/Db/CompressionResult/' + db + method + '_Compression_Result_0.03_1._1._1._1._.txt'
+# ]
+
+# VPSResultPath = [
+#     '../result/220816/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.8.bin_1._1._1._1._.binQuery' + query + '.txt',
+#     '../result/220816/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.6.bin_1._1._1._1._.binQuery' + query + '.txt',
+#     '../result/220816/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.4.bin_1._1._1._1._.binQuery' + query + '.txt',
+#     '../result/220816/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.2.bin_1._1._1._1._.binQuery' + query + '.txt',
+#     '../result/220816/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.10.bin_1._1._1._1._.binQuery' + query + '.txt',
+#     '../result/220816/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.08.bin_1._1._1._1._.binQuery' + query + '.txt',
+#     '../result/220816/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.05.bin_1._1._1._1._.binQuery' + query + '.txt',
+#     '../result/220816/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.03.bin_1._1._1._1._.binQuery' + query + '.txt'
+# ]
 
 # compressionResultPath = [
 #     '../result/220809/CompressionResult/MH03Landmark_Compression_Result_0.10_1._1._1._1._.txt',
@@ -157,6 +158,7 @@ def readfileAll(path):
         successRate1.append(float(line_list[2]))
         stdTrans1.append(float(line_list[3]))
         stdRot1.append(float(line_list[4]))
+        # time1.append(float(line_list[5]))
 
     file.close()
 
@@ -172,7 +174,8 @@ def writefile(path, result1, result2):
 
 if __name__ == '__main__':
 
-    resultFilePath = 'assembleResult/220817/trash/' + '220816_' + db + '_' + query + '_final' + method + '_CompressionResult(1111).txt'
+    resultFilePath = 'assembleResult/220905/' + recall + '/220830_' + db + '_' + query + '_final' + method + '_CompressionResult(1111).txt'
+    file = open(resultFilePath, 'w')
     for i in range(0, len(compressionResultPath)):
         
         compressionResult = readfile(compressionResultPath[i]) + ' '
@@ -183,19 +186,28 @@ if __name__ == '__main__':
         successRate = 0.0
         stdTrans = 0.0
         stdRot = 0.0
+        # time = 0.0
         
-        for j in range(0, len(transErr1)):
-            transErr += transErr1[j]
-            rotErr += rotErr1[j]
-            successRate += successRate1[j]
-            stdTrans += stdTrans1[j]
-            stdRot += stdRot1[j]
-        transErr /= len(transErr1)
-        rotErr /= len(transErr1)
-        successRate /= len(transErr1)
-        stdTrans /= len(transErr1)
-        stdRot /= len(transErr1)
-        
+        # for j in range(0, len(transErr1)):
+            # listSuccessRate.append(successRate1[j])
+        tmp = max(successRate1)
+        index = successRate1.index(tmp)
+        #     transErr += transErr1[j]
+        #     rotErr += rotErr1[j]
+        #     successRate += successRate1[j]
+        #     stdTrans += stdTrans1[j]
+        #     stdRot += stdRot1[j]
+        # transErr /= len(transErr1)
+        # rotErr /= len(transErr1)
+        # successRate /= len(transErr1)
+        # stdTrans /= len(transErr1)
+        # stdRot /= len(transErr1)
+        transErr = transErr1[index]
+        rotErr = rotErr1[index]
+        successRate = successRate1[index]
+        stdTrans = stdTrans1[index]
+        stdRot = stdRot1[index]
+        # time = time1[index]
         # print(transErr)
         
         del transErr1[0:]
@@ -203,7 +215,10 @@ if __name__ == '__main__':
         del successRate1[0:]
         del stdTrans1[0:]
         del stdRot1[0:]
+        del time1[0:]
+        # VPSResult = str(transErr) + " " + str(rotErr) + " " + str(successRate) + " " + str(stdTrans) + " " + str(stdRot) + " " + str(time) + "\n"
         VPSResult = str(transErr) + " " + str(rotErr) + " " + str(successRate) + " " + str(stdTrans) + " " + str(stdRot) + "\n"
         # print(VPSResult)
+        
         writefile(resultFilePath, compressionResult, VPSResult)
 

@@ -131,6 +131,9 @@ add_executable(mono_euroc
 Examples/Monocular/mono_euroc.cc)
 target_link_libraries(mono_euroc ${PROJECT_NAME})
 
+add_executable(mono_euroc2
+Examples/Monocular/mono_euroc2.cc)
+target_link_libraries(mono_euroc2 ${PROJECT_NAME})
 
 # Compression
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Compression)
@@ -139,9 +142,17 @@ add_executable(landmarkCompression
 Compression/main_landmarkCompression.cc)
 target_link_libraries(landmarkCompression ${PROJECT_NAME})
 
+add_executable(landmarkIQPCompression
+Compression/main_landmarkIQPCompression.cc)
+target_link_libraries(landmarkIQPCompression ${PROJECT_NAME})
+
 add_executable(keyframeILPCompression
 Compression/main_keyframeILPCompression.cc)
 target_link_libraries(keyframeILPCompression ${PROJECT_NAME})
+
+add_executable(keyframeSimilarityCompression
+Compression/main_keyframeSimilarityCompression.cc)
+target_link_libraries(keyframeSimilarityCompression ${PROJECT_NAME})
 
 add_executable(keyframeIQPCompression
 Compression/main_keyframeIQPCompression.cc)
@@ -150,6 +161,10 @@ target_link_libraries(keyframeIQPCompression ${PROJECT_NAME})
 add_executable(randomCompression
 Compression/main_randomCompression.cc)
 target_link_libraries(randomCompression ${PROJECT_NAME})
+
+add_executable(readDbInfo
+Compression/main_Db_info.cc)
+target_link_libraries(readDbInfo ${PROJECT_NAME})
 
 # Bundle adjusment
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Compression)

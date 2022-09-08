@@ -16,6 +16,13 @@ successRate2 = []
 stdTrans2 = []
 stdRot2 = []
 
+removedMemory3 = []
+transErr3 = []
+rotErr3 = []
+successRate3 = []
+stdTrans3 = []
+stdRot3 = []
+
 def readResult1(path):
     
     # read file
@@ -47,6 +54,25 @@ def readResult2(path):
         successRate2.append(float(line_list[6]))
         stdTrans2.append(float(line_list[7]))
         stdRot2.append(float(line_list[8]))
+
+
+
+    file.close()
+
+def readResult3(path):
+    
+    # read file
+    file = open(path, "r")
+    lines = file.readlines()
+    for line in lines:
+        line_list = line.split()
+        
+        removedMemory3.append(float(line_list[1]))
+        transErr3.append(float(line_list[4]))
+        rotErr3.append(float(line_list[5]))
+        successRate3.append(float(line_list[6]))
+        stdTrans3.append(float(line_list[7]))
+        stdRot3.append(float(line_list[8]))
 
 
 
@@ -141,18 +167,20 @@ def readResult2(path):
 #         reprojectionErrAvg.append(float(reprojectionErrAvg1_[i]))
 
 if __name__ == '__main__':
-    
-    filePath1 = 'assembleResult/220816/trash/220816_MH02_MH01_finalKeyframeIQP_CompressionResult(1111).txt'
-    filePath2 = 'assembleResult/220816/trash/220816_MH02_MH01_finalKeyframeILP_CompressionResult(1111).txt'
+    # VPSResult_0.25_2.0 VPSResult_0.5_5.0
+    filePath1 = 'assembleResult/220905/VPSResult_0.25_2.0/220830_MH01_MH03_finalKeyframeSimilarity_CompressionResult(1111).txt'
+    filePath2 = 'assembleResult/220905/VPSResult_0.25_2.0/220830_MH01_MH03_finalLandmark_CompressionResult(1111).txt'
+    filePath3 = 'assembleResult/220905/VPSResult_0.25_2.0/220830_MH01_MH03_finalLandmarkIQP_CompressionResult(1111).txt'
     
     readResult1(filePath1)
     readResult2(filePath2)
+    readResult3(filePath3)
     # readfileLandmarkNum(filePath)
     
 # data dictionary
     data_dict1 = {'removed_memory1' : removedMemory1, 'trans_err1' : transErr1, 'rot_err1' : rotErr1, 'success_Rate1' : successRate1, 'std_Trans1' : stdTrans1, 'std_Rot1' : stdRot1}
     data_dict2 = {'removed_memory2' : removedMemory2, 'trans_err2' : transErr2, 'rot_err2' : rotErr2, 'success_Rate2' : successRate2, 'std_Trans2' : stdTrans2, 'std_rot2' : stdRot2}
-    # data_dict3 = {'removed_memory3' : removedMemory3, 'trans_err3' : transErr3, 'rot_err3' : rotErr3, 'success_Rate3' : successRate3}
+    data_dict3 = {'removed_memory3' : removedMemory3, 'trans_err3' : transErr3, 'rot_err3' : rotErr3, 'success_Rate3' : successRate3, 'std_Trans3' : stdTrans3, 'std_rot3' : stdRot3}
     
     # data_dict_landmark = {'prunedKeyframeFraction' : prunedKeyframeFraction, 'obs1Ratio' : obs1Ratio, 'observation' : observation, 'reprojectionErrAvg' : reprojectionErrAvg}
 
@@ -160,15 +188,14 @@ if __name__ == '__main__':
     # plt.plot('removed_memory1', 'success_Rate1', data = data_dict1, label = 'remove keyframe')
     # plt.plot('removed_memory2', 'success_Rate2', data = data_dict2, label = 'remove landmark')
     
-    plt.plot('removed_memory1', 'success_Rate1', data = data_dict1, label = 'IQP')
-    plt.plot('removed_memory2', 'success_Rate2', data = data_dict2, label = 'ILP')
+    plt.plot('removed_memory1', 'success_Rate1', data = data_dict1, label = 'KeyframeSimilarity')
+    plt.plot('removed_memory2', 'success_Rate2', data = data_dict2, label = 'LandmarkILP')
+    plt.plot('removed_memory3', 'success_Rate3', data = data_dict3, label = 'LandmarkIQP')
     
-    
-    
-    # plt.plot('removed_memory1', 'trans_err1', data = data_dict1)
-    # plt.plot('removed_memory2', 'trans_err2', data = data_dict2)
-    # plt.errorbar(removedMemory1, transErr1, yerr = stdTrans1, label = 'IQP',  marker='D', linestyle='dotted', capsize=3 )
-    # plt.errorbar(removedMemory2, transErr2, yerr = stdTrans2, label = 'ILP',  marker='D', linestyle='dotted', capsize=3 )
+
+    # plt.errorbar(removedMemory1, transErr1, yerr = stdTrans1, label = 'Similarity',  marker='D', linestyle='dotted', capsize=3 )
+    # plt.errorbar(removedMemory2, transErr2, yerr = stdTrans2, label = 'KeyframeScore',  marker='D', linestyle='dotted', capsize=3 )
+    # plt.errorbar(removedMemory3, transErr3, yerr = stdTrans3, label = 'KeyframeScore + Similarity',  marker='D', linestyle='dotted', capsize=3 )
 
     # plt.plot('removed_memory1', 'rot_err1', data = data_dict1, label = 'remove keyframe')
     # plt.plot('removed_memory2', 'rot_err2', data = data_dict2, label = 'remove landmark')
@@ -187,7 +214,7 @@ if __name__ == '__main__':
 
 # label x, y
     plt.xlabel('Removed Memory(MB)')
-    plt.ylabel('successRate')
+    plt.ylabel('Recall')
     # plt.ylabel('Translation Error(m)')
     # plt.ylim(0, None)
     

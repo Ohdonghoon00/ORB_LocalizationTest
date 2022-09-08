@@ -139,7 +139,90 @@ void Compression::LandmarkSparsification2(
         cout << "Error number: " << e.getErrorCode() << endl;
         cout << e.getMessage() << endl;
     }
-}
+} // Remove Landmark Score ILP
+
+void Compression::LandmarkSparsificationIQP(
+    const double a,
+    const double b,
+    const double c,
+    const double d)
+{
+    try
+    {
+        // Map Compression
+        std::cout << "Map Compression ... " << std::endl;
+        GRBEnv env = GRBEnv();
+        GRBModel model = GRBModel(env);
+
+        std::vector<ORB_SLAM2::MapPoint *> mpDB = Map->GetAllMapPoints();
+        long unsigned int PointCloudNum = Map->MapPointsInMap();
+
+        std::cout << "before Compression Point Num : " << PointCloudNum << std::endl;
+        std::cout << " Create Variables ... " << std::endl;
+        // Create Variables
+        std::vector<GRBVar> x = CreateVariablesBinaryVectorForLandmark(PointCloudNum, model);
+
+        std::cout << " Set Objective ... " << std::endl;
+        // Set Objective
+        getLandmarkScore(a, b, c, d);
+        std::cout << "set landmark score ... " << std::endl;
+        Eigen::Matrix<double, Eigen::Dynamic, 1> q = setLandmarkWeight(Map, landmarkScore);
+        
+        // Set IQP Weight
+        std::cout << " set Quardratic IQP Weight Score ... " << std::endl;
+        std::map<std::tuple<int, int>, double> distWeightQ = getKeypointDistanceMatrix();
+        std::cout << " set Objective ... " << std::endl;
+        SetObjectiveIQPforLandmark(x, q, distWeightQ, model);
+
+        std::cout << " Add Constraint ... " << std::endl;
+        // Add Constraint
+        Eigen::MatrixXd A = CalculateVisibilityMatrix(Map);
+        AddConstraintForLandmark(Map, model, A, x, kfCompressedRatio);
+
+        std::cout << std::endl;
+
+        std::cout << " Optimize model ... " << std::endl;
+        // Optimize model
+        // model.set(GRB_IntParam_Crossover, 2);
+        model.set(GRB_DoubleParam_TimeLimit, 3000);
+        model.optimize();
+
+        std::cout << "Obj: " << model.get(GRB_DoubleAttr_ObjVal) << endl;
+
+        std::cout << std::endl;
+
+        // Erase Map Point
+        size_t index = 0;
+
+        int totalObs = 0;
+        for (size_t i = 0; i < x.size(); i++)
+        {
+
+            if (x[i].get(GRB_DoubleAttr_X) == 0)
+            {
+
+                int obsCnt = getMemory(mpDB[i]);
+                mpDB[i]->SetBadFlag();
+                index++;
+                totalObs += obsCnt;
+            }
+        }
+
+        std::cout << " Finish Map Compression" << std::endl;
+        std::cout << " Total memory of removed mapPoints : " << totalObs << std::endl;
+        long unsigned int PointCloudNum_ = Map->MapPointsInMap();
+        std::cout << "After Compression Point Num : " << PointCloudNum_ << std::endl;
+
+        remainLandmark = PointCloudNum_;
+        removedMemory = (double)totalObs * 1e-6;
+    }
+    catch (GRBException e)
+    {
+        cout << "Error number: " << e.getErrorCode() << endl;
+        cout << e.getMessage() << endl;
+    }
+} // Remove Landmark Score + Weight Q IQP
+
 int Compression::removalKeyframe1()
 {
     std::vector<ORB_SLAM2::KeyFrame *> kfdb = Map->GetAllKeyFrames();
@@ -492,6 +575,150 @@ int Compression::removalKeyframe4()
 
     return totalRemoveMemory;
 }
+
+int Compression::removalKeyframeSimilarity(
+    const double a,
+    const double b,
+    const double c,
+    const double d)
+{
+    std::vector<ORB_SLAM2::KeyFrame *> kfdb = Map->GetAllKeyFrames();
+    std::sort(kfdb.begin(), kfdb.end(), ORB_SLAM2::KeyFrame::lId);
+    int totalRemoveMemory = 0;
+    try
+    {
+        // Map Compression
+        std::cout << "Map Compression ... " << std::endl;
+        GRBEnv env = GRBEnv();
+        GRBModel model = GRBModel(env);
+
+        int keyframeNum = (int)Map->KeyFramesInMap();
+
+        std::cout << "before Compression keyframe Num : " << keyframeNum << std::endl;
+        std::cout << " Create Variables ... " << std::endl;
+        // Create Variables
+        std::vector<GRBVar> x = CreateVariablesBinaryVectorForKeyframe(keyframeNum, model);
+
+        std::cout << " Set Objective ... " << std::endl;
+        // Set Objective
+
+        std::cout << " Calculate Similarity ... " << std::endl;
+        Eigen::MatrixXd S = calculateKeyframeSimilarity(Map);
+
+        // std::cout << " Calculate Landmark and Keyframe Score ... " << std::endl;
+        // getLandmarkScore(a, b, c, d);
+        // getKeyframeScore();
+
+        SetObjectiveSimilarityforKeyframe(x, S, model);
+        // SetObjectiveILPforKeyframe(x, keyframeScore, model);
+        
+        std::cout << " Add Constraint ... " << std::endl;
+        // Add Constraint
+        AddConstraintForKeyframe(Map, model, x, kfCompressedRatio, neighborKeyframeIdThres);
+
+        std::cout << std::endl;
+
+        // if (model.get(GRB_IntAttr_IsMIP) == 0) {
+        //   throw GRBException("Model is not a MIP");
+        // }
+
+        std::cout << " Optimize model ... " << std::endl;
+        // Optimize model
+        model.set(GRB_DoubleParam_TimeLimit, 300);
+        model.set(GRB_IntParam_NonConvex, 2);
+        model.optimize();
+
+        // int optimstatus = model.get(GRB_IntAttr_Status);
+        // cout << "Optimization complete" << endl;
+        // double objval = 0;
+        // if (optimstatus == GRB_OPTIMAL) {
+        //   objval = model.get(GRB_DoubleAttr_ObjVal);
+        //   cout << "Optimal objective: " << objval << endl;
+        // } else if (optimstatus == GRB_INF_OR_UNBD) {
+        //   cout << "Model is infeasible or unbounded" << endl;
+        //   return 0;
+        // } else if (optimstatus == GRB_INFEASIBLE) {
+        //   cout << "Model is infeasible" << endl;
+        //   return 0;
+        // } else if (optimstatus == GRB_UNBOUNDED) {
+        //   cout << "Model is unbounded" << endl;
+        //   return 0;
+        // } else {
+        //   cout << "Optimization was stopped with status = "
+        //        << optimstatus << endl;
+        //   return 0;
+        // }
+
+        model.set(GRB_IntParam_OutputFlag, 0);
+
+        cout << endl;
+        for (int k = 0; k < model.get(GRB_IntAttr_SolCount); ++k)
+        {
+            model.set(GRB_IntParam_SolutionNumber, k);
+            double objn = model.get(GRB_DoubleAttr_PoolObjVal);
+
+            cout << "Solution " << k << " has objective: " << objn << endl;
+        }
+        cout << endl;
+
+        // std::cout << "Obj: " << model.get(GRB_DoubleAttr_ObjVal) << endl;
+
+        model.set(GRB_IntParam_OutputFlag, 1);
+
+        /* Create a fixed model, turn off presolve and solve */
+
+        GRBModel fixed = model.fixedModel();
+
+        fixed.set(GRB_IntParam_Presolve, 0);
+
+        fixed.optimize();
+
+        int foptimstatus = fixed.get(GRB_IntAttr_Status);
+
+        if (foptimstatus != GRB_OPTIMAL)
+        {
+            cerr << "Error: fixed model isn't optimal" << endl;
+            return 0;
+        }
+
+        double fobjval = fixed.get(GRB_DoubleAttr_ObjVal);
+
+        // if (fabs(fobjval - objval) > 1.0e-6 * (1.0 + fabs(objval))) {
+        //   cerr << "Error: objective values are different" << endl;
+        //   return 0;
+        // }
+
+        // int numvars = model.get(GRB_IntAttr_NumVars);
+        // fvars = fixed.getVars();
+        // for (int j = 0; j < numvars; j++) {
+        //   GRBVar v = fvars[j];
+        //   if (v.get(GRB_DoubleAttr_X) != 0.0) {
+        //     cout << v.get(GRB_StringAttr_VarName) << " "
+        //          << v.get(GRB_DoubleAttr_X) << endl;
+        // std::cout << std::endl;
+        //   }
+        // }
+
+        for (size_t i = 0; i < x.size(); i++)
+        {
+
+            if (x[i].get(GRB_DoubleAttr_X) == 0)
+            {
+
+                int currMemory = getMemory(kfdb[i + 1]);
+                totalRemoveMemory += currMemory;
+                kfdb[i + 1]->SetBadFlag();
+            }
+        }
+    }
+    catch (GRBException e)
+    {
+        cout << "Error number: " << e.getErrorCode() << endl;
+        cout << e.getMessage() << endl;
+    }
+    return totalRemoveMemory;
+
+} // remove keyframe by Similarity method
 
 int Compression::removalKeyframeIQP(
     const double a,
@@ -1036,6 +1263,8 @@ void Compression::getKeyframeSimilarityMatrix()
 
             int covisibilityMpNum = getCovisibilityMpNum(kfdb[i], kfdb[j]);
             similarityMatrix(i - 1, j - 1) = (double)covisibilityMpNum / (double)lastKeyframeMpNum;
+            if(lastKeyframeMpNum < 50.0) similarityMatrix(i - 1, j - 1) = 1.0;
+            
             // }
             // else
             //     similarityMatrix(i - 1, j - 1) = 0.0;
@@ -1627,7 +1856,8 @@ void Compression::getLandmarkScore(
     for (size_t i = 0; i < landmarkScore.size(); i++)
     {
         // std::cout << obsNum_[i] << " " << maxTrackDist[i] << " " << maxAngle[i] << " " << avgReprojectionErr[i] << std::endl;
-        landmarkScore[i] = a * obsNum_[i] + b * maxTrackDist[i] + c * maxAngle[i] + d * avgReprojectionErr[i];
+        // landmarkScore[i] = a * obsNum_[i] + b * maxTrackDist[i] + c * maxAngle[i] + d * avgReprojectionErr[i];
+        landmarkScore[i] = a * obsNum_[i];
         mpDB[i]->score = landmarkScore[i];
     }
     minMaxNormalize(&landmarkScore);
@@ -1683,6 +1913,89 @@ void Compression::calculateVariousScore()
         // debug
         // std::cout << obsNum[i] << " " << maxTrackDist[i] << " " << maxAngle[i] << " " << avgReprojectionErr[i] << std::endl;
     }
+}
+
+std::map<std::tuple<int, int>, double> Compression::getKeypointDistanceMatrix()
+{
+    std::vector<ORB_SLAM2::KeyFrame *> kfdb = Map->GetAllKeyFrames();
+    std::sort(kfdb.begin(), kfdb.end(), ORB_SLAM2::KeyFrame::lId);
+    
+    std::vector<ORB_SLAM2::MapPoint *> mpDB = Map->GetAllMapPoints();
+    // keypointDistanceMatrix.resize(mpDB.size(), mpDB.size());
+    // keypointDistanceMatrix.setZero();
+    for(size_t i = 0; i < mpDB.size(); i++){
+        
+        // keypointDistanceMatrix(i, i) = 1.0;
+        keypointDistanceQ.insert(std::pair<std::tuple<int, int>, double>(std::make_tuple(i, i), 1.0));
+        std::vector<int> KfIdx = getKeyframeObsId(kfdb, mpDB[i]);
+        
+        for(size_t j = i + 1; j < mpDB.size(); j++){
+            
+                
+            std::vector<int> covKfIdx = getKeyframeCovisibleMp(kfdb, KfIdx, mpDB[j]);
+            if(covKfIdx.size() == 0) continue;
+
+            double KeypointDistance = 0;
+            for(size_t k = 0; k < covKfIdx.size(); k++){
+                    
+                int mpIdx1 = mpDB[i]->GetIndexInKeyFrame(kfdb[covKfIdx[k]]);
+                int mpIdx2 = mpDB[j]->GetIndexInKeyFrame(kfdb[covKfIdx[k]]);
+
+                Eigen::Vector2d keyPoint1, keyPoint2;
+                keyPoint1 << kfdb[covKfIdx[k]]->mvKeys[mpIdx1].pt.x, kfdb[covKfIdx[k]]->mvKeys[mpIdx1].pt.y;
+                keyPoint2 << kfdb[covKfIdx[k]]->mvKeys[mpIdx2].pt.x, kfdb[covKfIdx[k]]->mvKeys[mpIdx2].pt.y;
+
+                double featureDist = (keyPoint1 - keyPoint2).norm();
+                // std::cout << featureDist << " ";
+                KeypointDistance += std::max(0.0, (keypointDistThres - featureDist)/keypointDistThres);
+            }
+                
+            KeypointDistance /= (double)covKfIdx.size();
+            // std::cout << KeypointDistance << " ";
+            if(KeypointDistance != 0.0) {
+                // std::cout << KeypointDistance << " ";
+                keypointDistanceQ.insert(std::pair<std::tuple<int, int>, double>(std::make_tuple(i, j), KeypointDistance));    
+            }
+            // keypointDistanceMatrix(i, j) = KeypointDistance;
+            // keypointDistanceMatrix(j, i) = KeypointDistance;
+            
+
+        }
+        // std::cout << i << std::endl;
+        // if((i % 100) == 0){
+        //     double ing = (double)i / (double)mpDB.size();
+        //     std::cout << ing * 100  << " ";
+        // }
+    }
+    std::cout << "size of map : " << keypointDistanceQ.size() << std::endl;
+    std::cout << std::endl;
+
+    return keypointDistanceQ;
+}
+
+std::vector<int> Compression::getKeyframeObsId( std::vector<ORB_SLAM2::KeyFrame *> &kfdb,
+                                                ORB_SLAM2::MapPoint* mp)
+{
+    std::vector<int> kfIdxs;
+    for(size_t i = 0; i < kfdb.size(); i++){
+
+        bool isInKf = mp->IsInKeyFrame(kfdb[i]);
+        if(isInKf) kfIdxs.emplace_back(i);
+    }
+    return kfIdxs;
+}
+
+std::vector<int> Compression::getKeyframeCovisibleMp(std::vector<ORB_SLAM2::KeyFrame *> &kfdb,
+                                        std::vector<int> KfIdx1,
+                                        ORB_SLAM2::MapPoint* mp2 )
+{
+    std::vector<int> kfIdxs;
+    for(size_t i = 0; i < KfIdx1.size(); i++){
+
+        bool isInKf2 = mp2->IsInKeyFrame(kfdb[KfIdx1[i]]);
+        if(isInKf2) kfIdxs.emplace_back(KfIdx1[i]);
+    }
+    return kfIdxs;
 }
 
 //////////////////////////////////////////////////////////////////////////

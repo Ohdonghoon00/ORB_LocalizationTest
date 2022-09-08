@@ -117,7 +117,7 @@ int main(int argc, char **argv)
     cv::Mat im;
     std::vector<double> TransErr, RotErr;
     std::ofstream frameResult;
-    frameResult.open("result/220914/VPSResult_0.50_5.0/trash/VPS_Result"+finalStr+"Query"+finalStr_+".txt", std::ios::out);
+    frameResult.open("result/220914/VPSResult_0.25_2.0/trash/VPS_Result"+finalStr+"Query"+finalStr_+".txt", std::ios::out);
     
     // std::ofstream queryTimeStampResult;
     // queryTimeStampResult.open("/home/ohdonghoon/ORB_LocalizationTest/result/imageEtc/MH03_MH02_timeStamp.txt");
@@ -162,7 +162,7 @@ int main(int argc, char **argv)
         double err[2];
         SLAM.RMSError(currPose, gtPoses[idx], &err[0]);
 
-        if(err[0] > 0.50 || ORB_SLAM2::Converter::Rad2Degree(err[1]) > 5.0){
+        if(err[0] > 0.25 || ORB_SLAM2::Converter::Rad2Degree(err[1]) > 2.0){
             failFrameNum++;
             continue;
         }
@@ -250,7 +250,7 @@ int main(int argc, char **argv)
 
     
     std::ofstream fout;
-    fout.open("result/220914/VPSResult_0.50_5.0/VPS_Result"+finalStr+"Query"+finalStr_+".txt", std::ios::app);
+    fout.open("result/220914/VPSResult_0.25_2.0/VPS_Result"+finalStr+"Query"+finalStr_+".txt", std::ios::app);
     fout << totalTransErr/(nImages - failFrameNum) << " " << totalRotErr/(nImages - failFrameNum) << " " << (double)(nImages - failFrameNum)/(double)nImages << " " << stdTrans << " " << stdRot << " " << totaltime/nImages << std::endl;
     fout.close();
     frameResult.close();

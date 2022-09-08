@@ -12,20 +12,19 @@
 
 
 
-
-
     
 
 int main(int argc, char** argv)
 {
 
     Compression compression;
-
+    
     if(argc != 8){
+        std::cout << argc << std::endl;
         cerr << "not proper arguments!!";
         exit(1);
     }
-    
+
     // Load Map data
     std::string dataPath = argv[1];
     std::ifstream in(dataPath, std::ios_base::binary);
@@ -38,37 +37,29 @@ int main(int argc, char** argv)
     ia >> compression.Map;
     ia >> compression.dbKeyframe;    
     in.close();
-
-
+    
     std::cout << " Keyframe Num : " << compression.Map->KeyFramesInMap() << " Landmark Num : " << compression.Map->MapPointsInMap() << std::endl;
     std::cout << " Compression Preparing ... " << std::endl;
-    
 
     double compRatio = std::stod(argv[2]);
     compression.setInitial(compRatio);
     std::cout << "id threshold : " << compression.neighborKeyframeIdThres << std::endl;
-
-///////////////////////////////////////////////////////////////////////////    
-/////////////////////// Keyframe Compression !! ///////////////////////////
-    std::cout << " remove Keyframe ... " << std::endl;
-    int totalRemovedMemory = compression.removalKeyframeIQP(
+    
+////////////////////////////////////////////////////////////////////////////////
+///////// landmark  Compression  ///////////////////////
+    
+    std::cout << " remove Landmark ... " << std::endl;
+    compression.LandmarkSparsificationIQP(
         stod(argv[4]),stod(argv[5]),stod(argv[6]),stod(argv[7])
     );
     std::cout << " Finish Compression !! " << std::endl;
     
-    // memory for removing keyframe
-    std::cout << "Original Map points Num : " << compression.originalMapPointNum << std::endl;
-    int totalRemovedLandmark = compression.originalMapPointNum - compression.Map->MapPointsInMap();
-    totalRemovedMemory += totalRemovedLandmark * 736;
-    compression.removedMemory = (double)totalRemovedMemory * 1e-6;
-    
-    std::cout <<  " Total memory of removed mapPoints : " << totalRemovedMemory << std::endl;
+    std::cout <<  " Total memory of removed mapPoints : " << compression.removedMemory << std::endl;
     std::cout << " Keyframe Num : " << compression.Map->KeyFramesInMap() << " Landmark Num : " << compression.Map->MapPointsInMap() << std::endl;
 
-    
     // Save Result
     std::ofstream f;
-
+    
     string tmp = string(argv[1]);
     istringstream tmpStr(tmp);
     string trash;
@@ -76,7 +67,7 @@ int main(int argc, char** argv)
     while(getline(tmpStr, trash, '/')) acc.push_back(trash);
     string finalStr = acc[4];
 
-    f.open("build/Db/CompressionResult/"+finalStr+"KeyframeILPIQP_Compression_Result_"+string(argv[2])+"_"+string(argv[4])+"_"+string(argv[5])+"_"+string(argv[6])+"_"+string(argv[7])+"_.txt", ios::out);
+    f.open("build/Db/CompressionResult/"+finalStr+"LandmarkIQP_Compression_Result_"+string(argv[2])+"_"+string(argv[4])+"_"+string(argv[5])+"_"+string(argv[6])+"_"+string(argv[7])+"_.txt", ios::out);
     f << 1.0 - compression.kfCompressedRatio << " " << compression.removedMemory << " " << compression.Map->KeyFramesInMap() << " " << compression.Map->MapPointsInMap();
     f.close();
 
@@ -100,6 +91,8 @@ int main(int argc, char** argv)
     out.close();
     return 0;
 }
+
+    
 
 
 

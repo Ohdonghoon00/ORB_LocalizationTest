@@ -22,6 +22,7 @@ loadMapName3="_ba.bin"
 
 # VPS run
 initialFilePath="/home/ohdonghoon/NewEuroC/MH"
+initialFilePath2="/home/ohdonghoon/NewEuroC/timeStamp_0.25,2/MH"
 queryImg="/RectCam0_for_EsPose"
 timeCen="/MH"
 timeCen2="_MH"
@@ -94,7 +95,8 @@ then
             fi
 
             queryImgName="$initialFilePath$querySeq$queryImg"
-            queryTimeStampsName="$initialFilePath$mapSeq$timeCen$mapSeq$timeCen2$querySeq$queryTime"
+            # queryTimeStampsName="$initialFilePath$mapSeq$timeCen$mapSeq$timeCen2$querySeq$queryTime"
+            queryTimeStampsName="$initialFilePath2$mapSeq$timeCen2$querySeq$queryTime"
             queryGTName="$initialFilePath$mapSeq$timeCen$mapSeq$dbCen$querySeq$queryGt"
 
             for var in "${compressionRatioArr[@]}"

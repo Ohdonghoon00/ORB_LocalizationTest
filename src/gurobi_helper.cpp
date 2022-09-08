@@ -81,15 +81,23 @@ Eigen::MatrixXd calculateKeyframeSimilarity(ORB_SLAM2::Map* map_data)
     for(size_t i = 1; i < kfdb.size(); i++){
 
         int lastKeyframeMpNum = Compression::getKeyframeMap(kfdb[i]).size();
+        // std::cout << lastKeyframeMpNum << " ";
+        // if(lastKeyframeMpNum < 50) std::cout << i << "  ";
         for(size_t j = 1; j < kfdb.size(); j++){
             
             // getRelativePose(kfdb[i], kfdb[j]);
             // // std::cout << relPoseErr[0] << "    " << ORB_SLAM2::Converter::Rad2Degree(relPoseErr[1]) << std::endl;
             // if(relPoseErr[0] < 1.0){
-
-                int covisibilityMpNum = Compression::getCovisibilityMpNum(kfdb[i], kfdb[j]);
-                S(i - 1, j - 1) = (double)covisibilityMpNum / (double)lastKeyframeMpNum;
-            // }
+                if(lastKeyframeMpNum < 50){
+                    S(i - 1, j - 1) = (double)1.0;
+                } 
+                else{
+                    int covisibilityMpNum = Compression::getCovisibilityMpNum(kfdb[i], kfdb[j]);
+                    // if(i == j ) std::cout << covisibilityMpNum << " " << lastKeyframeMpNum << std::endl;
+                    S(i - 1, j - 1) = (double)covisibilityMpNum / (double)lastKeyframeMpNum;
+                }           
+             
+            
             // else
             //     similarityMatrix(i - 1, j - 1) = 0.0;
 
@@ -127,7 +135,52 @@ void SetObjectiveILPforLandmark(std::vector<GRBVar> x_,
     
     model_.setObjective(obj);
 }
+
+void SetObjectiveIQPforLandmark(std::vector<GRBVar> x_, 
+                                Eigen::Matrix<double, Eigen::Dynamic, 1> q_,
+                                std::map<std::tuple<int, int>, double> &distWeightQ,
+                                GRBModel& model_)
+{
+    GRBQuadExpr obj = 0;
+    for(size_t i = 0; i < x_.size(); i++){
+        // for(size_t j = 0; j < x_.size(); j++){
+        
+        //     // int64_t idx = (int64_t)(x_.size() * i + j);
+        //     auto it = distWeightQ.find(std::tuple<int, int>(i, j));
+        //     if(it != distWeightQ.end()) obj += distWeightQ[std::tuple<int, int>(i, j)] * x_[j] * x_[i] * (0.5); 
+        //     // else obj  obj += (0.0) * x_[j] * x_[i] * (0.5);
+            
+        // }
+
+        obj += q_[i] * x_[i];
+    }
+    for(auto iter = distWeightQ.begin(); iter != distWeightQ.end(); iter++){
+        int idx1 = std::get<0>(iter->first);
+        int idx2 = std::get<1>(iter->first);
+        obj += distWeightQ[std::tuple<int, int>(idx1, idx2)] * x_[idx2] * x_[idx1] * (0.5);
+    }
+
+    model_.setObjective(obj); 
+}
+
+void SetObjectiveSimilarityforKeyframe( std::vector<GRBVar> x_,
+                                        Eigen::MatrixXd S,
+                                        GRBModel& model_)
+{
+    GRBQuadExpr obj = 0;
+    for(size_t i = 0; i < x_.size(); i++){
+        
+            for(size_t j = 0; j < x_.size(); j++){
+                obj += S(i, j) * x_[j] * x_[i];
+            }
+    }    
+
+    model_.setObjective(obj);
+}    
     
+
+    
+
 
 void SetObjectiveILPforKeyframe(std::vector<GRBVar> x_, 
                                 std::vector<float> keyframeScore, 
@@ -155,7 +208,7 @@ void SetObjectiveIQPforKeyframe(std::vector<GRBVar> x_,
     for(size_t i = 0; i < x_.size(); i++){
         
             for(size_t j = 0; j < x_.size(); j++){
-                obj += S(i, j) * x_[j] * x_[i];
+                obj += S(i, j) * x_[j] * x_[i] * (0.1);
             }
 
             obj += (1.0 - (double)keyframeScore[i + 1]) * x_[i];

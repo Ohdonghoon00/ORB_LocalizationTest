@@ -51,7 +51,7 @@ int main(int argc, char** argv)
 ///////////////////////////////////////////////////////////////////////////    
 /////////////////////// Keyframe Compression !! ///////////////////////////
     std::cout << " remove Keyframe ... " << std::endl;
-    int totalRemovedMemory = compression.removalKeyframeIQP(
+    int totalRemovedMemory = compression.removalKeyframeSimilarity(
         stod(argv[4]),stod(argv[5]),stod(argv[6]),stod(argv[7])
     );
     std::cout << " Finish Compression !! " << std::endl;
@@ -76,7 +76,7 @@ int main(int argc, char** argv)
     while(getline(tmpStr, trash, '/')) acc.push_back(trash);
     string finalStr = acc[4];
 
-    f.open("build/Db/CompressionResult/"+finalStr+"KeyframeILPIQP_Compression_Result_"+string(argv[2])+"_"+string(argv[4])+"_"+string(argv[5])+"_"+string(argv[6])+"_"+string(argv[7])+"_.txt", ios::out);
+    f.open("build/Db/CompressionResult/"+finalStr+"KeyframeSimilarity_Compression_Result_"+string(argv[2])+"_"+string(argv[4])+"_"+string(argv[5])+"_"+string(argv[6])+"_"+string(argv[7])+"_.txt", ios::out);
     f << 1.0 - compression.kfCompressedRatio << " " << compression.removedMemory << " " << compression.Map->KeyFramesInMap() << " " << compression.Map->MapPointsInMap();
     f.close();
 
@@ -100,7 +100,3 @@ int main(int argc, char** argv)
     out.close();
     return 0;
 }
-
-
-
-

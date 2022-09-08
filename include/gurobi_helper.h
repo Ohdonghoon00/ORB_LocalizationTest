@@ -18,10 +18,20 @@ Eigen::Matrix<double, Eigen::Dynamic, 1> CalculateObservationCountWeight(ORB_SLA
 Eigen::Matrix<double, Eigen::Dynamic, 1> setLandmarkWeight(ORB_SLAM2::Map* map_data, std::vector<float> weight);
 Eigen::MatrixXd calculateKeyframeSimilarity(ORB_SLAM2::Map* map_data);
 // Eigen::Matrix<double, Eigen::Dynamic, 1> CalculateObservationCountWeight2(DataBase* DB);
+// Eigen::MatrixXd
 
 void SetObjectiveILPforLandmark(std::vector<GRBVar> x_, 
                                 Eigen::Matrix<double, Eigen::Dynamic, 1> q_,
                                 GRBModel& model_);
+void SetObjectiveIQPforLandmark(std::vector<GRBVar> x_, 
+                                Eigen::Matrix<double, Eigen::Dynamic, 1> q_,
+                                std::map<std::tuple<int, int>, double> &distWeightQ,
+                                GRBModel& model_);
+
+void SetObjectiveSimilarityforKeyframe( std::vector<GRBVar> x_,
+                                        Eigen::MatrixXd S,
+                                        GRBModel& model_);
+
 void SetObjectiveILPforKeyframe(std::vector<GRBVar> x_, 
                                 std::vector<float> keyframeScore, 
                                 GRBModel& model_);

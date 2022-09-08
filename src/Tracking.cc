@@ -1427,7 +1427,8 @@ bool Tracking::Relocalization()
     ORBmatcher matcher2(0.9,true);
 
     std::cout << "Relocalization Candidate Num : " << nCandidates << std::endl;
-
+    int maxIdx = -1;
+    int maxGoodNum = 0;
     while(nCandidates>0 && !bMatch)
     {
         for(int i=0; i<nKFs; i++)
@@ -1524,10 +1525,51 @@ bool Tracking::Relocalization()
                 // dh 50 -> 10
                 if(nGood>=50)
                 {
-                    bMatch = true;
-                    break;
+                    // bMatch = true;
+                    // break;
+                    if(nGood > maxGoodNum){
+                        maxGoodNum = nGood;
+                        maxIdx = i;
+                    }
                 }
             }
+        }
+
+        // Select Max Good Num
+        if(maxGoodNum > 50){
+            // Perform 5 Ransac Iterations
+            std::vector<bool> vbInliers_;
+            int nInliers_;
+            bool bNoMore_;
+
+            PnPsolver* pSolver_ = vpPnPsolvers[maxIdx];
+            cv::Mat Tcw_ = pSolver_->iterate(5,bNoMore_,vbInliers_,nInliers_);
+
+            Tcw_.copyTo(mCurrentFrame.mTcw);
+
+            set<MapPoint*> sFound_;
+
+            const int np_ = vbInliers_.size();
+
+            for(int j=0; j<np_; j++)
+            {
+                if(vbInliers_[j])
+                {
+                    mCurrentFrame.mvpMapPoints[j]=vvpMapPointMatches[maxIdx][j];
+                    sFound_.insert(vvpMapPointMatches[maxIdx][j]);
+                }
+                else
+                    mCurrentFrame.mvpMapPoints[j]=NULL;
+            }
+
+            int nGood_ = Optimizer::PoseOptimization(&mCurrentFrame);
+
+            for(int io =0; io<mCurrentFrame.N; io++)
+                if(mCurrentFrame.mvbOutlier[io])
+                    mCurrentFrame.mvpMapPoints[io]=static_cast<MapPoint*>(NULL);
+            std::cout << " select max good Num !!! " << std::endl;
+            bMatch = true;
+            break;
         }
     }
 

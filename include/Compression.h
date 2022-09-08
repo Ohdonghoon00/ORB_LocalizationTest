@@ -62,6 +62,7 @@ public:
     double neighborKeyframeTranslationThres = 0.6;
     double neighborKeyframeRotationThres = 20;
     double obs1RatioThres = 0.5;
+    double keypointDistThres = 40.0;
     
     // reprojection Err
     float inlierRatioInKeyframe;
@@ -81,7 +82,9 @@ public:
     std::vector<float> maxAngle;
     std::vector<float> avgReprojectionErr;
     std::vector<float> landmarkScore;
-
+    Eigen::MatrixXd keypointDistanceMatrix;
+    std::map<std::tuple<int, int>, double> keypointDistanceQ;
+    
     // Keyframe Score
     std::vector<float> keyframeScore;
 
@@ -92,10 +95,12 @@ public:
     // main Compresssion
     void LandmarkSparsification();
     void LandmarkSparsification2(const double a, const double b,const double c,const double d);
+    void LandmarkSparsificationIQP(const double a, const double b,const double c,const double d);
     int removalKeyframe1();
     int removalKeyframe2();
     int removalKeyframe3();
     int removalKeyframe4();
+    int removalKeyframeSimilarity(const double a, const double b,const double c,const double d);
     int removalKeyframeILP(const double a, const double b,const double c,const double d);
     int removalKeyframeIQP(const double a, const double b,const double c,const double d);
     
@@ -164,6 +169,14 @@ public:
     float getMaxTrackDistance(ORB_SLAM2::MapPoint* mp);
     float getMaxAngle(ORB_SLAM2::MapPoint* mp);
     float getreprojectionErrAvg(ORB_SLAM2::MapPoint* mp);
+        
+        // IQP for Landmark  
+    std::map<std::tuple<int, int>, double> getKeypointDistanceMatrix();
+    std::vector<int> getKeyframeObsId( std::vector<ORB_SLAM2::KeyFrame *> &kfdb,
+                                                    ORB_SLAM2::MapPoint* mp);
+    std::vector<int> getKeyframeCovisibleMp(std::vector<ORB_SLAM2::KeyFrame *> &kfdb,
+                                            std::vector<int> KfIdx1,
+                                            ORB_SLAM2::MapPoint* mp2 );
 
     // Calculate Keyframe Score
     void getKeyframeScore();

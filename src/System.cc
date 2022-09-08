@@ -289,8 +289,8 @@ cv::Mat System::TrackMonocular(const cv::Mat &im, const double &timestamp)
         // std::cout << "Relocalization Fail ! " << std::endl;
         return Tcw;
     } 
-    // std::cout << "ref keyframe id : " << mpTracker->mCurrentFrame.mpReferenceKF->mnId << std::endl;
-    // std::cout << "ref keyframe total point Num : " << mpTracker->mCurrentFrame.mpReferenceKF->GetMapPoints().size() << std::endl;
+    std::cout << "ref keyframe id : " << mpTracker->mCurrentFrame.mpReferenceKF->mnId << std::endl;
+    std::cout << "ref keyframe total point Num : " << mpTracker->mCurrentFrame.mpReferenceKF->GetMapPoints().size() << std::endl;
     int matchCnt = 0;
     for(std::vector<MapPoint*>::iterator vit=mpTracker->mCurrentFrame.mvpMapPoints.begin(), vend=mpTracker->mCurrentFrame.mvpMapPoints.end(); vit!=vend; vit++){
         MapPoint* pMP = *vit;
