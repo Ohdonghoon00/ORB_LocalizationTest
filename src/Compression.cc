@@ -184,7 +184,7 @@ void Compression::LandmarkSparsificationIQP(
         std::cout << " Optimize model ... " << std::endl;
         // Optimize model
         // model.set(GRB_IntParam_Crossover, 2);
-        model.set(GRB_DoubleParam_TimeLimit, 3000);
+        model.set(GRB_DoubleParam_TimeLimit, 5000);
         model.optimize();
 
         std::cout << "Obj: " << model.get(GRB_DoubleAttr_ObjVal) << endl;

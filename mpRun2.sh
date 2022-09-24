@@ -5,7 +5,9 @@
 # mapSeqArr=(03)
 
 # Common 
-mapSeqArr=(01 02 03)
+# mapSeqArr=(01 02 03)
+mapSeqArr=(03)
+querySeqArr=(02)
 
 # Comprssion
 compressionRatioArr=(0.9 0.8 0.7 0.6 0.5 0.4 0.3 0.2 0.15 0.10 0.08 0.06 0.05 0.04 0.03) # 15
@@ -87,7 +89,7 @@ then
     for mapSeq in "${mapSeqArr[@]}"
     do
         
-        for querySeq in "${mapSeqArr[@]}"
+        for querySeq in "${querySeqArr[@]}"
         do
             if(($mapSeq == $querySeq))
             then
@@ -103,7 +105,7 @@ then
             do
                 mapDbName="$initalMapPath$mapSeq$mapCen$var$endMapPath"
 
-                ./Examples/Monocular/mono_euroc \
+                ./Examples/Monocular/mono_euroc2 \
                 ./Vocabulary/ORBvoc.txt \
                 ./Examples/Monocular/EuRoC.yaml \
                 ${queryImgName} \
@@ -259,15 +261,15 @@ fi
 #     /home/ohdonghoon/NewEuroC/MH01/MH01db_MH01cam0Pose.txt \
 #     /home/ohdonghoon/NewEuroC/MH01/MH01_ba.bin
 
-# ./Examples/Monocular/mono_euroc \
+# ./Examples/Monocular/mono_euroc2 \
 #     ./Vocabulary/ORBvoc.txt \
 #     ./Examples/Monocular/EuRoC.yaml \
-#     /home/ohdonghoon/NewEuroC/MH03/RectCam0_for_EsPose \
-#     /home/ohdonghoon/NewEuroC/MH02/MH02_MH03_timeStamp.txt \
-#     /home/ohdonghoon/NewEuroC/MH02/MH02db_MH03cam0Pose.txt \
-#     ./build/MH02_Landmark_compression_test_0.9.bin_1._1._1._1._.bin
+#     /home/ohdonghoon/NewEuroC/MH02/RectCam0_for_EsPose \
+#     /home/ohdonghoon/ORB_LocalizationTest/result/imageEtc/MH03_MH02_timeStamp.txt \
+#     /home/ohdonghoon/NewEuroC/MH03/MH03db_MH02cam0Pose.txt \
+#     /home/ohdonghoon/NewEuroC/MH03/MH03_ba.bin
 
-# ./Examples/Monocular/mono_euroc \
+# ./Examples/Monocular/mono_euroc2 \
 #     ./Vocabulary/ORBvoc.txt \
 #     ./Examples/Monocular/EuRoC.yaml \
 #     /home/ohdonghoon/NewEuroC/MH03/RectCam0_for_EsPose \
@@ -343,13 +345,13 @@ fi
 
 # run VPS (landmark compression)
 
-# ./Examples/Monocular/mono_euroc \
+# ./Examples/Monocular/mono_euroc2 \
 #     ./Vocabulary/ORBvoc.txt \
 #     ./Examples/Monocular/EuRoC.yaml \
-#     /home/ohdonghoon/NewEuroC/MH02/RectCam0_for_EsPose \
-#     /home/ohdonghoon/NewEuroC/MH02/MH02_timeStamp.txt \
+#     /home/ohdonghoon/NewEuroC/MH03/RectCam0_for_EsPose \
+#     /home/ohdonghoon/NewEuroC/MH03/MH03_MH02_timeStamp.txt \
 #     /home/ohdonghoon/NewEuroC/MH01/MH01db_MH02cam0Pose.txt \
-#     ./build/MH01_Landmark_compression_test_90.bin_1._1._1._1._.bin
+#     ./build/Db/MH03_KeyframeSimilarity_compression_test_0.9.bin_1._1._1._1._.bin
 
 # ./Examples/Monocular/mono_euroc \
 #     ./Vocabulary/ORBvoc.txt \

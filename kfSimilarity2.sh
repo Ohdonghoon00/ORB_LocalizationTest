@@ -1,6 +1,8 @@
 #!/bin/bash
 
-mapSeqArr=(01 02 03)
+# mapSeqArr=(01 02 03)
+mapSeqArr=(03)
+querySeqArr=(02)
 compressionRatioArr=(0.9 0.8 0.7 0.6 0.5 0.4 0.3 0.2 0.15 0.10 0.08 0.06 0.05 0.04 0.03) # 15
 # compressionRatioArr=(0.8 0.6 0.4 0.2 0.10 0.08 0.05 0.03) # 8
 # compressionRatioArrtest=(0.9 0.5)
@@ -69,7 +71,7 @@ then
     for mapSeq in "${mapSeqArr[@]}"
     do
         
-        for querySeq in "${mapSeqArr[@]}"
+        for querySeq in "${querySeqArr[@]}"
         do
             if(($mapSeq == $querySeq))
             then

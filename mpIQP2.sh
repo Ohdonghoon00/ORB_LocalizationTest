@@ -2,10 +2,11 @@
 
 # for debug
 # compressionRatioArr=(0.03)
-# mapSeqArr=(03)
 
 # Common 
-mapSeqArr=(01 02 03)
+mapSeqArr=(03)
+# mapSeqArr=(01 02 03)
+querySeqArr=(02)
 
 # Comprssion
 compressionRatioArr=(0.9 0.8 0.7 0.6 0.5 0.4 0.3 0.2 0.15 0.10 0.08 0.06 0.05 0.04 0.03) # 15
@@ -67,7 +68,7 @@ endMapPath=".bin_1._1._1._1._.bin"
     for mapSeq in "${mapSeqArr[@]}"
     do
         
-        for querySeq in "${mapSeqArr[@]}"
+        for querySeq in "${querySeqArr[@]}"
         do
             if(($mapSeq == $querySeq))
             then
@@ -83,7 +84,7 @@ endMapPath=".bin_1._1._1._1._.bin"
             do
                 mapDbName="$initalMapPath$mapSeq$mapCen$var$endMapPath"
 
-                ./Examples/Monocular/mono_euroc \
+                ./Examples/Monocular/mono_euroc2 \
                 ./Vocabulary/ORBvoc.txt \
                 ./Examples/Monocular/EuRoC.yaml \
                 ${queryImgName} \

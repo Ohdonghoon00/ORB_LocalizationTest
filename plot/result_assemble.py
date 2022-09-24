@@ -9,10 +9,14 @@ stdTrans1 = []
 stdRot1 = []
 time1 = []
 
+# db = ["MH01", "MH02", "MH03"]
+# query = ["MH01", "MH02", "MH03"]
+# method = ["KeyframeSimilarity", "Landmark", "LandmarkIQP"]
+# recall = ["VPSResult_0.5_5.0", "VPSResult_0.25_2.0"]
 db = "MH03" # MH01 MH02 MH03
 query = "MH02"
-method = "KeyframeSimilarity" # KeyframeILP, KeyframeIQP, KeyframeSimilarity, Landmark, KeyframeILPIQP, LandmarkIQP
-recall = "VPSResult_0.5_5.0" # VPSResult_0.5_5.0  VPSResult_0.25_2.0
+method = "LandmarkIQP" # KeyframeILP, KeyframeIQP, KeyframeSimilarity, Landmark, KeyframeILPIQP, LandmarkIQP
+recall = "VPSResult_0.25_2.0" # VPSResult_0.5_5.0  VPSResult_0.25_2.0
 # compressionRatioArr=(0.8 0.6 0.4 0.2 0.10 0.08 0.05 0.03) # 8
 
 compressionResultPath = [
@@ -34,21 +38,21 @@ compressionResultPath = [
 ]
 
 VPSResultPath = [
-    '../result/220905/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.9.bin_1._1._1._1._.binQuery' + query + '.txt',
-    '../result/220905/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.8.bin_1._1._1._1._.binQuery' + query + '.txt',
-    '../result/220905/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.7.bin_1._1._1._1._.binQuery' + query + '.txt',
-    '../result/220905/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.6.bin_1._1._1._1._.binQuery' + query + '.txt',
-    '../result/220905/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.5.bin_1._1._1._1._.binQuery' + query + '.txt',
-    '../result/220905/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.4.bin_1._1._1._1._.binQuery' + query + '.txt',
-    '../result/220905/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.3.bin_1._1._1._1._.binQuery' + query + '.txt',
-    '../result/220905/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.2.bin_1._1._1._1._.binQuery' + query + '.txt',
-    '../result/220905/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.15.bin_1._1._1._1._.binQuery' + query + '.txt',
-    '../result/220905/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.10.bin_1._1._1._1._.binQuery' + query + '.txt',
-    '../result/220905/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.08.bin_1._1._1._1._.binQuery' + query + '.txt',
-    '../result/220905/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.06.bin_1._1._1._1._.binQuery' + query + '.txt',
-    '../result/220905/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.05.bin_1._1._1._1._.binQuery' + query + '.txt',
-    '../result/220905/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.04.bin_1._1._1._1._.binQuery' + query + '.txt',
-    '../result/220905/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.03.bin_1._1._1._1._.binQuery' + query + '.txt'
+    '../result/220914/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.9.bin_1._1._1._1._.binQuery' + query + '.txt',
+    '../result/220914/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.8.bin_1._1._1._1._.binQuery' + query + '.txt',
+    '../result/220914/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.7.bin_1._1._1._1._.binQuery' + query + '.txt',
+    '../result/220914/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.6.bin_1._1._1._1._.binQuery' + query + '.txt',
+    '../result/220914/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.5.bin_1._1._1._1._.binQuery' + query + '.txt',
+    '../result/220914/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.4.bin_1._1._1._1._.binQuery' + query + '.txt',
+    '../result/220914/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.3.bin_1._1._1._1._.binQuery' + query + '.txt',
+    '../result/220914/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.2.bin_1._1._1._1._.binQuery' + query + '.txt',
+    '../result/220914/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.15.bin_1._1._1._1._.binQuery' + query + '.txt',
+    '../result/220914/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.10.bin_1._1._1._1._.binQuery' + query + '.txt',
+    '../result/220914/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.08.bin_1._1._1._1._.binQuery' + query + '.txt',
+    '../result/220914/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.06.bin_1._1._1._1._.binQuery' + query + '.txt',
+    '../result/220914/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.05.bin_1._1._1._1._.binQuery' + query + '.txt',
+    '../result/220914/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.04.bin_1._1._1._1._.binQuery' + query + '.txt',
+    '../result/220914/' + recall + '/VPS_Result' + db + '_' + method +'_compression_test_0.03.bin_1._1._1._1._.binQuery' + query + '.txt'
 ]
 
 # compressionResultPath = [
@@ -158,7 +162,7 @@ def readfileAll(path):
         successRate1.append(float(line_list[2]))
         stdTrans1.append(float(line_list[3]))
         stdRot1.append(float(line_list[4]))
-        # time1.append(float(line_list[5]))
+        time1.append(float(line_list[5]))
 
     file.close()
 
@@ -174,7 +178,7 @@ def writefile(path, result1, result2):
 
 if __name__ == '__main__':
 
-    resultFilePath = 'assembleResult/220905/' + recall + '/220830_' + db + '_' + query + '_final' + method + '_CompressionResult(1111).txt'
+    resultFilePath = 'assembleResult/220917/' + recall + '/220905_' + db + '_' + query + '_final' + method + '_CompressionResult(1111).txt'
     file = open(resultFilePath, 'w')
     for i in range(0, len(compressionResultPath)):
         
@@ -207,7 +211,7 @@ if __name__ == '__main__':
         successRate = successRate1[index]
         stdTrans = stdTrans1[index]
         stdRot = stdRot1[index]
-        # time = time1[index]
+        time = time1[index]
         # print(transErr)
         
         del transErr1[0:]
@@ -216,8 +220,8 @@ if __name__ == '__main__':
         del stdTrans1[0:]
         del stdRot1[0:]
         del time1[0:]
-        # VPSResult = str(transErr) + " " + str(rotErr) + " " + str(successRate) + " " + str(stdTrans) + " " + str(stdRot) + " " + str(time) + "\n"
-        VPSResult = str(transErr) + " " + str(rotErr) + " " + str(successRate) + " " + str(stdTrans) + " " + str(stdRot) + "\n"
+        VPSResult = str(transErr) + " " + str(rotErr) + " " + str(successRate) + " " + str(stdTrans) + " " + str(stdRot) + " " + str(time) + "\n"
+        # VPSResult = str(transErr) + " " + str(rotErr) + " " + str(successRate) + " " + str(stdTrans) + " " + str(stdRot) + "\n"
         # print(VPSResult)
         
         writefile(resultFilePath, compressionResult, VPSResult)

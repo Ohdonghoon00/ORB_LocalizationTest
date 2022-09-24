@@ -6,36 +6,65 @@ make
 cd ../
 
 # ./mpIQP2.sh
-./mpRun2.sh comp
 ./kfSimilarity2.sh vps
+./mpRun2.sh comp
+# ./mpIQP2.sh
+./kfSimilarity2.sh vps
+./mpRun2.sh comp
+# ./mpIQP2.sh
+./kfSimilarity2.sh vps
+./mpRun2.sh comp
+# ./mpIQP2.sh
+./kfSimilarity2.sh vps
+# ./mpRun2.sh comp
+# ./mpIQP2.sh
+./kfSimilarity2.sh vps
+# ./mpRun2.sh comp
+# ./mpIQP2.sh
+
 
 # ./mpIQP2.sh
-./mpRun2.sh comp
-./kfSimilarity2.sh vps
+# ./mpIQP2.sh
+# ./mpIQP2.sh
+# ./mpIQP2.sh
+# ./mpIQP2.sh
+# ./mpIQP2.sh
+# ./mpIQP2.sh
+# ./mpIQP2.sh
+# ./mpIQP2.sh
+# ./kfSimilarity2.sh vps
 
 # ./mpIQP2.sh
-./mpRun2.sh comp
-./kfSimilarity2.sh vps
+# ./mpRun2.sh comp
+# ./kfSimilarity2.sh vps
 
 # ./mpIQP2.sh
-./mpRun2.sh comp
-./kfSimilarity2.sh vps
+# ./mpRun2.sh comp
+# ./kfSimilarity2.sh vps
 
 # ./mpIQP2.sh
-./mpRun2.sh comp
-./kfSimilarity2.sh vps
+# ./mpRun2.sh comp
+# ./kfSimilarity2.sh vps
 
+# ./mpIQP2.sh
+# ./mpRun2.sh comp
+# ./kfSimilarity2.sh vps
 
-./mpRun2.sh comp
-./kfSimilarity2.sh vps
-./mpRun2.sh comp
-./kfSimilarity2.sh vps
-./mpRun2.sh comp
-./kfSimilarity2.sh vps
-./mpRun2.sh comp
-./kfSimilarity2.sh vps
-./mpRun2.sh comp
-./kfSimilarity2.sh vps
+# ./mpIQP2.sh
+# ./mpIQP2.sh
+# ./mpIQP2.sh
+# ./mpIQP2.sh
+# ./mpIQP2.sh
+# ./mpRun2.sh comp
+# ./kfSimilarity2.sh vps
+# ./mpRun2.sh comp
+# ./kfSimilarity2.sh vps
+# ./mpRun2.sh comp
+# ./kfSimilarity2.sh vps
+# ./mpRun2.sh comp
+# ./kfSimilarity2.sh vps
+# ./mpRun2.sh comp
+# ./kfSimilarity2.sh vps
 
 # ./kfSimilarity.sh compression
 # ./mpRun.sh comp

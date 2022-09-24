@@ -168,9 +168,9 @@ def readResult3(path):
 
 if __name__ == '__main__':
     # VPSResult_0.25_2.0 VPSResult_0.5_5.0
-    filePath1 = 'assembleResult/220905/VPSResult_0.25_2.0/220830_MH01_MH03_finalKeyframeSimilarity_CompressionResult(1111).txt'
-    filePath2 = 'assembleResult/220905/VPSResult_0.25_2.0/220830_MH01_MH03_finalLandmark_CompressionResult(1111).txt'
-    filePath3 = 'assembleResult/220905/VPSResult_0.25_2.0/220830_MH01_MH03_finalLandmarkIQP_CompressionResult(1111).txt'
+    filePath1 = 'assembleResult/220917/VPSResult_0.25_2.0/220905_MH03_MH02_finalKeyframeSimilarity_CompressionResult(1111).txt'
+    filePath2 = 'assembleResult/220917/VPSResult_0.25_2.0/220905_MH03_MH02_finalLandmark_CompressionResult(1111).txt'
+    filePath3 = 'assembleResult/220917/VPSResult_0.25_2.0/220905_MH03_MH02_finalLandmarkIQP_CompressionResult(1111).txt'
     
     readResult1(filePath1)
     readResult2(filePath2)

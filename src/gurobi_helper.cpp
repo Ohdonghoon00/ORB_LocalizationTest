@@ -142,6 +142,12 @@ void SetObjectiveIQPforLandmark(std::vector<GRBVar> x_,
                                 GRBModel& model_)
 {
     GRBQuadExpr obj = 0;
+    for(auto iter = distWeightQ.begin(); iter != distWeightQ.end(); iter++){
+        int idx1 = std::get<0>(iter->first);
+        int idx2 = std::get<1>(iter->first);
+        if(idx1 == idx2) obj += distWeightQ[std::tuple<int, int>(idx1, idx2)] * x_[idx2] * x_[idx1] * (0.5);
+        else obj += distWeightQ[std::tuple<int, int>(idx1, idx2)] * x_[idx2] * x_[idx1];
+    }
     for(size_t i = 0; i < x_.size(); i++){
         // for(size_t j = 0; j < x_.size(); j++){
         
@@ -153,11 +159,6 @@ void SetObjectiveIQPforLandmark(std::vector<GRBVar> x_,
         // }
 
         obj += q_[i] * x_[i];
-    }
-    for(auto iter = distWeightQ.begin(); iter != distWeightQ.end(); iter++){
-        int idx1 = std::get<0>(iter->first);
-        int idx2 = std::get<1>(iter->first);
-        obj += distWeightQ[std::tuple<int, int>(idx1, idx2)] * x_[idx2] * x_[idx1] * (0.5);
     }
 
     model_.setObjective(obj); 

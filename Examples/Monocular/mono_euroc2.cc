@@ -155,9 +155,11 @@ int main(int argc, char **argv)
         
         // for VPS success Sequence
         double currTime = beforeFixTimeStamps[ni];
+        // std::cout << std::setprecision(19) << currTime << std::endl;
         int idx = findGtIdx(gtTimeStamp, currTime);
         
         Vector6d currPose = ORB_SLAM2::Converter::Proj2Vec6(abc);
+        // std::cout << " id : " << idx << " ";
         // std::cout << "final pose : " << currPose << std::endl;
         double err[2];
         SLAM.RMSError(currPose, gtPoses[idx], &err[0]);

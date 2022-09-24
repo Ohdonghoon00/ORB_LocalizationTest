@@ -14,6 +14,9 @@ int main(int argc, char** argv)
 {
     Compression DB1, DB2, oriDB;
 
+    // save file
+    std::ofstream adf;
+    adf.open("dajklfsd.txt");
     // Load Map1 data
     std::string dataPath = argv[1];
     std::ifstream in(dataPath, std::ios_base::binary);
@@ -68,56 +71,91 @@ int main(int argc, char** argv)
     std::cout << " Original Keyframe Num : " << oriDB.Map->KeyFramesInMap() << " Original Landmark Num : " << oriDB.Map->MapPointsInMap() << std::endl;
     ////////////
     
-    
-    std::vector<int> kfId1, kfId2;
-    for(size_t i = 0; i < kfdb2.size(); i++){
-        kfId2.emplace_back(kfdb2[i]->mnId);
-        // std::cout << "i : " << i << "  Id : " << kfdb2[i]->mnId << "  size : " << DB1.getKeyframeMap(kfdb2[i]).size() << std::endl;
-        std::cout << DB1.getKeyframeMap(kfdb1[i]).size() << " " << DB2.getKeyframeMap(kfdb2[i]).size() << std::endl;
+    ///////////////
+    std::vector<ORB_SLAM2::MapPoint *> mpdb1 = DB1.Map->GetAllMapPoints();
+
+    std::vector<ORB_SLAM2::MapPoint *> mpdb2 = DB2.Map->GetAllMapPoints();
+
+    std::vector<ORB_SLAM2::MapPoint *> mpdb3 = oriDB.Map->GetAllMapPoints();
+    ////////////////
+    std::cout << mpdb1.size() << " " << mpdb2.size() << " " << mpdb3.size() << std::endl;
+
+    for(size_t i = 0; i < mpdb3.size(); i++){
+      adf << oriDB.getObservation(mpdb3[i]) << std::endl;
     }
+
+    std::vector<int> kfId1, kfId2;
+    // for(size_t i = 0; i < kfdb2.size(); i++){
+    //     kfId2.emplace_back(kfdb2[i]->mnId);
+    //     // std::cout << "i : " << i << "  Id : " << kfdb2[i]->mnId << "  size : " << DB1.getKeyframeMap(kfdb2[i]).size() << std::endl;
+    //     std::cout << DB1.getKeyframeMap(kfdb1[i]).size() << " " << DB2.getKeyframeMap(kfdb2[i]).size() << std::endl;
+    // }
     // int kfN = std::stoi(argv[3]);
     int kfN = 0;
-    for(size_t i = 0; i < kfdb1.size(); i++){
+    // for(size_t i = 0; i < kfdb1.size(); i++){
 
-    kfN = i;
+    //   kfN = i;
+      
+    //   cv::Mat img1 = kfdb1[kfN]->LeftImg.clone();
+    //   cv::Mat img2 = kfdb2[kfN]->LeftImg.clone();
+    //   cv::Mat oriImg = kfdb3[kfN]->LeftImg.clone();
+
+
+    //   std::vector<ORB_SLAM2::MapPoint *> kfMapPoints1 = Compression::getKeyframeMap(kfdb1[kfN]);
+    //   std::vector<ORB_SLAM2::MapPoint *> kfMapPoints2 = Compression::getKeyframeMap(kfdb2[kfN]);
+    //   std::vector<ORB_SLAM2::MapPoint *> kfMapPoints3 = Compression::getKeyframeMap(kfdb3[kfN]);
+      
+    //   std::vector<cv::KeyPoint> adf1, adf2, oriK;
+    //   // std::cout << kfMapPoints1.size() << "    " << kfMapPoints2.size() <<  "    " << kfMapPoints3.size() << std::endl;
+      
+      
+    //   for(size_t j = 0; j < kfMapPoints1.size(); j++){
+    //       int idx = (kfMapPoints1[j])->GetIndexInKeyFrame(kfdb1[kfN]);
+    //       adf1.push_back(kfdb1[kfN]->mvKeys[idx]);
+    //   }
+
+    //   for(size_t j = 0; j < kfMapPoints2.size(); j++){
+    //       int idx = (kfMapPoints2[j])->GetIndexInKeyFrame(kfdb2[kfN]);
+    //       adf2.push_back(kfdb2[kfN]->mvKeys[idx]);
+    //   }
+
+    //   for(size_t j = 0; j < kfMapPoints3.size(); j++){
+    //       int idx = (kfMapPoints3[j])->GetIndexInKeyFrame(kfdb3[kfN]);
+    //       oriK.push_back(kfdb3[kfN]->mvKeys[idx]);
+    //   }
+
+    //   cv::Mat outImg1, outImg2, outOriImg;
+    //   cv::drawKeypoints(img1, adf1, outImg1);
+    //   cv::drawKeypoints(img2, adf2, outImg2);
+    //   cv::drawKeypoints(oriImg, oriK, outOriImg);
+    //   cv::imshow("ILP", outImg1);
+    //   cv::imshow("IQP", outImg2);
+    //   cv::imshow("original", outOriImg);
+    //   cv::waitKey();
+    // }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // for (int i = 0; i < 20; i++){
+      
+    //   std::vector<cv::KeyPoint> asdf;
+    //   std::vector<ORB_SLAM2::MapPoint *> kfMapPoints3 = Compression::getKeyframeMap(kfdb3[0]);
+    //   for (size_t j = 0; j < kfMapPoints3.size(); j++){
+        
+    //     int cnt = oriDB.getObservation(kfMapPoints3[j]);
+    //     if (cnt > i){
+    //       int idx = (kfMapPoints3[j])->GetIndexInKeyFrame(kfdb3[0]);
+    //       asdf.push_back(kfdb3[0]->mvKeys[idx]);
+    //     }
+    //   }
+    //   cv::Mat inpptImg = kfdb3[0]->LeftImg.clone();
+    //   cv::Mat outimmg;
+    //   cv::drawKeypoints(inpptImg, asdf, outimmg);
+    //   cv::imshow("obsNum", outimmg);
+    //   cv::waitKey();
+    // }
     
-    cv::Mat img1 = kfdb1[kfN]->LeftImg.clone();
-    cv::Mat img2 = kfdb2[kfN]->LeftImg.clone();
-    cv::Mat oriImg = kfdb3[kfN]->LeftImg.clone();
-
-
-    std::vector<ORB_SLAM2::MapPoint *> kfMapPoints1 = Compression::getKeyframeMap(kfdb1[kfN]);
-    std::vector<ORB_SLAM2::MapPoint *> kfMapPoints2 = Compression::getKeyframeMap(kfdb2[kfN]);
-    std::vector<ORB_SLAM2::MapPoint *> kfMapPoints3 = Compression::getKeyframeMap(kfdb3[kfN]);
-    
-    std::vector<cv::KeyPoint> adf1, adf2, oriK;
-    std::cout << kfMapPoints1.size() << "    " << kfMapPoints2.size() <<  "    " << kfMapPoints3.size() << std::endl;
-    
-    
-    for(size_t i = 0; i < kfMapPoints1.size(); i++){
-        int idx = (kfMapPoints1[i])->GetIndexInKeyFrame(kfdb1[kfN]);
-        adf1.push_back(kfdb1[kfN]->mvKeys[idx]);
-    }
-
-    for(size_t i = 0; i < kfMapPoints2.size(); i++){
-        int idx = (kfMapPoints2[i])->GetIndexInKeyFrame(kfdb2[kfN]);
-        adf2.push_back(kfdb2[kfN]->mvKeys[idx]);
-    }
-
-    for(size_t i = 0; i < kfMapPoints3.size(); i++){
-        int idx = (kfMapPoints3[i])->GetIndexInKeyFrame(kfdb3[kfN]);
-        oriK.push_back(kfdb3[kfN]->mvKeys[idx]);
-    }
-
-    cv::Mat outImg1, outImg2, outOriImg;
-    cv::drawKeypoints(img1, adf1, outImg1);
-    cv::drawKeypoints(img2, adf2, outImg2);
-    cv::drawKeypoints(oriImg, oriK, outOriImg);
-    cv::imshow("ILP", outImg1);
-    cv::imshow("IQP", outImg2);
-    cv::imshow("original", outOriImg);
-    cv::waitKey();
-    }
     // for(size_t i = 0; i < kfdb2.size(); i++){
     //     kfId2.emplace_back(kfdb2[i]->mnId);
     //     // std::cout << kfdb2[i]->mnId << "  " << DB.getKeyframeMap(kfdb2[i]).size() << std::endl;
