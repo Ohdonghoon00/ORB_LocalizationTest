@@ -37,13 +37,8 @@ cd ../
 # ./mpIQP.sh
 # ./kfSimilarity.sh vps
 
-./mpIQP2.sh
-./mpIQP2.sh
-./mpIQP2.sh
-./mpIQP2.sh
-./mpRun2.sh comp
-./mpIQP2.sh
-./mpRun2.sh comp
+./kfSimilarity.sh vps
+./kfSimilarity2.sh vps
 # ./mpIQP2.sh
 # ./mpIQP2.sh
 # ./mpIQP2.sh

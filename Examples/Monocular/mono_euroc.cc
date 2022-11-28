@@ -117,7 +117,7 @@ int main(int argc, char **argv)
     cv::Mat im;
     std::vector<double> TransErr, RotErr;
     std::ofstream frameResult;
-    frameResult.open("result/220914/VPSResult_0.5_5.0/trash/VPS_Result"+finalStr+"Query"+finalStr_+".txt", std::ios::out);
+    frameResult.open("result/221007/VPSResult_0.5_5.0/trash/VPS_Result"+finalStr+"Query"+finalStr_+".txt", std::ios::out);
     
     // std::ofstream queryTimeStampResult;
     // queryTimeStampResult.open("/home/ohdonghoon/ORB_LocalizationTest/result/imageEtc/MH03_MH02_timeStamp.txt");
@@ -135,15 +135,15 @@ int main(int argc, char **argv)
             return 1;
         }
 
+
+        // Pass the image to the SLAM system
+        std::cout << " @@@@@@@@@@@@@@@@@@@@@@ current query image Num :    " << ni << "  @@@@@@@@@@@@@@@@@@@@@@ " << std::endl; 
+        if(ni == 0) sleep(3); // wait 3 sec
 #ifdef COMPILEDWITHC11
         std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
 #else
         std::chrono::monotonic_clock::time_point t1 = std::chrono::monotonic_clock::now();
 #endif
-
-        // Pass the image to the SLAM system
-        std::cout << " @@@@@@@@@@@@@@@@@@@@@@ current query image Num :    " << ni << "  @@@@@@@@@@@@@@@@@@@@@@ " << std::endl; 
-        if(ni == 0) sleep(3); // wait 3 sec
         
         cv::Mat abc = SLAM.TrackMonocular(im,tframe);
         
@@ -179,8 +179,8 @@ int main(int argc, char **argv)
         // cv::imwrite(imgName, im);
         successFrameNum++;
         
-        std::cout << "TransError : " << err[0] << std::endl;
-        std::cout << "RotError : " << ORB_SLAM2::Converter::Rad2Degree(err[1]) << std::endl;
+        // std::cout << "TransError : " << err[0] << std::endl;
+        // std::cout << "RotError : " << ORB_SLAM2::Converter::Rad2Degree(err[1]) << std::endl;
         
 #ifdef COMPILEDWITHC11
         std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
@@ -208,7 +208,7 @@ int main(int argc, char **argv)
         TransErr.emplace_back(err[0]);
         RotErr.emplace_back(ORB_SLAM2::Converter::Rad2Degree(err[1]));
 
-        frameResult << err[0] << " " << ORB_SLAM2::Converter::Rad2Degree(err[1]) << std::endl; 
+        frameResult << err[0] << " " << ORB_SLAM2::Converter::Rad2Degree(err[1]) << " " << vTimesTrack[ni] << std::endl; 
 
     }
 
@@ -250,7 +250,7 @@ int main(int argc, char **argv)
 
     
     std::ofstream fout;
-    fout.open("result/220914/VPSResult_0.5_5.0/VPS_Result"+finalStr+"Query"+finalStr_+".txt", std::ios::app);
+    fout.open("result/221007/VPSResult_0.5_5.0/VPS_Result"+finalStr+"Query"+finalStr_+".txt", std::ios::app);
     fout << totalTransErr/(nImages - failFrameNum) << " " << totalRotErr/(nImages - failFrameNum) << " " << (double)(nImages - failFrameNum)/(double)nImages << " " << stdTrans << " " << stdRot << " " << totaltime/nImages << std::endl;
     fout.close();
     frameResult.close();

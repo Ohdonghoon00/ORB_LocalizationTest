@@ -268,10 +268,10 @@ fi
 # ./Examples/Monocular/mono_euroc \
 #     ./Vocabulary/ORBvoc.txt \
 #     ./Examples/Monocular/EuRoC.yaml \
-#     /home/ohdonghoon/NewEuroC/MH03/RectCam0_for_EsPose \
-#     /home/ohdonghoon/NewEuroC/MH03/MH03_timeStamp.txt \
-#     /home/ohdonghoon/NewEuroC/MH01/MH01db_MH03cam0Pose.txt \
-#     /home/ohdonghoon/NewEuroC/MH03/MH03_ba.bin
+#     /home/ohdonghoon/NewEuroC/MH02/RectCam0_for_EsPose \
+#     /home/ohdonghoon/NewEuroC/MH02/MH02_timeStamp.txt \
+#     /home/ohdonghoon/NewEuroC/MH01/MH01db_MH02cam0Pose.txt \
+#     /home/ohdonghoon/NewEuroC/MH01/MH01_ba.bin
 
 # Landmark Compression
 # ./Compression/compression build/MH01_ba.bin 0.9 build/MH01_Landmark_compression_test_90.bin 1. 1. 1. 1.
