@@ -213,8 +213,10 @@ if __name__ == '__main__':
     # plt.plot('prunedKeyframeFraction', 'reprojectionErrAvg', data = data_dict_landmark, label = 'reprojectionErrAvg')
 
 # label x, y
+    title_font = {'fontsize':12}
     plt.xlabel('Removed Memory(MB)')
     plt.ylabel('Recall')
+    plt.title('Map : Machine Hall 03 (Query : Machine Hall 02)', title_font)
     # plt.ylabel('Translation Error(m)')
     # plt.ylim(0, None)
     
